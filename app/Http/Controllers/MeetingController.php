@@ -14,6 +14,19 @@ use Google_Service_Calendar_CreateConferenceRequest;
 
 class MeetingController extends Controller
 {
+    public function authenticate()
+    {
+    $client = new Google_Client();
+    $client->setClientId(config('services.google.client_id'));
+    $client->setClientSecret(config('services.google.client_secret'));
+    $client->setRedirectUri(config('services.google.redirect'));
+    $client->addScope(Google_Service_Calendar::CALENDAR);
+
+    $authUrl = $client->createAuthUrl();
+
+    return response()->json(['auth_url' => $authUrl]);
+    }
+
     public function create(Request $request)
     {
         $client = new Google_Client();
