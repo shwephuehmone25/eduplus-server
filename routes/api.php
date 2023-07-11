@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\MeetingController;
 use App\Http\Controllers\GoogleAuthController;
 
@@ -24,3 +25,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::get('auth/google', [GoogleAuthController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
 Route::post('/meeting/create', [MeetingController::class,'create']);
+
+Route::prefix('api')->group(function () {
+    Route::post('register', [AuthController::class, 'create'])->name('api.register');
+    Route::post('verify', [AuthController::class, 'verify'])->name('api.verify');
+});
