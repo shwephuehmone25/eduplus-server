@@ -21,6 +21,7 @@ class AuthController extends Controller
         $data = $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'phone_number' => ['required', 'numeric', 'unique:users'],
+            'dob' => ['date_format:d-m-Y','before:today','nullable'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
 
@@ -32,15 +33,17 @@ class AuthController extends Controller
 
         try {
             $verification = $twilio->verify->v2->services($twilio_verify_sid)
-                ->verifications
-                ->create($data['phone_number'], "sms");
-        } catch (Exception $e) {
-            return response()->json(['error' => 'Failed to send verification code.'], 500);
+                ->verificationChecks
+                ->create(['code' => $data['verification_code'], 'to' => $data['phone_number']]);
+        } catch (\Exception $e) {
+
+            return response()->json(['error' => 'Failed to verify the code.'], 500);
         }
 
         User::create([
             'name' => $data['name'],
             'phone_number' => $data['phone_number'],
+            'dob' => $data['dob'],
             'password' => Hash::make($data['password']),
         ]);
 
@@ -72,6 +75,7 @@ class AuthController extends Controller
                 ->verificationChecks
                 ->create(['code' => $data['verification_code'], 'to' => $data['phone_number']]);
         } catch (\Exception $e) {
+            
             return response()->json(['error' => 'Failed to verify the code.'], 500);
         }
 
