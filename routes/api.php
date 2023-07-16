@@ -22,10 +22,13 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::prefix('api')->group(function () {
-    Route::get('auth/google', [GoogleAuthController::class, 'redirectToGoogle']);
-    Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
-    Route::post('/meeting/create', [MeetingController::class,'create']);
-    Route::post('/user/register', [AuthController::class, 'create'])->name('api.register');
-    Route::post('/otp/verify', [AuthController::class, 'verify'])->name('api.verify');
-});
+/*Teacher Route*/
+Route::get('auth/google', [GoogleAuthController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
+Route::post('/meeting/create', [MeetingController::class,'create']);
+
+/*User Route*/
+Route::post('/phone/register', [AuthController::class, 'getStart'])->name('phone.register');
+Route::post('/otp/verify', [AuthController::class, 'verify'])->name('otp.verify');
+Route::post('/user/create', [AuthController::class, 'createUser'])->name('user.create');
+
