@@ -117,7 +117,7 @@ class AuthController extends Controller
             'dob' => 'required|date_format:Y-m-d',
             'phone_number' => 'nullable|string|max:255',
             'password' => 'required|string|min:8',
-            'gender' => 'required',
+            'gender' => 'required|in:male,female,other',
             'region' => 'required'
         ]);
 
@@ -131,7 +131,6 @@ class AuthController extends Controller
             'gender' => $data['gender'],
             'region' => $data['region']
         ]);
-
         $response = [
             'user' => $user,
             'gender_options' => User::getGenderOptions(),

@@ -22,8 +22,8 @@ return new class extends Migration
             $table->boolean('isVerified')->default(false);
             $table->date('dob');
             $table->string('password');
-            $table->string('gender');
-            $table->string('region');
+            $table->enum('gender', ['male', 'female', 'other']);
+            $table->enum('region', ['Kachin State', 'Kayah State', 'Karen State', 'Chin State', 'Mon State', 'Rakhine State', 'Shan State', 'Ayeyarwady Division', 'Bago Division', 'Magway Division', 'Mandalay Division', 'Yangon Division', 'Thanintharyi Division', 'Sagaing Division']);
             $table->rememberToken();
             $table->timestamps();
         });
