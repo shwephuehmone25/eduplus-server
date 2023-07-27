@@ -22,6 +22,8 @@ return new class extends Migration
             $table->boolean('isVerified')->default(false);
             $table->date('dob');
             $table->string('password');
+            $table->string('gender');
+            $table->string('region');
             $table->rememberToken();
             $table->timestamps();
         });

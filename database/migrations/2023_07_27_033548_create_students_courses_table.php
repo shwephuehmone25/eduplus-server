@@ -13,9 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('states_regions', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
+        Schema::create('students_courses', function (Blueprint $table) {
+            $table->foreignId('user_id')->constrained();
+            $table->foreignId('course_id')->constrained();
             $table->timestamps();
         });
     }
@@ -27,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('states_regions');
+        Schema::dropIfExists('students_courses');
     }
 };

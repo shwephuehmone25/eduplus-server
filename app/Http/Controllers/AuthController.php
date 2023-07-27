@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
@@ -115,22 +116,31 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'dob' => 'required|date_format:Y-m-d',
             'phone_number' => 'nullable|string|max:255',
-            'password' => 'required|string|min:8|confirmed',
+            'password' => 'required|string|min:8',
+            'gender' => 'required',
+            'region' => 'required'
         ]);
 
         $user = Auth::user();
 
         $user = User::create([
-            'name' => $data->name,
-            'email' => $data->email,
-            'password' => Hash::make($data->password),
+            'name' => $data['name'],
+            'password' => Hash::make($data['password']),
+            'phone_number' => $data['phone_number'],
+            'dob' => $data['dob'],
+            'gender' => $data['gender'],
+            'region' => $data['region']
         ]);
+
+        $response = [
+            'user' => $user,
+            'gender_options' => User::getGenderOptions(),
+            'region_values' => User::getRegionValues()
+        ];
 
         event(new Registered($user));
 
-        Auth::login($user);
-
-        return response()->noContent();
+        return response()->json($response, 201);
     }
 
     /**

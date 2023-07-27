@@ -46,4 +46,31 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public static function getGenderOptions(){
+        return [
+            'male' => 'Male',
+            'female' => 'Female',
+            'other' => 'Other'
+        ];
+    }
+
+    public static function getRegionValues(){
+        return [
+            'kachin state' => 'Kachin State',
+            'kayin state' => 'Kayin State',
+            'kayah state' => 'Kayah State',
+            'chin state' => 'Chin State',
+            'mon state' => 'Mon State',
+            'rakhine state' => 'Rakhine State',
+            'shan state' => 'Shan State',
+            'ayeyarwady division' => 'Ayeyarwady Division',
+            'mandalay division' => 'Mandalay Division',
+            'bago division' => 'Bago Division',
+            'magway division' => 'Magway Division',
+            'sagaing division' => 'Sagaing Division',
+            'thanintharyi division' => 'Thanintharyi Division',
+            'yangon division' => 'Yangon Division'
+        ];
+    }
 }

@@ -21,11 +21,12 @@ class LoginController extends Controller
     {
         // Validate the incoming login request
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'email' => 'required|email|ends_with:@ilbcedu.com',
             'password' => 'required',
         ]);
 
         if ($validator->fails()) {
+            
             return response()->json(['error' => 'Invalid login credentials'], 422);
         }
 

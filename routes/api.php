@@ -3,9 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\MeetingController;
+use App\Http\Controllers\Teacher\MeetingController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\GoogleAuthController;
+use App\Http\Controllers\Teacher\GoogleAuthController;
 
 /*
 |--------------------------------------------------------------------------
