@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class isAdmin
+class IsTeacher
 {
     /**
      * Handle an incoming request.
@@ -16,7 +16,7 @@ class isAdmin
      */
     public function handle(Request $request, Closure $next)
     {
-        if (auth()->check() && auth()->user()->isAdmin()) {
+        if (auth()->check() && auth()->user()->IsTeacher()) {
 
             return $next($request);
         }

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class TeacherController extends Controller
 {
@@ -81,5 +82,15 @@ class TeacherController extends Controller
         $teacher->delete();
 
         return response()->json(['message' => 'Teacher deleted successfully'], 200);
+    }
+
+    public function getAssignCourses(){
+        $assignCourses = DB::table('teacher_courses')
+            ->select('teacher_courses.*', 'teachers.name as teacher_name', 'courses.*')
+            ->join('teachers', 'teachers.id', '=', 'teacher_courses.teacher_id')
+            ->join('courses', 'courses.id', '=', 'teacher_courses.course_id')
+            ->get();   
+
+        return response()->json(['assignCourses' => $assignCourses]);
     }
 }

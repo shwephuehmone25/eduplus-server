@@ -14,6 +14,7 @@ use App\Http\Controllers\Teacher\MeetingController;
 use App\Http\Controllers\Admin\SubcategoryController;
 use App\Http\Controllers\Teacher\GoogleAuthController;
 use App\Http\Controllers\Teacher\TeacherCourseController;
+use App\Http\Middleware\IsAdmin;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,63 +31,66 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-/*Teacher Routes*/
-Route::get('auth/google', [GoogleAuthController::class, 'redirectToGoogle']);
-Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
-Route::post('/meeting/create', [MeetingController::class,'create']);
+Route::middleware(['auth:sanctum'])->group(function () {
+    /*Teacher Routes*/
+    Route::get('auth/google', [GoogleAuthController::class, 'redirectToGoogle']);
+    Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
+    Route::post('/meeting/create', [MeetingController::class,'create']);
+    });
 
 /*User Routes*/
 Route::post('/phone/register', [AuthController::class, 'getStart']);
 Route::post('/otp/verify', [AuthController::class, 'verify']);
 Route::post('/user/create', [AuthController::class, 'createUser']);
 
+
 /**Admin Routes*/
-Route::post('admin/register', [AuthController::class, 'registerAsAdmin']);
-Route::post('admin/login', [LoginController::class, 'loginAsAdmin']);
+// Route::middleware([IsAdmin::class])->group(function() {
+    Route::post('admin/register', [AuthController::class, 'registerAsAdmin']);
+    Route::post('admin/login', [LoginController::class, 'loginAsAdmin']);
 
-/**Course Routes */
-Route::get('/courses', [CourseController::class, 'index']);
-Route::post('/courses', [CourseController::class, 'store']);
-Route::put('/courses/{id}', [CourseController::class, 'update']);
-Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
+    /**Course Routes */
+    Route::get('/courses', [CourseController::class, 'index']);
+    Route::post('/courses', [CourseController::class, 'store']);
+    Route::put('/courses/{id}', [CourseController::class, 'update']);
+    Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
+    Route::post('/courses/assign-courses', [CourseController::class, 'assignCourseToTeacher']);
 
-/**Category Routes */
-Route::get('/categories', [CategoryController::class, 'index']);
-Route::post('/categories', [CategoryController::class, 'store']);
-Route::put('/categories/{id}', [CategoryController::class, 'update']);
-Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+    /**Category Routes */
+    Route::get('/categories', [CategoryController::class, 'index']);
+    Route::post('/categories', [CategoryController::class, 'store']);
+    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
-/**Subategory routes*/
-Route::get('/subcategories', [SubcategoryController::class,'index']);
-Route::post('/subcategories', [SubcategoryController::class,'store']);
-Route::put('/subcategories/{id}', [SubcategoryController::class,'update']);
-Route::delete('/subcategories/{id}', [SubcategoryController::class,'destroy']);
-Route::get('/get-subcategories', [SubcategoryController::class, 'getSubcategoriesByCategory']);
+    /**Subategory routes*/
+    Route::get('/subcategories', [SubcategoryController::class,'index']);
+    Route::post('/subcategories', [SubcategoryController::class,'store']);
+    Route::put('/subcategories/{id}', [SubcategoryController::class,'update']);
+    Route::delete('/subcategories/{id}', [SubcategoryController::class,'destroy']);
+    Route::get('/get-subcategories', [SubcategoryController::class, 'getSubcategoriesByCategory']);
 
-/**Class routes */
-Route::get('/classes', [ClassController::class, 'index']);
-Route::post('/classes', [ClassController::class, 'store']);
-Route::put('/classes/{class}', [ClassController::class, 'update']);
-Route::delete('/classes/{class}', [ClassController::class, 'destroy']);
+    /**Class routes */
+    Route::get('/classes', [ClassController::class, 'index']);
+    Route::post('/classes', [ClassController::class, 'store']);
+    Route::put('/classes/{class}', [ClassController::class, 'update']);
+    Route::delete('/classes/{class}', [ClassController::class, 'destroy']);
 
-/**Level Routes */
-Route::get('/levels', [LevelController::class, 'index']);
-Route::post('/levels', [LevelController::class, 'store']);
-Route::put('/levels/{level}', [LevelController::class, 'update']);
-Route::delete('/levels/{level}', [LevelController::class, 'destroy']);
+    /**Level Routes */
+    Route::get('/levels', [LevelController::class, 'index']);
+    Route::post('/levels', [LevelController::class, 'store']);
+    Route::put('/levels/{level}', [LevelController::class, 'update']);
+    Route::delete('/levels/{level}', [LevelController::class, 'destroy']);
 
-/**Section routes */
-Route::get('/sections', [SectionController::class, 'index']);
-Route::post('/sections', [SectionController::class, 'store']);
-Route::put('/sections/{section}', [SectionController::class, 'update']);
-Route::delete('/sections/{section}', [SectionController::class, 'destroy']);
+    /**Section routes */
+    Route::get('/sections', [SectionController::class, 'index']);
+    Route::post('/sections', [SectionController::class, 'store']);
+    Route::put('/sections/{section}', [SectionController::class, 'update']);
+    Route::delete('/sections/{section}', [SectionController::class, 'destroy']);
 
-/**Teacher routes */
-Route::post('/teachers', [TeacherController::class, 'store']);
-Route::put('/teachers/{teacher}', [TeacherController::class, 'update']);
-Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
-Route::get('/teachers', [TeacherController::class, 'index']);
-
-/**TeacherCourse routes */
-Route::post('/teacher-courses', [TeacherCourseController::class, 'store']);
-Route::get('/teacher-courses', [TeacherCourseController::class, 'index']);
+    /**Teacher routes */
+    Route::post('/teachers', [TeacherController::class, 'store']);
+    Route::put('/teachers/{teacher}', [TeacherController::class, 'update']);
+    Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
+    Route::get('/teachers', [TeacherController::class, 'index']);
+    Route::get('/teacher/assign-courses', [TeacherController::class, 'getAssignCourses']);
+// });
