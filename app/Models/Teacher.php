@@ -25,4 +25,8 @@ class Teacher extends Model
         'google_id',
         'avatar',
     ];
+
+    public function courses(){
+        return $this->belongsToMany(Course::class, 'teacher_courses', 'course_id','teacher_id');
+    }
 }

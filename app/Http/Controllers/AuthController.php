@@ -116,7 +116,7 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'dob' => 'required|date_format:Y-m-d',
             'phone_number' => 'nullable|string|max:255',
-            'password' => 'required|string|min:8',
+            'password' => 'required|string|min:8|confirmed',
             'gender' => 'required|in:male,female,other',
             'region' => 'required'
         ]);
