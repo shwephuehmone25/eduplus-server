@@ -29,12 +29,6 @@ class TeacherController extends Controller
 
     }
 
-    // public function getAllTeachers(Request $request)
-    // {
-        
-        
-    // }
-
     /**
      * Store a newly created resource in storage.
      *
@@ -99,6 +93,11 @@ class TeacherController extends Controller
         return response()->json(['message' => 'Teacher deleted successfully'], 200);
     }
 
+    /**
+     * Get the assigned courses for teachers.
+     *
+     * @return \Illuminate\Http\Response
+     */
     public function getAssignCourses(){
         $assignCourses = DB::table('teacher_courses')
             ->select('teacher_courses.*', 'teachers.name as teacher_name', 'courses.*')
@@ -108,4 +107,13 @@ class TeacherController extends Controller
 
         return response()->json(['assignCourses' => $assignCourses]);
     }
+
+// public function getAssignCourses()
+// {
+//     $assignCourses = Teacher::with('courses')
+//         ->select('teachers.*', 'courses.*')
+//         ->get();
+
+//     return response()->json(['assignCourses' => $assignCourses]);
+// }
 }

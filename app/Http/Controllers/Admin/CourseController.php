@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
 use App\Models\Course;
 use App\Models\Teacher;
-use App\Models\TeacherCourse;
 use Illuminate\Http\Request;
+use App\Models\TeacherCourse;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class CourseController extends Controller
 {
@@ -17,9 +18,17 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers','subcategories')
-            ->orderBy('id', 'desc')
-            ->paginate(10);
+        $courses = Course::with([
+            'categories:id,name', 
+            'levels:id,name', 
+            'classrooms:id,name', 
+            'sections:id,name', 
+            'teachers:id,name', 
+            'subcategories:id,name'
+        ])
+        ->select(['id', 'course_name', 'description', 'price', 'period', 'announce_date','created_at'])
+        ->orderByDesc('id')
+        ->paginate(10);
 
         return response()->json(['courses' => $courses]);
     }
@@ -32,22 +41,31 @@ class CourseController extends Controller
      */
     public function store(Request $request)
     {
-        $course = Course::create([
-            'course_name' => $request->input('course_name'),
-            'description' => $request->input('description'),
-            'price' => $request->input('price'),
-            'period' => $request->input('period'),
-            'announce_date' => $request->input('announce_date')
-        ]);
-
-        $course->categories()->attach($request->input('category_id'));
-        $course->subcategories()->attach($request->input('subcategory_id'));
-        $course->levels()->attach($request->input('level_id'));
-        $course->classrooms()->attach($request->input('classroom_id'));
-        $course->sections()->attach($request->input('section_id'));
-        $course->teachers()->attach($request->input('teacher_id'));
-
-        return response()->json(['message' => 'Course created successfully', 'course' => $course], 201);
+        try {
+            DB::beginTransaction();
+    
+            $course = Course::create([
+                'course_name' => $request->input('course_name'),
+                'description' => $request->input('description'),
+                'price' => $request->input('price'),
+                'period' => $request->input('period'),
+                'announce_date' => $request->input('announce_date')
+            ]);
+    
+            $course->categories()->attach($request->input('category_id'));
+            $course->levels()->attach($request->input('level_id'));
+            $course->classrooms()->attach($request->input('classroom_id'));
+            $course->sections()->attach($request->input('section_id'));
+            $course->teachers()->attach($request->input('teacher_id'));
+    
+            DB::commit();
+    
+            return response()->json(['message' => 'Course created successfully', 'course' => $course], 201);
+        } catch (\Exception $e) {
+            DB::rollback();
+            
+            return response()->json(['message' => 'Failed to create the course'], 500);
+        }
     }
 
     /**
@@ -59,23 +77,42 @@ class CourseController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $course = Course::findOrFail($id);
-        $course->update([
-            'course_name' => $request->input('course_name'),
-            'description' => $request->input('description'),
-            'price' => $request->input('price'),
-            'period' => $request->input('period'),
-            'announce_date' => $request->input('announce_date'),
-        ]);
-
-        $course->categories()->sync($request->input('category_id'));
-        $course->subcategories()->sync($request->input('subcategory_id'));
-        $course->levels()->sync($request->input('level_id'));
-        $course->classrooms()->sync($request->input('classroom_id'));
-        $course->sections()->sync($request->input('section_id'));
-        $course->teachers()->sync($request->input('teachers_id'));
-
-        return response()->json(['message' => 'Course updated successfully', 'course' => $course], 200);
+        try {
+            DB::beginTransaction();
+    
+            $course = Course::findOrFail($id);
+            $course->update([
+                'course_name' => $request->input('course_name'),
+                'description' => $request->input('description'),
+                'price' => $request->input('price'),
+                'period' => $request->input('period'),
+                'announce_date' => $request->input('announce_date'),
+            ]);
+    
+            $relatedData = [
+                'categories' => $request->input('category_id'),
+                'levels' => $request->input('level_id'),
+                'classrooms' => $request->input('classroom_id'),
+                'sections' => $request->input('section_id'),
+                'teachers' => $request->input('teacher_id'),
+            ];
+    
+            foreach ($relatedData as $relation => $ids) {
+                if (!empty($ids)) {
+                    $course->{$relation}()->sync($ids);
+                } else {
+                    $course->{$relation}()->detach();
+                }
+            }
+    
+            DB::commit();
+    
+            return response()->json(['message' => 'Course updated successfully', 'course' => $course], 200);
+        } catch (\Exception $e) {
+            DB::rollback();
+            
+            return response()->json(['message' => 'Failed to update the course'], 500);
+        }
     }
 
     /**
@@ -91,5 +128,4 @@ class CourseController extends Controller
 
         return response()->json(['message' => 'Course deleted successfully'], 200);
     }
-
 }
