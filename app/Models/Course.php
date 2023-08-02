@@ -6,8 +6,10 @@ use App\Models\User;
 use App\Models\Level;
 use App\Models\Teacher;
 use App\Models\Category;
+use App\Models\Subcategory;
 use App\Models\Classroom;
 use App\Models\Enrollment;
+use App\Models\Meeting;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -58,5 +60,16 @@ class Course extends Model
     {
 
         return $this->belongsToMany(Teacher::class,'teacher_courses', 'course_id','teacher_id');
+    }
+
+    public function subcategories()
+    {
+
+        return $this->belongsToMany(Subcategory::class, 'courses_subcategories', 'course_id', 'subcategory_id');
+    }
+
+    public function meeting()
+    {
+        return $this->hasOne(Meeting::class);
     }
 }

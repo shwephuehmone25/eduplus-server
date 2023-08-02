@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Teacher;
 
 use Google_Client;
 use Google_Service_Calendar;
@@ -11,6 +11,7 @@ use Google_Service_Calendar_Event;
 use Google_Service_Calendar_ConferenceSolutionKey;
 use Google_Service_Calendar_ConferenceData;
 use Google_Service_Calendar_CreateConferenceRequest;
+use Illuminate\Support\Facades\DB;
 
 class MeetingController extends Controller
 {
@@ -27,7 +28,7 @@ class MeetingController extends Controller
     return response()->json(['auth_url' => $authUrl]);
     }
 
-    public function create(Request $request)
+    public function create(Request $request, $course_id)
     {
         $client = new Google_Client();
         $client->setAuthConfig('client_secrets.json');
@@ -74,6 +75,16 @@ class MeetingController extends Controller
         );
 
         $meetLink = $event->getHangoutLink();
+
+        $assignCourse = DB::table('teacher_courses')->where('course_id', $course_id)->first();
+
+        // Store the meeting details in the database
+        $meeting = new Meeting();
+        $meeting->start_time = $request->input('start_time'); 
+        $meeting->end_time = $request->input('end_time'); 
+        $meeting->course_id = $assignCourse->course_id; 
+        $meeting->meet_link = $meetLink;
+        $meeting->save();
 
         return response()->json(['meetLink' => $meetLink], 200);
     }

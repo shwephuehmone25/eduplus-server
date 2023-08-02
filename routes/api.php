@@ -13,7 +13,6 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Teacher\MeetingController;
 use App\Http\Controllers\Admin\SubcategoryController;
 use App\Http\Controllers\Teacher\GoogleAuthController;
-use App\Http\Controllers\Teacher\TeacherCourseController;
 use App\Http\Middleware\IsAdmin;
 
 /*
@@ -54,7 +53,6 @@ Route::post('/user/create', [AuthController::class, 'createUser']);
     Route::post('/courses', [CourseController::class, 'store']);
     Route::put('/courses/{id}', [CourseController::class, 'update']);
     Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
-    Route::post('/courses/assign-courses', [CourseController::class, 'assignCourseToTeacher']);
 
     /**Category Routes */
     Route::get('/categories', [CategoryController::class, 'index']);
@@ -91,6 +89,6 @@ Route::post('/user/create', [AuthController::class, 'createUser']);
     Route::post('/teachers', [TeacherController::class, 'store']);
     Route::put('/teachers/{teacher}', [TeacherController::class, 'update']);
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
-    Route::get('/teachers', [TeacherController::class, 'index']);
+    Route::get('/teachers', [TeacherController::class, 'getAllTeachers']);
     Route::get('/teacher/assign-courses', [TeacherController::class, 'getAssignCourses']);
 // });

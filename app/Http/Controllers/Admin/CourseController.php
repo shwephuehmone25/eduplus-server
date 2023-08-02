@@ -92,17 +92,4 @@ class CourseController extends Controller
         return response()->json(['message' => 'Course deleted successfully'], 200);
     }
 
-    public function assignCourseToTeacher(Request $request){
-        $data = $request->validate([
-            'course_id' => 'required',
-            'teacher_id' =>'required'
-        ]);
-
-        $teacherCourse = new TeacherCourse();
-        $teacherCourse->course_id = $data['course_id'];
-        $teacherCourse->teacher_id = $data['teacher_id'];
-        $teacherCourse->save();
-
-        return response()->json(['message', 'Course assigned to teacher successfully!', 'teacher_course' => $teacherCourse], 201);
-    }
 }

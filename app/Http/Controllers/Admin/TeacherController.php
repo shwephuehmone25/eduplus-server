@@ -14,11 +14,26 @@ class TeacherController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function getAllTeachers(Request $request)
     {
-        $teachers = Teacher::all();
+        $teachers = [];
+
+        if($request->has('q')){
+            $search = $request->q;
+            $teachers =Teacher::select("id", "name")
+            		->where('name', 'LIKE', "%$search%")
+            		->get();
+        }
+        
         return response()->json(['teachers' => $teachers]);
+
     }
+
+    // public function getAllTeachers(Request $request)
+    // {
+        
+        
+    // }
 
     /**
      * Store a newly created resource in storage.
