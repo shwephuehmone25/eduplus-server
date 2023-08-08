@@ -6,7 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
 
-class GoogleAuthController extends Controller
+class GoogleController extends Controller
 {
     public function redirectToGoogle()
     {

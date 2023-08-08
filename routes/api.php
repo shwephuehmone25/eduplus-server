@@ -1,19 +1,20 @@
 <?php
 
 use Illuminate\Http\Request;
+use App\Http\Middleware\IsAdmin;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\ClassController;
 use App\Http\Controllers\Admin\LevelController;
+use App\Http\Controllers\Admin\VideoController;
 use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Teacher\MeetingController;
 use App\Http\Controllers\Admin\SubcategoryController;
-use App\Http\Controllers\Teacher\GoogleAuthController;
-use App\Http\Middleware\IsAdmin;
+// use App\Http\Controllers\Teacher\GoogleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -32,8 +33,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware(['auth:sanctum'])->group(function () {
     /*Teacher Routes*/
-    Route::get('auth/google', [GoogleAuthController::class, 'redirectToGoogle']);
-    Route::get('/auth/google/callback', [GoogleAuthController::class, 'handleGoogleCallback']);
+    // Route::get('auth/google', [GoogleController::class, 'redirectToGoogle']);
+    // Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
     Route::post('/meeting/create', [MeetingController::class,'create']);
     });
 
@@ -53,6 +54,10 @@ Route::post('/user/create', [AuthController::class, 'createUser']);
     Route::post('/courses', [CourseController::class, 'store']);
     Route::put('/courses/{id}', [CourseController::class, 'update']);
     Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
+
+    /**Video Routes */
+    Route::get('/videos', [ VideoController::class, 'index']);
+    Route::post('/video/create', [ VideoController::class, 'store']);
 
     /**Category Routes */
     Route::get('/categories', [CategoryController::class, 'index']);

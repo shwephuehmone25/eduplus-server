@@ -40,7 +40,9 @@ class SubcategoryController extends Controller
 
         $subcategory->categories()->attach($request->input('category_id'));
 
-        return response()->json(['message' => 'Subcategory created successfully'], 201);
+        return response()->json([
+            'data' => $subcategory,
+            'message' => 'Subcategory created successfully'], 201);
     }
 
     /**
@@ -65,7 +67,10 @@ class SubcategoryController extends Controller
 
         $subcategory->categories()->sync($request->input('category_id'));
 
-        return response()->json(['message' => 'Subcategory updated successfully']);
+        return response()->json([
+            'data' => $subcategory,
+            'message' => 'Subcategory updated successfully'
+        ]);
     }
 
     /**

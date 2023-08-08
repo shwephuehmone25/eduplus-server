@@ -32,12 +32,17 @@ class SectionController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i',
             'capacity' => 'required|integer|min:0',
         ]);
 
         $section = Section::create($data);
 
-        return response()->json(['message' => 'Section created successfully', 'section' => $section], 201);
+        return response()->json([
+            'message' => 'Section created successfully',
+            'data' => $section, 
+            'status' => 201
+            ]);
     }
 
     /**
@@ -53,12 +58,17 @@ class SectionController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
             'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i',
             'capacity' => 'required|integer|min:0',
         ]);
 
         $section->update($data);
 
-        return response()->json(['message' => 'Section updated successfully', 'section' => $section], 200);
+        return response()->json([
+            'message' => 'Section updated successfully', 
+            'data' => $section,
+            'status' => 200
+        ]);
     }
 
     /**

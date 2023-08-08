@@ -16,7 +16,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //$subcategories = Subcategory::all();
+        $subcategories = Subcategory::all();
         $categories = Category::with('subcategories');
         
         return response()->json(['categories' => $categories]);
@@ -34,7 +34,7 @@ class CategoryController extends Controller
         $category->name = $request->input('name');
         $category->save();
 
-        return response()->json(['message' => 'Category created successfully', 'category' => $category], 201);
+        return response()->json(['message' => 'Category created successfully', 'data' => $category], 201);
     }
 
     /**
@@ -50,7 +50,7 @@ class CategoryController extends Controller
         $category->name = $request->input('name');
         $category->save();
 
-        return response()->json(['message' => 'Category updated successfully', 'category' => $category], 200);
+        return response()->json(['message' => 'Category updated successfully', 'data' => $category], 200);
     }
 
     /**

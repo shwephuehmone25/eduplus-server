@@ -6,13 +6,19 @@
     "license": "MIT",
     "require": {
         "php": "^8.0",
+        "bref/bref": "^2.1",
+        "bref/laravel-bridge": "^2.1",
         "fruitcake/laravel-cors": "^2.0.5",
         "google/apiclient": "^2.15",
         "guzzlehttp/guzzle": "^7.2",
+        "james-heinrich/getid3": "^1.9",
         "laravel/framework": "^9.0",
         "laravel/sanctum": "^2.14",
         "laravel/socialite": "^5.6",
         "laravel/tinker": "^2.7",
+        "league/flysystem-aws-s3-v3": "^3.15",
+        "league/flysystem-path-prefixing": "^3.15",
+        "spatie/laravel-medialibrary": "^10.11",
         "twilio/sdk": "^7.5"
     },
     "require-dev": {

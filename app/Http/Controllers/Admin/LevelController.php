@@ -34,7 +34,11 @@ class LevelController extends Controller
 
         $level = Level::create($data);
 
-        return response()->json(['message' => 'Level created successfully', 'level' => $level], 201);
+        return response()->json([
+            'message' => 'Level created successfully',
+            'data' => $level, 
+            'status' => 201
+            ]);
     }
 
     /**
@@ -52,7 +56,7 @@ class LevelController extends Controller
 
         $level->update($data);
 
-        return response()->json(['message' => 'Level updated successfully', 'level' => $level], 200);
+        return response()->json(['message' => 'Level updated successfully', 'data' => $level, 'status' => 200]);
     }
 
     /**

@@ -1,8 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TestRegisterController;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Admin\VideoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,5 +18,7 @@ Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/register', [TestRegisterController::class, 'showRegister'])->name('show-register');
-Route::post('/save-register', [AuthController::class, 'createUser'])->name('save-register');
+Route::get('video/{id}', [VideoController::class, 'show']);
+Route::get('video/', [VideoController::class, 'VideoUpload'])->name('video.upload');
+
+Route::post('video/store', [VideoController::class, 'store'])->name('video.store');
