@@ -93,7 +93,7 @@ class RegisterController extends Controller
             'password' => Hash::make($request['password']),
         ]);
 
-        return redirect()->intended('admin');
+        return response()->json(['message' => 'Admin created successfully', 'data' => $admin], 201);
     }
 
     public function showTeacherRegisterForm()

@@ -50,7 +50,7 @@ class TeacherController extends Controller
         $teacher->google_id = $request->input('google_id');
         $teacher->save();
 
-        return response()->json(['message' => 'Teacher created successfully', 'teacher' => $teacher], 201);
+        return response()->json(['message' => 'Teacher created successfully', 'data' => $teacher], 201);
     }
 
      /**
@@ -77,7 +77,7 @@ class TeacherController extends Controller
 
         $teacher->save();
 
-        return response()->json(['message' => 'Teacher updated successfully', 'teacher' => $teacher], 200);
+        return response()->json(['message' => 'Teacher updated successfully', 'data' => $teacher], 200);
     }
 
     /**
@@ -105,7 +105,7 @@ class TeacherController extends Controller
             ->join('courses', 'courses.id', '=', 'teacher_courses.course_id')
             ->get();   
 
-        return response()->json(['assignCourses' => $assignCourses]);
+        return response()->json(['data' => $assignCourses]);
     }
 
 // public function getAssignCourses()

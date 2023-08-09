@@ -24,6 +24,7 @@ class Teacher extends Model
         'password',
         'google_id',
         'avatar',
+        'role',
     ];
 
     public function courses(){

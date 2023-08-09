@@ -48,6 +48,7 @@ Route::post('/user/create', [AuthController::class, 'createUser']);
 // Route::middleware([IsAdmin::class])->group(function() {
     Route::post('admin/register', [AuthController::class, 'registerAsAdmin']);
     Route::post('admin/login', [LoginController::class, 'loginAsAdmin']);
+    Route::post('teacher/login', [LoginController::class, 'loginAsTeacher']);
 
     /**Course Routes */
     Route::get('/courses', [CourseController::class, 'index']);

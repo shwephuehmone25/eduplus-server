@@ -38,7 +38,7 @@ class ClassController extends Controller
 
         $class = Classroom::create($data);
 
-        return response()->json(['message' => 'Class created successfully', 'class' => $class], 201);
+        return response()->json(['message' => 'Class created successfully', 'data' => $class], 201);
     }
 
     /**
@@ -60,7 +60,7 @@ class ClassController extends Controller
 
         $class->update($data);
 
-        return response()->json(['message' => 'Class updated successfully', 'class' => $class], 200);
+        return response()->json(['message' => 'Class updated successfully', 'data' => $class], 200);
     }
 
     /**

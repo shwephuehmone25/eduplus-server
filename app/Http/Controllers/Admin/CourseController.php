@@ -60,7 +60,7 @@ class CourseController extends Controller
     
             DB::commit();
     
-            return response()->json(['message' => 'Course created successfully', 'course' => $course], 201);
+            return response()->json(['message' => 'Course created successfully', 'data' => $course], 201);
         } catch (\Exception $e) {
             DB::rollback();
             
@@ -107,7 +107,7 @@ class CourseController extends Controller
     
             DB::commit();
     
-            return response()->json(['message' => 'Course updated successfully', 'course' => $course], 200);
+            return response()->json(['message' => 'Course updated successfully', 'data' => $course], 200);
         } catch (\Exception $e) {
             DB::rollback();
             
