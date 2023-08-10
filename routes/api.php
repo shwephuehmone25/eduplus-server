@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 use App\Http\Middleware\IsAdmin;
+use App\Http\Middleware\IsTeacher;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Auth\LoginController;
@@ -14,7 +15,7 @@ use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Teacher\MeetingController;
 use App\Http\Controllers\Admin\SubcategoryController;
-// use App\Http\Controllers\Teacher\GoogleController;
+use App\Http\Controllers\Teacher\AccountController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,12 +32,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(['auth:sanctum'])->group(function () {
+// Route::middleware(['IsTeacher::class'])->group(function () {
     /*Teacher Routes*/
-    // Route::get('auth/google', [GoogleController::class, 'redirectToGoogle']);
-    // Route::get('/auth/google/callback', [GoogleController::class, 'handleGoogleCallback']);
-    Route::post('/meeting/create', [MeetingController::class,'create']);
-    });
+    Route::get('auth/google', [AccountController::class, 'redirectToGoogle']);
+    Route::get('/auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
+    Route::post('/meeting/create/{course_id}', [MeetingController::class,'create']);
+    //  });
 
 /*User Routes*/
 Route::post('/phone/register', [AuthController::class, 'getStart']);
@@ -71,7 +72,7 @@ Route::post('/user/create', [AuthController::class, 'createUser']);
     Route::post('/subcategories', [SubcategoryController::class,'store']);
     Route::put('/subcategories/{id}', [SubcategoryController::class,'update']);
     Route::delete('/subcategories/{id}', [SubcategoryController::class,'destroy']);
-    Route::get('/get-subcategories', [SubcategoryController::class, 'getSubcategoriesByCategory']);
+    Route::get('/get/subcategories', [SubcategoryController::class, 'getSubcategoriesByCategory']);
 
     /**Class routes */
     Route::get('/classes', [ClassController::class, 'index']);
@@ -96,5 +97,5 @@ Route::post('/user/create', [AuthController::class, 'createUser']);
     Route::put('/teachers/{teacher}', [TeacherController::class, 'update']);
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
     Route::get('/teachers', [TeacherController::class, 'getAllTeachers']);
-    Route::get('/teacher/assign-courses', [TeacherController::class, 'getAssignCourses']);
+    Route::get('/teacher/getAssigncourses', [TeacherController::class, 'getAssignCourses']);
 // });
