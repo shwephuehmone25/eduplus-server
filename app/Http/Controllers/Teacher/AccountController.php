@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers\Teacher;
 
-use App\Models\User;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
 use Laravel\Socialite\Facades\Socialite;
+use App\Http\Controllers\Controller;
 
 class AccountController extends Controller
 {
@@ -18,26 +19,27 @@ class AccountController extends Controller
     public function handleGoogleCallback(Request $request)
     {
         try {
-            $socialiteUser = Socialite::driver('google')->stateless()->user();
+            $newTeacher = Socialite::driver('google')->stateless()->user();
         } catch (ClientException $e) {
+            
             return response()->json(['error' => 'Invalid credentials provided.'], 422);
         }
-        $user = User::query()
+        $teacher = Teacher::query()
             ->firstOrCreate(
                 [
-                    'email' => $socialiteUser->getEmail(),
+                    'email' => $newTeacher->getEmail(),
                 ],
                 [
                     'email_verified_at' => now(),
-                    'name' => $socialiteUser->getName(),
-                    'google_id' => $socialiteUser->getId(),
-                    'avatar' => $socialiteUser->getAvatar(),
+                    'name' => $newTeacher->getName(),
+                    'google_id' => $newTeacher->getId(),
+                    'avatar' => $newTeacher->getAvatar(),
                 ]
             );
 
         return response()->json([
-            'user' => $user,
-            'access_token' => $user->createToken('google-token')->plainTextToken,
+            'teacher' => $teacher,
+            'access_token' => $teacher->createToken('google-token')->plainTextToken,
             'token_type' => 'Bearer',
         ]);
     }
