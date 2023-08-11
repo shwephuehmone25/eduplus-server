@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Models\User;
 use App\Models\Admin;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
@@ -48,10 +49,10 @@ class LoginController extends Controller
             $role = $admin->role;
 
             // Return the token and role as a response
-            return response()->json(['token' => $token, 'role' => $role], 200);
+            return response()->json(['token' => $token, 'role' => $role, 'status' => 200]);
         }
 
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Unauthorized', 'status' => 401]);
     }
 
     /**
@@ -85,9 +86,50 @@ class LoginController extends Controller
             $role = $teacher->role;
 
            // Return the token and role as a response
-         return response()->json(['token' => $token, 'role' => $role], 200);
+         return response()->json(['token' => $token, 'role' => $role, 'status' => 200]);
         }
 
-        return response()->json(['error' => 'Unauthorized'], 401);
+        return response()->json(['error' => 'Unauthorized', 'status' => 401]);
+    }
+
+    /**
+     * Handle as student login request.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function loginAsStudent(Request $request)
+    {
+        // Validate the incoming login request
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email|ends_with:@ilbcedu.com',
+            'password' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            
+            return response()->json([
+                'error' => 'Invalid login credentials',
+                'status'=> 422,
+            ]);
+        }
+
+        // Attempt to authenticate the admin using the given credentials
+        $credentials = $validator->validated();
+        $user = User::where('email', $credentials['email'])->first();
+
+        if ($user && password_verify($credentials['password'], $user->password)) {
+            
+            // Generate a new API token for the authenticated user
+            $token = $user->createToken('user-token')->accessToken;
+
+            // Retrieve the role from the user model
+            $role = $user->role;
+
+           // Return the token and role as a response
+         return response()->json(['token' => $token, 'role' => $role, 'status' => 200]);
+        }
+
+        return response()->json(['error' => 'Unauthorized', 'status' => 401]);
     }
 }

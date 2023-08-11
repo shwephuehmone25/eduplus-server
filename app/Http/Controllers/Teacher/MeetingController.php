@@ -2,10 +2,10 @@
 
 namespace App\Http\Controllers\Teacher;
 
-use Google_Client;
-use Google_Service_Calendar;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Laravel\Socialite\Facades\Socialite;
+use Google_Service_Calendar;
 use Google_Service_Calendar_EventDateTime;
 use Google_Service_Calendar_Event;
 use Google_Service_Calendar_ConferenceSolutionKey;
@@ -15,27 +15,15 @@ use Illuminate\Support\Facades\DB;
 
 class MeetingController extends Controller
 {
-    public function authenticate()
-    {
-    $client = new Google_Client();
-    $client->setClientId(config('services.google.client_id'));
-    $client->setClientSecret(config('services.google.client_secret'));
-    $client->setRedirectUri(config('services.google.redirect'));
-    $client->addScope(Google_Service_Calendar::CALENDAR);
-
-    $authUrl = $client->createAuthUrl();
-
-    return response()->json(['auth_url' => $authUrl]);
-    }
-
     public function create(Request $request, $course_id)
     {
-        $client = new Google_Client();
-        $client->setAuthConfig('client_secrets.json');
-        $client->addScope(Google_Service_Calendar::CALENDAR_EVENTS);
+        $user = Socialite::driver('google')->userFromToken($request->header('Authorization'));
 
-        $accessToken = $request->header('Authorization');
-        $client->setAccessToken($accessToken);
+        $client = new Google_Client();
+        $client->setAccessToken($user->token);
+        $client->addScope(Google_Service_Calendar::CALENDAR_EVENTS);
+        $client->setAccessType('offline');
+        $client->setApprovalPrompt('force');
 
         if ($client->isAccessTokenExpired()) {
             $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
@@ -45,8 +33,8 @@ class MeetingController extends Controller
         $service = new Google_Service_Calendar($client);
 
         $event = new Google_Service_Calendar_Event();
-        $startDateTime = new EventDateTime();
-        $endDateTime = new EventDateTime();
+        $startDateTime = new Google_Service_Calendar_EventDateTime();
+        $endDateTime = new Google_Service_Calendar_EventDateTime();
         $event->setSummary('Meeting');
         $event->setDescription('Google Meeting');
         $startDateTime->setDateTime($request->input('start_time') . ':00');

@@ -17,7 +17,7 @@ class ClassController extends Controller
     {
         $classes = Classroom::all();
 
-        return response()->json(['classes' => $classes]);
+        return response()->json(['data' => $classes]);
     }
 
     /**
@@ -38,7 +38,7 @@ class ClassController extends Controller
 
         $class = Classroom::create($data);
 
-        return response()->json(['message' => 'Class created successfully', 'data' => $class], 201);
+        return response()->json(['message' => 'Class created successfully', 'data' => $class, 'status' => 201]);
     }
 
     /**
@@ -60,7 +60,7 @@ class ClassController extends Controller
 
         $class->update($data);
 
-        return response()->json(['message' => 'Class updated successfully', 'data' => $class], 200);
+        return response()->json(['message' => 'Class updated successfully', 'data' => $class, 'status' => 200]);
     }
 
     /**
@@ -73,6 +73,6 @@ class ClassController extends Controller
     {
         $class->delete();
 
-        return response()->json(['message' => 'Class deleted successfully'], 200);
+        return response()->json(['message' => 'Class deleted successfully', 'status' => 200]);
     }
 }

@@ -23,7 +23,7 @@ return new class extends Migration
             $table->date('dob');
             $table->string('password');
             $table->enum('gender', ['male', 'female', 'other']);
-            $table->enum('region', ['Kachin State', 'Kayah State', 'Karen State', 'Chin State', 'Mon State', 'Rakhine State', 'Shan State', 'Ayeyarwady Division', 'Bago Division', 'Magway Division', 'Mandalay Division', 'Yangon Division', 'Thanintharyi Division', 'Sagaing Division']);
+            $table->enum('region', ['Kachin State', 'Kayah State', 'Karen State', 'Chin State', 'Mon State', 'Rakhine State', 'Shan State', 'Ayeyarwady Division', 'Bago Division', 'Magway Division', 'Mandalay Division', 'Yangon Division', 'Tanintharyi Division', 'Sagaing Division']);
             $table->string('role')->default('student');
             $table->rememberToken();
             $table->timestamps();

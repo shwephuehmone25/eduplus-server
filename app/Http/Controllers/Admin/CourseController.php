@@ -30,7 +30,7 @@ class CourseController extends Controller
         ->orderByDesc('id')
         ->paginate(10);
 
-        return response()->json(['courses' => $courses]);
+        return response()->json(['data' => $courses]);
     }
 
     /**
@@ -60,11 +60,11 @@ class CourseController extends Controller
     
             DB::commit();
     
-            return response()->json(['message' => 'Course created successfully', 'data' => $course], 201);
+            return response()->json(['message' => 'Course created successfully', 'data' => $course,'status' => 201]);
         } catch (\Exception $e) {
             DB::rollback();
             
-            return response()->json(['message' => 'Failed to create the course'], 500);
+            return response()->json(['message' => 'Failed to create the course','status' =>  500 ]);
         }
     }
 
@@ -107,11 +107,11 @@ class CourseController extends Controller
     
             DB::commit();
     
-            return response()->json(['message' => 'Course updated successfully', 'data' => $course], 200);
+            return response()->json(['message' => 'Course updated successfully', 'data' => $course, 'status' => 200]);
         } catch (\Exception $e) {
             DB::rollback();
             
-            return response()->json(['message' => 'Failed to update the course'], 500);
+            return response()->json(['message' => 'Failed to update the course','status' => 500]);
         }
     }
 
@@ -126,6 +126,6 @@ class CourseController extends Controller
         $course = Course::findOrFail($id);
         $course->delete();
 
-        return response()->json(['message' => 'Course deleted successfully'], 200);
+        return response()->json(['message' => 'Course deleted successfully','status' =>200]);
     }
 }

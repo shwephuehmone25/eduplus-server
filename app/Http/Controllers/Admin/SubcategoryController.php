@@ -42,7 +42,7 @@ class SubcategoryController extends Controller
 
         return response()->json([
             'data' => $subcategory,
-            'message' => 'Subcategory created successfully'], 201);
+            'message' => 'Subcategory created successfully', 'status' => 201]);
     }
 
     /**

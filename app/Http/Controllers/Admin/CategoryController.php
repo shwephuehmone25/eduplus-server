@@ -19,7 +19,7 @@ class CategoryController extends Controller
         $subcategories = Subcategory::all();
         $categories = Category::with('subcategories');
         
-        return response()->json(['categories' => $categories]);
+        return response()->json(['data' => $categories]);
     }
 
     /**
@@ -34,7 +34,7 @@ class CategoryController extends Controller
         $category->name = $request->input('name');
         $category->save();
 
-        return response()->json(['message' => 'Category created successfully', 'data' => $category], 201);
+        return response()->json(['message' => 'Category created successfully', 'data' => $category, 'status' => 201]);
     }
 
     /**
@@ -50,7 +50,7 @@ class CategoryController extends Controller
         $category->name = $request->input('name');
         $category->save();
 
-        return response()->json(['message' => 'Category updated successfully', 'data' => $category], 200);
+        return response()->json(['message' => 'Category updated successfully', 'data' => $category, 'status' => 200]);
     }
 
     /**
@@ -64,6 +64,6 @@ class CategoryController extends Controller
         $category = Category::findOrFail($id);
         $category->delete();
 
-        return response()->json(['message' => 'Category deleted successfully'], 200);
+        return response()->json(['message' => 'Category deleted successfully', 'status' => 200]);
     }
 }

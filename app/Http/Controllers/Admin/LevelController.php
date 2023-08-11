@@ -17,7 +17,7 @@ class LevelController extends Controller
     {
         $levels = Level::all();
 
-        return response()->json(['levels' => $levels]);
+        return response()->json(['data' => $levels]);
     }
 
     /**
@@ -69,6 +69,6 @@ class LevelController extends Controller
     {
         $level->delete();
 
-        return response()->json(['message' => 'Level deleted successfully'], 200);
+        return response()->json(['message' => 'Level deleted successfully', 'status' => 200]);
     }
 }

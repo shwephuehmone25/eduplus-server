@@ -17,7 +17,7 @@ class SectionController extends Controller
     {
         $sections = Section::all();
 
-        return response()->json(['sections' => $sections]);
+        return response()->json(['data' => $sections]);
     }
 
     /**
@@ -81,6 +81,6 @@ class SectionController extends Controller
     {
         $section->delete();
 
-        return response()->json(['message' => 'Section deleted successfully'], 200);
+        return response()->json(['message' => 'Section deleted successfully', 'status' => 200]);
     }
 }

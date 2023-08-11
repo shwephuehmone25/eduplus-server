@@ -38,23 +38,6 @@ class VideoController extends Controller
         ]);
     }
 
-    // public function VideoUpload()
-    // {
-        
-    // }
-
-     /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        $categories = Category::all();
-
-        return view('videos.create', compact('categories'));
-    }
-
     public function show($id)
     {
         $video = Video::findOrFail($id);
@@ -113,6 +96,6 @@ class VideoController extends Controller
             ], 201);
         }
 
-        return response()->json(['error' => 'Failed to upload video.'], 400);
+        return response()->json(['error' => 'Failed to upload video.', 'status' => 400]);
     }
 }

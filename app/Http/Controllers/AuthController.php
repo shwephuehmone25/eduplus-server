@@ -50,14 +50,14 @@ class AuthController extends Controller
     
             return response()->json([
                 'message' => 'Register Success!',
-                'phone_number' => $data['phone_number']
+                'data' => $data['phone_number']
             ]);
         } catch (ValidationException $e) {
 
             // Validation failed
             return response()->json([
                 'error' => $e->errors(),
-            ], 422);
+                'status' => 422]);
         } 
         // catch (\Exception $e) {
         //     // Other exceptions, including Twilio errors or database errors
@@ -98,10 +98,10 @@ class AuthController extends Controller
                 $user->save();
                 return response()->json(['message' => 'Successfully Registered']);
             }
-            return response()->json(['error' => 'User not found.'], 404);
+            return response()->json(['error' => 'User not found.', 'status' => 404]);
         }
         
-        return response()->json(['error' => 'Invalid verification code entered!'], 400);
+        return response()->json(['error' => 'Invalid verification code entered!', 'status' => 400]);
     }
 
     /**
@@ -139,7 +139,7 @@ class AuthController extends Controller
 
         event(new Registered($user));
 
-        return response()->json($response, 201);
+        return response()->json(['data' => '$response' , 'status' => 201]);
     }
 
     /**
