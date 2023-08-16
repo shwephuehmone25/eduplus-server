@@ -106,6 +106,6 @@ class MeetingController extends Controller
         $meeting->save();
 
         return response()->json(['meetLink' => $meetLink], 200);
+        }
     }
-}
 }
