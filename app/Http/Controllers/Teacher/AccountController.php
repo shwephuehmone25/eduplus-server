@@ -3,75 +3,59 @@
 namespace App\Http\Controllers\Teacher;
 
 use Exception;
+use Google\Client;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use App\Http\Controllers\Controller;
+use Illuminate\Http\JsonResponse;
 use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class AccountController extends Controller
 {
-    public function redirectToGoogle()
+    public function redirectToGoogle(): JsonResponse
     {
         return response()->json([
             'url' => Socialite::driver('google')->stateless()->redirect()->getTargetUrl(),
         ]);
-    }
+    }  
 
-    public function handleGoogleCallback(Request $request)
-{
-    try {
-        // Obtain user details from Google using Socialite
-        $newTeacher = Socialite::driver('google')->stateless()->user();
+    public function handleGoogleCallback(): JsonResponse
+    {
+        try {
+            /** @var SocialiteTeacher $socialiteTeacher */
+            $socialiteTeacher = Socialite::driver('google')->stateless()->user();
+        } catch (ClientException $e) {
+            return response()->json(['error' => 'Invalid credentials provided.'], 422);
+        }
+        // dd($socialiteTeacher);
 
-        // Exchange authorization code for an access token
-        $client = new Client();
+        /** @var Teacher $teacher */
+        $teacher =Teacher::query()
+            ->firstOrCreate(
+                [
+                    'email' => $socialiteTeacher->getEmail(),
+                ],
+                [
+                    'email_verified_at' => now(),
+                    'name' => $socialiteTeacher->getName(),
+                    'google_id' => $socialiteTeacher->getId(),
+                    'avatar' => $socialiteTeacher->getAvatar(),
+                ]
+            );
 
-        $response = $client->post('https://oauth2.googleapis.com/token', [
-            'form_params' => [
-                'code' => $newTeacher->token,
-                'client_id' => config('services.google.client_id'),
-                'client_secret' => config('services.google.client_secret'),
-                'redirect_uri' => 'http://localhost:8000/auth/google/callback',
-                'grant_type' => 'authorization_code',
-            ],
+            $teacher->access_token = $socialiteTeacher->token;
+            $teacher->refresh_token = $socialiteTeacher->refreshToken;
+            $teacher->save();
+
+        return response()->json([
+            'teacher' => $teacher,
+            'access_token' => $teacher->createToken('google-token')->plainTextToken,
+            'google_access_token'   => $socialiteTeacher->token,
+            'token_type' => 'Bearer',
+            'access_type'   => 'offline'
         ]);
-
-        $data = json_decode($response->getBody(), true);
-
-        $accessToken = $data['access_token'];
-
-    } catch (Exception $e) {
-        
-        return response()->json(['error' => 'Google authentication failed.'], 401);
-    }
-
-    // Validate the user data
-    $validator = Validator::make(
-        ['email' => $newTeacher->getEmail()],
-        ['email' => 'required|email|unique:teachers,email']
-    );
-
-    if ($validator->fails()) {
-        throw new UnprocessableEntityHttpException('Teacher with this email already exists.');
-    }
-
-    // Create or retrieve the teacher record
-    $teacher = Teacher::firstOrCreate(
-        ['email' => $newTeacher->getEmail()],
-        [
-            'email_verified_at' => now(),
-            'name' => $newTeacher->getName(),
-            'google_id' => $newTeacher->getId(),
-            'avatar' => $newTeacher->getAvatar(),
-        ]
-    );
-
-    return response()->json([
-        'teacher' => $teacher,
-        'access_token' => $accessToken,
-        'token_type' => 'Bearer',
-    ]);
-}
+    }  
 }

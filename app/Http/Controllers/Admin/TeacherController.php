@@ -24,9 +24,8 @@ class TeacherController extends Controller
             		->where('name', 'LIKE', "%$search%")
             		->get();
         }
-        
+     
         return response()->json(['data' => $teachers]);
-
     }
 
     /**

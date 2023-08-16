@@ -65,7 +65,7 @@ class LoginController extends Controller
     {
         // Validate the incoming login request
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email|ends_with:@ilbcedu.com',
+            'email' => 'required|email|ends_with:@ilbcedu.com|exists:teachers,email',
             'password' => 'required',
         ]);
 
@@ -80,13 +80,13 @@ class LoginController extends Controller
 
         if ($teacher && password_verify($credentials['password'], $teacher->password)) {
             // Generate a new API token for the authenticated teacher
-            $token = $teacher->createToken('teacher-token')->accessToken;
-
-            // Retrieve the role from the teacher model
-            $role = $teacher->role;
+            $data =  [
+                'token' => $teacher->createToken('teacher-token')->plainTextToken,
+                'teacher' => $teacher,
+            ];
 
            // Return the token and role as a response
-         return response()->json(['token' => $token, 'role' => $role, 'status' => 200]);
+         return response()->json(['data' => $data, 'status' => 200]);
         }
 
         return response()->json(['error' => 'Unauthorized', 'status' => 401]);
@@ -100,36 +100,25 @@ class LoginController extends Controller
      */
     public function loginAsStudent(Request $request)
     {
-        // Validate the incoming login request
-        $validator = Validator::make($request->all(), [
-            'email' => 'required|email|ends_with:@ilbcedu.com',
-            'password' => 'required',
+        $validator = Validator::make($request->only('email', 'password'), [
+            'email' => ['required', 'email', 'exists:users,email'],
+            'password' => ['required', 'min:6', 'max:255', 'string'],
         ]);
+        if ($validator->fails())
 
-        if ($validator->fails()) {
-            
+            return response()->json($validator->errors(), 400);
+        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+            $user = $request->user();
+            $data =  [
+                'token' => $user->createToken('student-token')->plainTextToken,
+                'user' => $user,
+            ];
+
             return response()->json([
-                'error' => 'Invalid login credentials',
-                'status'=> 422,
+             'data' =>  $data,
+             'message' => "Login Success", 
+             'status' => 200,
             ]);
         }
-
-        // Attempt to authenticate the admin using the given credentials
-        $credentials = $validator->validated();
-        $user = User::where('email', $credentials['email'])->first();
-
-        if ($user && password_verify($credentials['password'], $user->password)) {
-            
-            // Generate a new API token for the authenticated user
-            $token = $user->createToken('user-token')->accessToken;
-
-            // Retrieve the role from the user model
-            $role = $user->role;
-
-           // Return the token and role as a response
-         return response()->json(['token' => $token, 'role' => $role, 'status' => 200]);
-        }
-
-        return response()->json(['error' => 'Unauthorized', 'status' => 401]);
     }
 }
