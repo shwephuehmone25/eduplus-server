@@ -2,31 +2,61 @@
 
 namespace App\Http\Controllers\Teacher;
 
+use Google\Client as Google_Client;
+use Illuminate\Support\Facades\Http;
+use Google_Service_Calendar;
 use Illuminate\Http\Request;
+use Google_Service_Calendar_Event;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Laravel\Socialite\Facades\Socialite;
-use Google_Service_Calendar;
 use Google_Service_Calendar_EventDateTime;
-use Google_Service_Calendar_Event;
-use Google_Service_Calendar_ConferenceSolutionKey;
 use Google_Service_Calendar_ConferenceData;
+use Google_Service_Calendar_ConferenceSolutionKey;
 use Google_Service_Calendar_CreateConferenceRequest;
-use Illuminate\Support\Facades\DB;
+use App\Models\Teacher;
+use App\Models\Meeting;
 
 class MeetingController extends Controller
 {
+    public function authenticate()
+    {
+        $client = new Google_Client();
+        $client->setClientId(config('services.google.client_id'));
+        $client->setClientSecret(config('services.google.client_secret'));
+        $client->setRedirectUri(config('services.google.redirect'));
+        $client->addScope(Google_Service_Calendar::CALENDAR);
+        $client->addScope('https://www.googleapis.com/auth/calendar.events'); // Add other scopes if needed
+        $client->setAccessType('offline'); // Request offline access
+
+        $authUrl = $client->createAuthUrl();
+
+        return response()->json(['auth_url' => $authUrl]);
+    }
+
     public function create(Request $request, $course_id)
     {
-        $user = Socialite::driver('google')->userFromToken($request->header('Authorization'));
-
-        $client = new Google_Client();
-        $client->setAccessToken($user->token);
-        $client->addScope(Google_Service_Calendar::CALENDAR_EVENTS);
+        $accessToken = $request->header('Authorization');
+        $teacher = Teacher::where('access_token', $accessToken)->first();
+        if ($teacher) {
+            $refreshToken = $teacher->refresh_token;
+            $client = new Google_Client();
+            $client->setAuthConfig('client_secrets.json');
+            $client->setAccessToken($accessToken);
+            $scopes = [
+                Google_Service_Calendar::CALENDAR,
+                'https://www.googleapis.com/auth/calendar.events',
+                'https://www.googleapis.com/auth/calendar',
+                'https://www.googleapis.com/auth/calendar.events.readonly',
+                'https://www.googleapis.com/auth/calendar.readonly',
+                'https://www.googleapis.com/auth/calendar.settings.readonly'
+            ];
+        $client->addScope($scopes);
         $client->setAccessType('offline');
         $client->setApprovalPrompt('force');
 
         if ($client->isAccessTokenExpired()) {
-            $client->fetchAccessTokenWithRefreshToken($client->getRefreshToken());
+            $client->refreshToken($refreshToken);
             $accessToken = $client->getAccessToken();
         }
 
@@ -54,14 +84,15 @@ class MeetingController extends Controller
         $conference->setCreateRequest($conferenceRequest);
 
         $event->setConferenceData($conference);
-
+        
         $calendarId = 'primary';
+        
         $event = $service->events->insert(
             $calendarId,
             $event,
-            ['conferenceDataVersion' => 1]
+            [ 'conferenceDataVersion' => 1 ]
         );
-
+       
         $meetLink = $event->getHangoutLink();
 
         $assignCourse = DB::table('teacher_courses')->where('course_id', $course_id)->first();
@@ -76,4 +107,5 @@ class MeetingController extends Controller
 
         return response()->json(['meetLink' => $meetLink], 200);
     }
+}
 }
