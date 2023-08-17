@@ -65,7 +65,10 @@ class AccountController extends Controller
         $validator = Validator::make($request->all(), [
             'google_id' => 'required',
             'name' => 'required',
-            'email' => 'required|email|unique:teachers,email',
+            'email' => 'required|email|ends_with:@ilbcedu.com',
+            'avatar' => 'nullable|url', 
+            'access_token' => 'required', 
+            'refresh_token' => 'nullable',
         ]);
 
         if ($validator->fails()) {
@@ -73,12 +76,19 @@ class AccountController extends Controller
             return response()->json(['error' => $validator->errors()], 422);
         }
 
-        // Check if the teacher with the given Google ID exists
-        $existingTeacher = Teacher::where('google_id', $request->input('google_id'))->first();
+        // Check if a teacher with the given email exists
+        $existingTeacher = Teacher::where('email', $request->input('email'))->first();
 
         if ($existingTeacher) {
+            // Update existing teacher's Google ID and avatar
+            $existingTeacher->update([
+                'google_id' => $request->input('google_id'),
+                'avatar' => $request->input('avatar'),
+                'access_token' => $request->input('access_token'),
+                'refresh_token' => $request->input('refresh_token'),
+            ]);
 
-            return response()->json(['message' => 'Teacher with Google ID already exists'], 409);
+            return response()->json(['message' => 'Google data updated successfully'], 200);
         }
 
         // Create a new teacher record
@@ -88,6 +98,8 @@ class AccountController extends Controller
             'email' => $request->input('email'),
             'email_verified_at' => now(),
             'avatar' => $request->input('avatar'),
+            'access_token' => $request->input('access_token'),
+            'refresh_token' => $request->input('refresh_token'),
         ]);
 
         $teacher->save();
