@@ -68,8 +68,8 @@ class Course extends Model
         return $this->belongsToMany(Subcategory::class, 'courses_subcategories', 'course_id', 'subcategory_id');
     }
 
-    public function meeting()
+    public function meetings()
     {
-        return $this->hasOne(Meeting::class);
+        return $this->hasMany(Meeting::class);
     }
 }
