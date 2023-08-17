@@ -18,17 +18,9 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with([
-            'categories:id,name', 
-            'levels:id,name', 
-            'classrooms:id,name', 
-            'sections:id,name', 
-            'teachers:id,name', 
-            'subcategories:id,name'
-        ])
-        ->select(['id', 'course_name', 'description', 'price', 'period', 'announce_date','created_at'])
-        ->orderByDesc('id')
-        ->paginate(10);
+        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers','subcategories', 'meetings')
+            ->orderBy('id', 'desc')
+            ->paginate(10);
 
         return response()->json(['data' => $courses]);
     }
