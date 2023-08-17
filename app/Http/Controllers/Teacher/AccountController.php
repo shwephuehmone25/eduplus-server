@@ -58,4 +58,40 @@ class AccountController extends Controller
             'access_type'   => 'offline'
         ]);
     }  
+
+    public function googleLogin(Request $request)
+    {
+        // Validate the incoming data
+        $validator = Validator::make($request->all(), [
+            'google_id' => 'required',
+            'name' => 'required',
+            'email' => 'required|email|unique:teachers,email',
+        ]);
+
+        if ($validator->fails()) {
+
+            return response()->json(['error' => $validator->errors()], 422);
+        }
+
+        // Check if the teacher with the given Google ID exists
+        $existingTeacher = Teacher::where('google_id', $request->input('google_id'))->first();
+
+        if ($existingTeacher) {
+
+            return response()->json(['message' => 'Teacher with Google ID already exists'], 409);
+        }
+
+        // Create a new teacher record
+        $teacher = new Teacher([
+            'google_id' => $request->input('google_id'),
+            'name' => $request->input('name'),
+            'email' => $request->input('email'),
+            'email_verified_at' => now(),
+            'avatar' => $request->input('avatar'),
+        ]);
+
+        $teacher->save();
+
+        return response()->json(['message' => 'Google data stored successfully'], 201);
+    }
 }

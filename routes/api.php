@@ -36,6 +36,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     /*Teacher Routes*/
     Route::get('auth/google', [AccountController::class, 'redirectToGoogle']);
     Route::get('/auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
+    Route::post('/google/login', [AccountController::class, 'googleLogin']);
     Route::post('/meeting/create/{course_id}', [MeetingController::class,'create']);
     Route::post('teacher/login', [LoginController::class, 'loginAsTeacher']);
     //  });
