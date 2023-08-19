@@ -2,14 +2,13 @@
 
 namespace App\Models;
 
-use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Auth\Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Admin extends Model
 {
-    use HasFactory,HasApiTokens,Authenticatable;
+    use HasFactory,Authenticatable;
     
     protected $guard = "admin";
     protected $fillable = [

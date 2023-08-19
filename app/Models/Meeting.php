@@ -12,7 +12,9 @@ class Meeting extends Model
 
     protected $fillable = ['start_time', 'end_time', 'meet_link'];
 
-    public function course(){
+    public function course()
+    {
+        
         return $this->belongsTo(Course::class);
     }
 }

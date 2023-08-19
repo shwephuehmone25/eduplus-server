@@ -4,12 +4,13 @@ namespace App\Models;
 
 use App\Models\User;
 use App\Models\Level;
+use App\Models\Policy;
+use App\Models\Meeting;
 use App\Models\Teacher;
 use App\Models\Category;
-use App\Models\Subcategory;
 use App\Models\Classroom;
 use App\Models\Enrollment;
-use App\Models\Meeting;
+use App\Models\Subcategory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -74,10 +75,15 @@ class Course extends Model
         return $this->hasMany(Meeting::class);
     }
 
-    
     public function videos()
     {
 
         return $this->belongsToMany(Video::class,'courses_videos', 'course_id','video_id');
+    }
+
+    public function policy()
+    {
+        
+        return $this->hasOne(Policy::class);
     }
 }

@@ -41,13 +41,7 @@ class VideoController extends Controller
     public function show($id)
     {
         $video = Video::findOrFail($id);
-
         // Generate the S3 URL based on the path stored in the database
-        // $videoUrl = Storage::disk('s3')->temporaryUrl(
-        //     $video->url,
-        //     now()->addMinutes(15)
-        // );
-
         $videoUrl = Storage::disk('s3')->url($video->url);
 
         return view('videos.show', compact('videoUrl'));
@@ -97,5 +91,18 @@ class VideoController extends Controller
         }
 
         return response()->json(['error' => 'Failed to upload video.', 'status' => 400]);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy(Video $video)
+    {
+        $video->delete();
+
+        return response()->json(['message' => 'Video deleted successfully', 'status' => 200]);
     }
 }

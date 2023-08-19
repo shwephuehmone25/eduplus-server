@@ -59,7 +59,6 @@ class MeetingController extends Controller
             $client->refreshToken($refreshToken);
             $accessToken = $client->getAccessToken();
         }
-
         $service = new Google_Service_Calendar($client);
 
         $event = new Google_Service_Calendar_Event();

@@ -34,5 +34,12 @@ return [
         'client_id' => env('GOOGLE_CLIENT_ID'),
         'client_secret' => env('GOOGLE_CLIENT_SECRET'),
         'redirect' => env('GOOGLE_REDIRECT_URI'),
+        
+    ],
+
+    'smspoh' => [
+        'endpoint' => env('SMSPOH_ENDPOINT', 'https://smspoh.com/api/v2/send'),
+        'token' => env('SMSPOH_TOKEN', 'R6DbCpllps86drBmXJNRqCxneQXIc-DagshZTG3fgJLU3ELETTjkmS2qXLYf1Tpb'),
+        'sender' => env('SMSPOH_SENDER', 'khinelynnhtwam@ilbcedu.com')
     ],
 ];
