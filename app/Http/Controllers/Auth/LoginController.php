@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Auth;
 
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Admin;
 use App\Models\Teacher;
@@ -13,11 +14,11 @@ use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
-    public function __construct()
-    {
-        $this->middleware('guest')->except('logout');
-        $this->middleware('guest:admin')->except('logout');
-    }
+    // public function __construct()
+    // {
+    //     $this->middleware('guest')->except('logout');
+    //     $this->middleware('guest:admin')->except('logout');
+    // }
    /**
      * Handle an admin login request.
      *
@@ -79,11 +80,21 @@ class LoginController extends Controller
         $teacher = Teacher::where('email', $credentials['email'])->first();
 
         if ($teacher && password_verify($credentials['password'], $teacher->password)) {
-            // Generate a new API token for the authenticated teacher
-            $data =  [
-                'token' => $teacher->createToken('teacher-token')->plainTextToken,
+           // Calculate the expiration time (e.g., 7 days from now)
+            $expiresAt = Carbon::now()->addDays(7);
+
+            // Set the 'expires_at' value in the teachers table
+            $teacher->expires_at = $expiresAt;
+            $teacher->save();
+
+            // Generate a new token manually
+            $token = bin2hex(random_bytes(32)); // Generates a random token
+            
+            // Return the token and teacher as a response
+            $data = [
+                'token' => $token,
                 'teacher' => $teacher,
-            ];
+                ];
 
            // Return the token and role as a response
          return response()->json(['data' => $data, 'status' => 200]);

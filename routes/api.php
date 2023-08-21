@@ -28,10 +28,6 @@ use App\Http\Controllers\Teacher\AccountController;
 |
 */
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
-
 // Route::middleware(['IsTeacher::class'])->group(function () {
     /*Teacher Routes*/
     Route::get('auth/google', [AccountController::class, 'redirectToGoogle']);

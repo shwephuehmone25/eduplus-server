@@ -48,7 +48,7 @@ class TeacherController extends Controller
         $teacher->password = bcrypt($request->input('password'));
         $teacher->google_id = $request->input('google_id');
         $teacher->save();
-
+       
         return response()->json(['message' => 'Teacher created successfully', 'data' => $teacher, 'status' => 201]);
     }
 
