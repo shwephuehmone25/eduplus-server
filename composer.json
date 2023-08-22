@@ -15,6 +15,7 @@
         "james-heinrich/getid3": "^1.9",
         "laravel-notification-channels/smspoh": "^1.4",
         "laravel/framework": "^9.0",
+        "laravel/sanctum": "^3.2",
         "laravel/socialite": "^5.6",
         "laravel/tinker": "^2.7",
         "league/flysystem-aws-s3-v3": "^3.15",
@@ -22,6 +23,7 @@
         "twilio/sdk": "^7.5"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^3.8",
         "fakerphp/faker": "^1.9.1",
         "laravel/sail": "^1.0.1",
         "mockery/mockery": "^1.4.4",

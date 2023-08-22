@@ -121,7 +121,7 @@ class LoginController extends Controller
         if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
             $user = $request->user();
             $data =  [
-                'token' => $user->createToken('student-token')->plainTextToken,
+                //'token' => $user->createToken('student-token')->plainTextToken,
                 'user' => $user,
             ];
 
