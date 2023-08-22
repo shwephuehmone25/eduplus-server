@@ -3,6 +3,8 @@
 namespace App\Models;
 
 use Laravel\Sanctum\HasApiTokens;
+use App\Models\Course;
+use App\Models\Meeting;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\Authenticatable;
@@ -29,8 +31,14 @@ class Teacher extends Model implements Authenticatable
         'role',
     ];
 
-    public function courses(){
+    public function courses()
+    {
         
         return $this->belongsToMany(Course::class, 'teacher_courses', 'course_id','teacher_id');
     }
+
+    // public function meeting(){
+
+    //     return $this->hasOne(Meeting::class);
+    // }
 }

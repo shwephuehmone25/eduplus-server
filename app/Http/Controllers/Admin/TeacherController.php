@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Teacher;
+use App\Models\Course;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
@@ -97,22 +98,39 @@ class TeacherController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function getAssignCourses(){
-        $assignCourses = DB::table('teacher_courses')
-            ->select('teacher_courses.*', 'teachers.name as teacher_name', 'courses.*')
-            ->join('teachers', 'teachers.id', '=', 'teacher_courses.teacher_id')
-            ->join('courses', 'courses.id', '=', 'teacher_courses.course_id')
-            ->get();   
+    public function getAssignCourses($id)
+    {
+        $assignCourses = Course::with('meetings', 'categories')
+                        ->join('teacher_courses', 'courses.id', 'teacher_courses.course_id')
+                        ->where('teacher_courses.teacher_id', $id)
+                        ->get(['courses.*']);
 
-        return response()->json(['data' => $assignCourses, 'status' => 200]);
+        $meetingsExist = false; 
+        foreach ($assignCourses as $course) { 
+            if (!$course->meetings->isEmpty()) 
+            {
+                $meetingsExist = true;
+                break; 
+            } 
+        } 
+
+        if (!$meetingsExist) 
+        { 
+
+            return response()->json(['message' => 'No meeting found for this course.', 'status' => 404]); 
+        } 
+        else 
+        { 
+            
+            return response()->json(['data' => $assignCourses, 'status' => 200]); 
+        } 
+
+        // foreach ($assignCourses as $course) {
+        //     if (!$course->relationLoaded('meetings') || $course->meetings->isEmpty()) {
+        // return response()->json(['message' => 'Some courses have missing or empty meetings.', 'status' => 404]);
+        //     }
+        // }
+
+        // return response()->json(['data' => $assignCourses, 'status' => 200]);   
     }
-
-// public function getAssignCourses()
-// {
-//     $assignCourses = Teacher::with('courses')
-//         ->select('teachers.*', 'courses.*')
-//         ->get();
-
-//     return response()->json(['assignCourses' => $assignCourses]);
-// }
 }

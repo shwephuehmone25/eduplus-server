@@ -18,7 +18,7 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers','subcategories', 'meetings')
+        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers','subcategories')
             ->orderBy('id', 'desc')
             ->paginate(10);
 

@@ -27,6 +27,9 @@ use App\Http\Controllers\Teacher\AccountController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
 
 // Route::middleware(['IsTeacher::class'])->group(function () {
     /*Teacher Routes*/
@@ -96,5 +99,5 @@ Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
     Route::put('/teachers/{teacher}', [TeacherController::class, 'update']);
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
     Route::get('/teachers', [TeacherController::class, 'getAllTeachers']);
-    Route::get('/teacher/getAssigncourses', [TeacherController::class, 'getAssignCourses']);
+    Route::get('/teacher/getAssigncourses/{teacher}', [TeacherController::class, 'getAssignCourses']);
 // });

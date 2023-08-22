@@ -37,7 +37,9 @@ class MeetingController extends Controller
     public function create(Request $request, $course_id)
     {
         $accessToken = $request->header('Authorization');
+        //dd($accessToken);
         $teacher = Teacher::where('access_token', $accessToken)->first();
+       // dd($teacher);
         if ($teacher) {
             $refreshToken = $teacher->refresh_token;
             $client = new Google_Client();
