@@ -27,19 +27,11 @@ use App\Http\Controllers\Teacher\AccountController;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
-});
 
-// Route::middleware(['IsTeacher::class'])->group(function () {
+Route::middleware(['auth:sanctum', 'IsTeacher'])->group(function () {
     /*Teacher Routes*/
-    Route::get('auth/google', [AccountController::class, 'redirectToGoogle']);
-    Route::get('/auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
-    Route::post('/test/google', [AccountController::class, 'test']);
-    Route::post('/google/login', [AccountController::class, 'googleLogin']);
-    Route::post('/meeting/create/{course_id}', [MeetingController::class,'create']);
-    Route::post('teacher/login', [LoginController::class, 'loginAsTeacher']);
-    //  });
+    Route::get('/teacher/getAssigncourses/{teacher}', [TeacherController::class, 'getAssignCourses']);
+    });
 
 /*User Routes*/
 Route::post('/phone/register', [AuthController::class, 'getStart']);
@@ -47,11 +39,18 @@ Route::post('/otp/verify', [AuthController::class, 'verify']);
 Route::post('/user/create', [AuthController::class, 'createUser']);
 Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
 
-/**Admin Routes*/
-// Route::middleware([IsAdmin::class])->group(function() {
-    Route::post('admin/register', [AuthController::class, 'registerAsAdmin']);
-    Route::post('admin/login', [LoginController::class, 'loginAsAdmin']);
+/* Guard routes*/
+Route::post('teacher/login', [LoginController::class, 'loginAsTeacher']);
+Route::post('admin/register', [AuthController::class, 'registerAsAdmin']);
+Route::post('admin/login', [LoginController::class, 'loginAsAdmin']);
 
+Route::get('auth/google', [AccountController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
+Route::post('/google/login', [AccountController::class, 'googleLogin']);
+Route::post('/meeting/create/{course_id}', [MeetingController::class,'create']);
+
+/**Admin Routes*/
+Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     /**Course Routes */
     Route::get('/courses', [CourseController::class, 'index']);
     Route::post('/courses', [CourseController::class, 'store']);
@@ -99,5 +98,4 @@ Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
     Route::put('/teachers/{teacher}', [TeacherController::class, 'update']);
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
     Route::get('/teachers', [TeacherController::class, 'getAllTeachers']);
-    Route::get('/teacher/getAssigncourses/{teacher}', [TeacherController::class, 'getAssignCourses']);
-// });
+});

@@ -143,49 +143,4 @@ class AccountController extends Controller
             ], 500);
         }
     }
-
-    public function test(Request $request)
-    {
-        // try {
-        //     $validator = Validator::make($request->all(), [
-        //         'access_token' => 'required',
-        //         'refresh_token' => 'nullable',
-        //     ]);
-
-        //     if ($validator->fails()) {
-        //         return response()->json(['error' => $validator->errors()], 422);
-        //     }
-
-        //     $client = new Google_Client(['client_id' => config('services.google.client_id')]);
-        //     $token = $request->input('access_token');
-
-        //     try {
-        //         $payload = $client->verifyIdToken($token);
-        //     } catch (\Exception $e) {
-        //         return response()->json(['error' => 'Failed to verify access token'], 401);
-        //     }
-
-        //     if ($payload) {
-        //         // Rest of your logic
-        //     } else {
-        //         return response()->json(['error' => 'Invalid access token'], 401);
-        //     }
-        // } catch (\Exception $e) {
-        //     return response()->json([
-        //         'error' => 'An error occurred',
-        //         'message' => $e->getMessage(),
-        //     ], 500);
-        // }
-
-        $credentials = $request->only('email', 'password');
-        if (Auth::guard('teacher')->attempt($credentials)) {
-            $teacher = Auth::guard('teacher')->user();
-            $token = $teacher->createToken('authToken')->accessToken;
-
-            return response()->json(['teacher' => $teacher, 'token' => $token]);
-        } else {
-            
-            return response()->json(['error' => 'Unauthorized'], 401);
-        }
-    }
 }

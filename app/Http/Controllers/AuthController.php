@@ -147,15 +147,19 @@ class AuthController extends Controller
             'gender' => $data['gender'],
             'region' => $data['region']
         ]);
+
+        $token = $user->createToken('student-token')->plainTextToken;
+
         $response = [
             'user' => $user,
+            'token' => $token,
             'gender_options' => User::getGenderOptions(),
             'region_values' => User::getRegionValues()
         ];
 
         event(new Registered($user));
 
-        return response()->json(['data' => '$response' , 'status' => 201]);
+        return response()->json(['data' => $response , 'status' => 201]);
     }
 
     /**
@@ -183,9 +187,9 @@ class AuthController extends Controller
         $admin = Admin::create($data);
 
         // Generate a new API token for the registered admin
-        $token = $admin->createToken('admin-token')->accessToken;
+        $token = $admin->createToken('admin-token')->plainTextToken;
 
         // Return the token as a response
-        return response()->json(['token' => $token], 201);
+        return response()->json(['token' => $token, 'data' => $data, 'status' => 201]);
     }
 }
