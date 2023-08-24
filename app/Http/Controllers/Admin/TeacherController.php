@@ -98,39 +98,32 @@ class TeacherController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function getAssignCourses($id)
     {
-        $assignCourses = Course::with('meetings', 'categories')
-                        ->join('teacher_courses', 'courses.id', 'teacher_courses.course_id')
-                        ->where('teacher_courses.teacher_id', $id)
-                        ->get(['courses.*']);
-
-        $meetingsExist = false; 
-        foreach ($assignCourses as $course) { 
-            if (!$course->meetings->isEmpty()) 
-            {
-                $meetingsExist = true;
-                break; 
-            } 
-        } 
-
-        if (!$meetingsExist) 
+        $teacher = Teacher::with('meeting', 'courses')->find($id);
+       
+        if ($teacher) 
         { 
+            // Retrieve and attach course details
+            $this->getCourseDetail($teacher); 
 
-            return response()->json(['message' => 'No meeting found for this course.', 'status' => 404]); 
+            return response()->json(['data' => $teacher, 'status' => 200]);
         } 
         else 
         { 
-            
-            return response()->json(['data' => $assignCourses, 'status' => 200]); 
-        } 
-
-        // foreach ($assignCourses as $course) {
-        //     if (!$course->relationLoaded('meetings') || $course->meetings->isEmpty()) {
-        // return response()->json(['message' => 'Some courses have missing or empty meetings.', 'status' => 404]);
-        //     }
-        // }
-
-        // return response()->json(['data' => $assignCourses, 'status' => 200]);   
+            return response()->json(['message' => 'Teacher not found.', 'status' => 404]);
+        }   
     }
+
+    protected function getCourseDetail($teacher)
+    {
+        $courses = $teacher->courses;
+
+        foreach ($courses as $course) {
+            // Load categories for each course
+            $course->load('categories'); 
+        }
+    }
+
 }
