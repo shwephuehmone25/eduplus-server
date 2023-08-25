@@ -14,11 +14,11 @@ use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
-    // public function __construct()
-    // {
-    //     $this->middleware('guest')->except('logout');
-    //     $this->middleware('guest:admin')->except('logout');
-    // }
+    public function __construct()
+    {
+        $this->middleware('guest')->except('logout');
+        $this->middleware('guest:admin')->except('logout');
+    }
    /**
      * Handle an admin login request.
      *
@@ -72,12 +72,12 @@ class LoginController extends Controller
             return response()->json(['error' => 'Invalid login credentials'], 422);
         }
 
-        // Attempt to authenticate the admin using the given credentials
+        // Attempt to authenticate the teacher using the given credentials
         $credentials = $validator->validated();
         $teacher = Teacher::where('email', $credentials['email'])->first();
 
-        if (Auth::guard('teacher') && password_verify($credentials['password'], $teacher->password)) {
-            // Generate a new API token for the authenticated admin
+        if ($teacher && password_verify($credentials['password'], $teacher->password)) {
+            // Generate a new API token for the authenticated teacher
             $token = $teacher->createToken('teacher-token')->plainTextToken;
 
             // Return the token and role as a response
@@ -96,25 +96,24 @@ class LoginController extends Controller
     public function loginAsStudent(Request $request)
     {
         $validator = Validator::make($request->only('email', 'password'), [
-            'email' => ['required', 'email', 'exists:users,email'],
+            'email' => ['required', 'email', 'ends_with:@ilbcedu.com', 'exists:users,email'],
             'password' => ['required', 'min:6', 'max:255', 'string'],
         ]);
         if ($validator->fails()){
             return response()->json($validator->errors(), 400);
         }
             
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $user = $request->user();
-            $data =  [
-                'token' => $user->createToken('student-token')->plainTextToken,
-                'user' => $user,
-            ];
+        $credentials = $validator->validated();
+        $user = User::where('email', $credentials['email'])->first();
 
-            return response()->json([
-             'data' =>  $data,
-             'message' => "Login Success", 
-             'status' => 200,
-            ]);
+        if ($user && password_verify($credentials['password'], $user->password)) {
+            // Generate a new API token for the authenticated teacher
+            $token = $user->createToken('user-token')->plainTextToken;
+
+            // Return the token and role as a response
+            return response()->json(['token' => $token, 'data' => $user, 'status' => 200]);
         }
+
+        return response()->json(['error' => 'Unauthorized', 'status' => 401]);
     }
 }

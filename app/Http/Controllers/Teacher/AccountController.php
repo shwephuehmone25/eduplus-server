@@ -16,12 +16,25 @@ use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class AccountController extends Controller
 {
+    // public function redirectToGoogle(): JsonResponse
+    // {
+    //     return response()->json([
+    //         'url' => Socialite::driver('google')->stateless()->redirect()->getTargetUrl(),
+    //     ]);
+    // }  
+
     public function redirectToGoogle(): JsonResponse
-    {
-        return response()->json([
-            'url' => Socialite::driver('google')->stateless()->redirect()->getTargetUrl(),
-        ]);
-    }  
+{
+    $url = Socialite::driver('google')
+        ->stateless()
+        ->with(['access_type' => 'offline'])
+        ->redirect()
+        ->getTargetUrl();
+
+    return response()->json([
+        'url' => $url,
+    ]);
+}
 
     public function handleGoogleCallback(): JsonResponse
     {
@@ -60,12 +73,8 @@ class AccountController extends Controller
                 $teacher->update([
                     'google_id' => $socialiteTeacher->getId(),
                     'avatar' => $socialiteTeacher->getAvatar(),
-                ]);
-    
-                return response()->json([
-                    'data' => $teacher,
-                    'message' => 'Google data updated successfully',
-                    'status' => 200,
+                    'access_token' => $socialiteTeacher->token,
+                    'refresh_token' => $socialiteTeacher->refreshToken
                 ]);
             }
 
@@ -111,7 +120,11 @@ class AccountController extends Controller
                     'refresh_token' => $request->input('refresh_token'),
                 ]);
     
+                // Generate a new API token for the authenticated teacher
+                $token = $teacher->createToken('teacher-token')->plainTextToken;
+
                 return response()->json([
+                    'token' => $token,
                     'data' => $teacher,
                     'message' => 'Google data updated successfully',
                     'status' => 200,
@@ -129,8 +142,12 @@ class AccountController extends Controller
                 ];
     
                 $teacher = Teacher::create($newTeacher);
+
+                // Generate a new API token for the authenticated teacher
+                $token = $teacher->createToken('teacher-token')->plainTextToken;
     
                 return response()->json([
+                    'token' => $token,
                     'data' => $teacher,
                     'message' => 'Google data stored successfully',
                     'status' => 201,

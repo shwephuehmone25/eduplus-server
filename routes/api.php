@@ -28,9 +28,15 @@ use App\Http\Controllers\Teacher\AccountController;
 |
 */
 
+Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+    return $request->user();
+});
+
 Route::middleware(['auth:sanctum', 'IsTeacher'])->group(function () {
     /*Teacher Routes*/
     Route::get('/teacher/getAssigncourses/{teacher}', [TeacherController::class, 'getAssignCourses']);
+    Route::post('teacher/login', [LoginController::class, 'loginAsTeacher']);
+
     });
 
 /*User Routes*/
@@ -40,14 +46,13 @@ Route::post('/user/create', [AuthController::class, 'createUser']);
 Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
 
 /* Guard routes*/
-Route::post('teacher/login', [LoginController::class, 'loginAsTeacher']);
 Route::post('admin/register', [AuthController::class, 'registerAsAdmin']);
 Route::post('admin/login', [LoginController::class, 'loginAsAdmin']);
 
 Route::get('auth/google', [AccountController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
 Route::post('/google/login', [AccountController::class, 'googleLogin']);
-Route::post('/meeting/create/{course_id}', [MeetingController::class,'create']);
+Route::post('/meeting/create', [MeetingController::class,'create']);
 
 /**Admin Routes*/
 Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {

@@ -34,7 +34,7 @@ class MeetingController extends Controller
         return response()->json(['auth_url' => $authUrl]);
     }
 
-    public function create(Request $request, $course_id)
+    public function create(Request $request)
     {
         $accessToken = $request->header('Authorization');
         //dd($accessToken);
@@ -96,13 +96,13 @@ class MeetingController extends Controller
        
         $meetLink = $event->getHangoutLink();
 
-        $assignCourse = DB::table('teacher_courses')->where('course_id', $course_id)->first();
+        $teacher_id = $teacher->id;
 
         // Store the meeting details in the database
         $meeting = new Meeting();
         $meeting->start_time = $request->input('start_time'); 
         $meeting->end_time = $request->input('end_time'); 
-        $meeting->course_id = $assignCourse->course_id; 
+        $meeting->teacher_id = $teacher_id; 
         $meeting->meet_link = $meetLink;
         $meeting->save();
 

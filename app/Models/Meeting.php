@@ -19,9 +19,9 @@ class Meeting extends Model
         return $this->belongsTo(Course::class);
     }
 
-    // public function teacher()
-    // {
+    public function teacher()
+    {
 
-    //     return $this->belongsTo(Teacher::class);
-    // }
+        return $this->belongsTo(Teacher::class);
+    }
 }

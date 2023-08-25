@@ -34,11 +34,12 @@ class Teacher extends Model implements Authenticatable
     public function courses()
     {
         
-        return $this->belongsToMany(Course::class, 'teacher_courses', 'course_id','teacher_id');
+        return $this->belongsToMany(Course::class, 'teacher_courses', 'teacher_id','course_id');
     }
 
-    // public function meeting(){
+    public function meeting()
+    {
 
-    //     return $this->hasOne(Meeting::class);
-    // }
+        return $this->hasOne(Meeting::class);
+    }
 }
