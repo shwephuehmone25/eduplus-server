@@ -45,6 +45,14 @@ Route::post('/otp/verify', [AuthController::class, 'verify']);
 Route::post('/user/create', [AuthController::class, 'createUser']);
 Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
 
+/**Common Routes */
+Route::middleware('auth:api')->group(function(){
+    Route::get('/courses', [CourseController::class, 'index']);
+    Route::get('/courses/{id}', [CourseController::class, 'showCourseDetails']);
+    Route::get('/courses/purchase/{courseId}', [CourseController::class, 'buyCourses']);
+    Route::get('/mycourses/show/{id}', [CourseController::class, 'getMyCourse']);
+});
+
 /* Guard routes*/
 Route::post('admin/register', [AuthController::class, 'registerAsAdmin']);
 Route::post('admin/login', [LoginController::class, 'loginAsAdmin']);
@@ -57,9 +65,8 @@ Route::post('/meeting/create', [MeetingController::class,'create']);
 /**Admin Routes*/
 Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     /**Course Routes */
-    Route::get('/courses', [CourseController::class, 'index']);
     Route::post('/courses', [CourseController::class, 'store']);
-    Route::put('/courses/{id}', [CourseController::class, 'update']);
+    Route::post('/courses/{id}', [CourseController::class, 'update']);
     Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
 
     /**Video Routes */
