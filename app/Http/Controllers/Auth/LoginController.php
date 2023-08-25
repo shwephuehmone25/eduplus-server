@@ -100,6 +100,7 @@ class LoginController extends Controller
             'password' => ['required', 'min:6', 'max:255', 'string'],
         ]);
         if ($validator->fails()){
+            
             return response()->json($validator->errors(), 400);
         }
             
@@ -107,11 +108,18 @@ class LoginController extends Controller
         $user = User::where('email', $credentials['email'])->first();
 
         if ($user && password_verify($credentials['password'], $user->password)) {
-            // Generate a new API token for the authenticated teacher
+            // Generate a new API token for the authenticated user
             $token = $user->createToken('user-token')->plainTextToken;
 
-            // Return the token and role as a response
-            return response()->json(['token' => $token, 'data' => $user, 'status' => 200]);
+            // Create the response data with token and user information
+            $responseData = [
+                'token' => $token,
+                'user' => $user,
+                'status' => 200
+            ];
+
+            // Return the response data as JSON
+            return response()->json(['data' => $responseData]);
         }
 
         return response()->json(['error' => 'Unauthorized', 'status' => 401]);
