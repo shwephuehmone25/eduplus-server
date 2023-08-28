@@ -32,11 +32,10 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(['auth:sanctum', 'IsTeacher'])->group(function () {
+Route::middleware(['auth:sanctum', 'IsTeacher', 'cors'])->group(function () {
     /*Teacher Routes*/
     Route::get('/teacher/getAssigncourses/{teacher}', [TeacherController::class, 'getAssignCourses']);
-    Route::post('teacher/login', [LoginController::class, 'loginAsTeacher']);
-
+    Route::get('/teacher/show/{teacherId}', [TeacherController::class, 'showProfile']);
     });
 
 /*User Routes*/
@@ -46,21 +45,25 @@ Route::post('/user/create', [AuthController::class, 'createUser']);
 Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
 
 /**Common Routes */
-Route::middleware('auth:api')->group(function(){
+Route::middleware('auth:sanctum')->group(function(){
     Route::get('/courses', [CourseController::class, 'index']);
     Route::get('/courses/{id}', [CourseController::class, 'showCourseDetails']);
     Route::get('/courses/purchase/{courseId}', [CourseController::class, 'buyCourses']);
     Route::get('/mycourses/show/{id}', [CourseController::class, 'getMyCourse']);
+    Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
 });
 
 /* Guard routes*/
 Route::post('admin/register', [AuthController::class, 'registerAsAdmin']);
 Route::post('admin/login', [LoginController::class, 'loginAsAdmin']);
+Route::post('teacher/login', [LoginController::class, 'loginAsTeacher']);
 
 Route::get('auth/google', [AccountController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
 Route::post('/google/login', [AccountController::class, 'googleLogin']);
 Route::post('/meeting/create', [MeetingController::class,'create']);
+
+Route::get('/videos', [ VideoController::class, 'index']);
 
 /**Admin Routes*/
 Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
@@ -70,7 +73,6 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
 
     /**Video Routes */
-    Route::get('/videos', [ VideoController::class, 'index']);
     Route::post('/video/create', [ VideoController::class, 'store']);
     Route::delete('/videos/{id}', [VideoController::class, 'destroy']);
 

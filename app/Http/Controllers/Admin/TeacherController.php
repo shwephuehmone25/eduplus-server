@@ -2,11 +2,12 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Teacher;
 use App\Models\Course;
+use App\Models\Teacher;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 
 class TeacherController extends Controller
 {
@@ -126,4 +127,26 @@ class TeacherController extends Controller
         }
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showProfile($teacherId)
+    {
+        // Retrieve the currently authenticated teacher
+        $loggedInTeacher = Auth::user();
+
+        // Retrieve the teacher's details by ID
+        $teacher = Teacher::find($teacherId);
+
+        // Check if the logged-in teacher is authorized to view this profile
+        if ($loggedInTeacher->id !== $teacher->id) {
+            
+            return response()->json(['error' => 'Unauthorized','status' => 403]);
+        }
+
+        return response()->json(['teacher' => $teacher, 'status' => 200]);
+    }
 }

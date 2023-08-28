@@ -72,7 +72,7 @@ class Course extends Model
     public function meetings()
     {
         
-        return $this->hasMany(Meeting::class);
+        return $this->belongsToMany(Meeting::class, 'meeting_courses', 'course_id',  'meeting_id');
     }
 
     public function videos()

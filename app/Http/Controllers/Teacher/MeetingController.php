@@ -106,7 +106,37 @@ class MeetingController extends Controller
         $meeting->meet_link = $meetLink;
         $meeting->save();
 
+        $courses = $teacher->courses; // Assuming you have a relationship between Teacher and Course models
+        $meeting->courses()->attach($courses);
+
         return response()->json(['meetLink' => $meetLink], 200);
         }
+    }
+
+    public function getMeetingLists()
+    {
+        $meetings = Meeting::with('teacher')->get();
+
+        $meetingList = [];
+
+        foreach ($meetings as $meeting) {
+            $meetingItem = [
+                'start_time' => $meeting->start_time,
+                'end_time' => $meeting->end_time,
+                'meet_link' => $meeting->meet_link,
+                'teacher' => [
+                    'name' => $meeting->teacher->name,
+                    
+                ],
+            ];
+
+            $meetingList[] = $meetingItem;
+        }
+
+        return response()->json([
+            'message' => 'List of Meetings with Teachers',
+            'data' => $meetingList,
+            'status' => 200,
+        ]);
     }
 }

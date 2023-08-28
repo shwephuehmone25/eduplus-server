@@ -23,7 +23,7 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers','subcategories')
+        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers','subcategories', 'meetings')
             ->orderBy('id', 'desc')
             ->paginate(10);
 
@@ -200,7 +200,7 @@ class CourseController extends Controller
     {
         $user = User::findOrFail($userId);
 
-        $myCourse = $user->courses;
+        $myCourse = $user->courses()->with('meetings')->get();
 
         if (!$myCourse) {
             return response()->json([
@@ -215,4 +215,14 @@ class CourseController extends Controller
             'status' => 200
         ]);
     } 
+
+    protected function getMeeting($myCourse)
+    {
+        $meetings = $myCourse->meetings;
+
+        foreach ($meetings as $meeting) {
+            // Load categories for each course
+            $meeting->load('meetings'); 
+        }
+    }
 }

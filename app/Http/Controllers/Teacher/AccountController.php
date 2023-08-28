@@ -15,26 +15,19 @@ use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class AccountController extends Controller
-{
-    // public function redirectToGoogle(): JsonResponse
-    // {
-    //     return response()->json([
-    //         'url' => Socialite::driver('google')->stateless()->redirect()->getTargetUrl(),
-    //     ]);
-    // }  
-
+{ 
     public function redirectToGoogle(): JsonResponse
-{
-    $url = Socialite::driver('google')
-        ->stateless()
-        ->with(['access_type' => 'offline'])
-        ->redirect()
-        ->getTargetUrl();
+    {
+        $url = Socialite::driver('google')
+            ->stateless()
+            ->with(['access_type' => 'offline'])
+            ->redirect()
+            ->getTargetUrl();
 
-    return response()->json([
-        'url' => $url,
-    ]);
-}
+        return response()->json([
+            'url' => $url,
+        ]);
+    }
 
     public function handleGoogleCallback(): JsonResponse
     {
