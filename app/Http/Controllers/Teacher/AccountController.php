@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Teacher;
 
+use Google_Service_Calendar;
 use Exception;
 use Google_Client;
 use App\Models\Teacher;
@@ -18,14 +19,24 @@ class AccountController extends Controller
 { 
     public function redirectToGoogle(): JsonResponse
     {
+        $scopes = [
+            Google_Service_Calendar::CALENDAR,
+            'https://www.googleapis.com/auth/calendar.events',
+            'https://www.googleapis.com/auth/calendar',
+            'https://www.googleapis.com/auth/calendar.events.readonly',
+            'https://www.googleapis.com/auth/calendar.readonly',
+            'https://www.googleapis.com/auth/calendar.settings.readonly'
+        ];
+
         $url = Socialite::driver('google')
+            ->scopes($scopes)
             ->stateless()
             ->with(['access_type' => 'offline'])
             ->redirect()
             ->getTargetUrl();
 
         return response()->json([
-            'url' => $url,
+            'url' => Socialite::driver('google')->stateless()->redirect()->getTargetUrl(),
         ]);
     }
 

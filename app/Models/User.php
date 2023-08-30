@@ -13,6 +13,9 @@ class User extends Authenticatable
 {
     use HasFactory, HasApiTokens, Notifiable;
 
+    protected $table = 'users';
+    protected $primaryKey = 'id';
+    
     /**
      * The attributes that are mass assignable.
      *
@@ -71,7 +74,7 @@ class User extends Authenticatable
     public function teachers()
     {
 
-        return $this->belongsToMany(Teacher::class, 'teachers_students', 'teacher_id','user_id');
+        return $this->belongsToMany(Teacher::class, 'teachers_students', 'user_id', 'teacher_id');
     }
 
     public static function getGenderOptions(){

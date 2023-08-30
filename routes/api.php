@@ -35,7 +35,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::middleware(['auth:sanctum', 'IsTeacher', 'cors'])->group(function () {
     /*Teacher Routes*/
     Route::get('/teacher/getAssigncourses/{teacher}', [TeacherController::class, 'getAssignCourses']);
-    Route::get('/teacher/show/{teacherId}', [TeacherController::class, 'showProfile']);
+    Route::get('/teacher/show', [TeacherController::class, 'showProfile']);
     });
 
 /*User Routes*/

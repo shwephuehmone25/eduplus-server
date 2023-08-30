@@ -109,7 +109,15 @@ class TeacherController extends Controller
             // Retrieve and attach course details
             $this->getCourseDetail($teacher); 
 
-            return response()->json(['data' => $teacher, 'status' => 200]);
+            $data = [
+                'teacher' => $teacher,
+                'courses' => $teacher->courses->map(function ($course) use ($teacher) {
+                    $course->meeting = $teacher->meeting;
+                    return $course;
+                }),
+            ];
+    
+            return response()->json(['data' => $data, 'status' => 200]);
         } 
         else 
         { 
@@ -133,20 +141,18 @@ class TeacherController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function showProfile($teacherId)
+    public function showProfile(Request $request)
     {
-        // Retrieve the currently authenticated teacher
-        $loggedInTeacher = Auth::user();
+        $email = $request->input('email');
 
-        // Retrieve the teacher's details by ID
-        $teacher = Teacher::find($teacherId);
+        // Retrieve the teacher's details by email
+        $teacher = Teacher::where('email', $email)->first();
 
-        // Check if the logged-in teacher is authorized to view this profile
-        if ($loggedInTeacher->id !== $teacher->id) {
+        if (!$teacher) {
             
-            return response()->json(['error' => 'Unauthorized','status' => 403]);
+            return response()->json(['error' => 'Unauthorized', 'status' => 403]);
         }
 
-        return response()->json(['teacher' => $teacher, 'status' => 200]);
+        return response()->json(['teacher' => $teacher]);
     }
 }

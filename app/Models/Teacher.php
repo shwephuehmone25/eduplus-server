@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
-use Laravel\Sanctum\HasApiTokens;
+use App\Models\User;
 use App\Models\Course;
 use App\Models\Meeting;
+use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\Authenticatable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Auth\Authenticatable as AuthenticableTrait;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Teacher extends Model implements Authenticatable
 {
@@ -41,5 +42,11 @@ class Teacher extends Model implements Authenticatable
     {
 
         return $this->hasOne(Meeting::class);
+    }
+
+    public function students()
+    {
+        
+        return $this->belongsToMany(User::class, 'teachers_students', 'teacher_id','user_id');
     }
 }

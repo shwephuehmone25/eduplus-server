@@ -37,82 +37,93 @@ class MeetingController extends Controller
     public function create(Request $request)
     {
         $accessToken = $request->header('Authorization');
-        //dd($accessToken);
         $teacher = Teacher::where('access_token', $accessToken)->first();
-       // dd($teacher);
-        if ($teacher) {
-            $refreshToken = $teacher->refresh_token;
-            $client = new Google_Client();
-            $client->setAuthConfig('client_secrets.json');
-            $client->setAccessToken($accessToken);
-            $scopes = [
-                Google_Service_Calendar::CALENDAR,
-                'https://www.googleapis.com/auth/calendar.events',
-                'https://www.googleapis.com/auth/calendar',
-                'https://www.googleapis.com/auth/calendar.events.readonly',
-                'https://www.googleapis.com/auth/calendar.readonly',
-                'https://www.googleapis.com/auth/calendar.settings.readonly'
-            ];
+    
+        if (!$teacher) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+    
+        $client = new Google_Client();
+        $client->setAuthConfig('client_secrets.json');
+        $client->setAccessToken($accessToken);
+        $scopes = [
+            Google_Service_Calendar::CALENDAR,
+            'https://www.googleapis.com/auth/calendar.events',
+            'https://www.googleapis.com/auth/calendar',
+            'https://www.googleapis.com/auth/calendar.events.readonly',
+            'https://www.googleapis.com/auth/calendar.readonly',
+            'https://www.googleapis.com/auth/calendar.settings.readonly'
+        ];
         $client->addScope($scopes);
         $client->setAccessType('offline');
         $client->setApprovalPrompt('force');
-
+    
         if ($client->isAccessTokenExpired()) {
-            $client->refreshToken($refreshToken);
+            $client->refreshToken($teacher->refresh_token);
             $accessToken = $client->getAccessToken();
         }
+    
         $service = new Google_Service_Calendar($client);
+    
+            $event = new Google_Service_Calendar_Event();
+            $startDateTime = new Google_Service_Calendar_EventDateTime();
+            $endDateTime = new Google_Service_Calendar_EventDateTime();
+            $event->setSummary('Meeting');
+            $event->setDescription('Google Meeting');
+            $startDateTime->setDateTime($request->input('start_time') . ':00');
+            $endDateTime->setDateTime($request->input('end_time') . ':00');
+            $startDateTime->setTimeZone('Asia/Yangon');
+            $endDateTime->setTimeZone('Asia/Yangon');
+            $event->setStart($startDateTime);
+            $event->setEnd($endDateTime);
 
-        $event = new Google_Service_Calendar_Event();
-        $startDateTime = new Google_Service_Calendar_EventDateTime();
-        $endDateTime = new Google_Service_Calendar_EventDateTime();
-        $event->setSummary('Meeting');
-        $event->setDescription('Google Meeting');
-        $startDateTime->setDateTime($request->input('start_time') . ':00');
-        $endDateTime->setDateTime($request->input('end_time') . ':00');
-        $startDateTime->setTimeZone('Asia/Yangon');
-        $endDateTime->setTimeZone('Asia/Yangon');
-        $event->setStart($startDateTime);
-        $event->setEnd($endDateTime);
+            $conferenceRequest = new Google_Service_Calendar_CreateConferenceRequest();
+            $conferenceRequest->setRequestId(uniqid());
+            $solution_key = new Google_Service_Calendar_ConferenceSolutionKey();
+            $solution_key->setType("hangoutsMeet");
+            $conferenceRequest->setConferenceSolutionKey($solution_key);
 
-        $conferenceRequest = new Google_Service_Calendar_CreateConferenceRequest();
-        $conferenceRequest->setRequestId(uniqid());
-        $solution_key = new Google_Service_Calendar_ConferenceSolutionKey();
-        $solution_key->setType("hangoutsMeet");
-        $conferenceRequest->setConferenceSolutionKey($solution_key);
+            $conference = new Google_Service_Calendar_ConferenceData();
+            $conference->setCreateRequest($conferenceRequest);
 
-        $conference = new Google_Service_Calendar_ConferenceData();
-        $conference->setCreateRequest($conferenceRequest);
+            $event->setConferenceData($conference);
+    
+            $calendarId = 'primary';
+    
+            $event = $service->events->insert(
+                $calendarId,
+                $event,
+                [ 'conferenceDataVersion' => 1 ]
+            );
+    
+            $meetLink = $event->getHangoutLink();
+    
+            $teacher_id = $teacher->id;
 
-        $event->setConferenceData($conference);
-        
-        $calendarId = 'primary';
-        
-        $event = $service->events->insert(
-            $calendarId,
-            $event,
-            [ 'conferenceDataVersion' => 1 ]
-        );
-       
-        $meetLink = $event->getHangoutLink();
+            $existingMeeting = Meeting::where('teacher_id', $teacher->id)
+                                    ->where('start_time', $request->input('start_time'))
+                                    ->where('end_time', $request->input('end_time'))
+                                    ->first();
 
-        $teacher_id = $teacher->id;
+            if ($existingMeeting) {
+                // Update the existing meeting link
+                $existingMeeting->meet_link = $meetLink; 
+                $existingMeeting->save();
 
-        // Store the meeting details in the database
-        $meeting = new Meeting();
-        $meeting->start_time = $request->input('start_time'); 
-        $meeting->end_time = $request->input('end_time'); 
-        $meeting->teacher_id = $teacher_id; 
-        $meeting->meet_link = $meetLink;
-        $meeting->save();
-
-        $courses = $teacher->courses; // Assuming you have a relationship between Teacher and Course models
-        $meeting->courses()->attach($courses);
-
-        return response()->json(['meetLink' => $meetLink], 200);
-        }
+                return response()->json(['meetLink' => $meetLink], 200);
+            }
+    
+            // Store the meeting details in the database
+            $meeting = new Meeting();
+            $meeting->start_time = $request->input('start_time'); 
+            $meeting->end_time = $request->input('end_time'); 
+            $meeting->teacher_id = $teacher_id; 
+            $meeting->meet_link = $meetLink;
+            $meeting->save();
+    
+            return response()->json(['meetLink' => $meetLink], 200);
     }
-
+    
     public function getMeetingLists()
     {
         $meetings = Meeting::with('teacher')->get();
@@ -125,8 +136,7 @@ class MeetingController extends Controller
                 'end_time' => $meeting->end_time,
                 'meet_link' => $meeting->meet_link,
                 'teacher' => [
-                    'name' => $meeting->teacher->name,
-                    
+                    'name' => $meeting->teacher->name,    
                 ],
             ];
 
