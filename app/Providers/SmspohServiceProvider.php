@@ -1,36 +1,35 @@
 <?php
 
-namespace NotificationChannels\Smspoh;
+namespace App\Providers;
 
-use GuzzleHttp\Client as HttpClient;
-use Illuminate\Notifications\ChannelManager;
-use Illuminate\Support\Facades\Notification;
+use GuzzleHttp\Client;
 use Illuminate\Support\ServiceProvider;
 
 class SmspohServiceProvider extends ServiceProvider
 {
     /**
-     * Bootstrap the application services.
+     * Register services.
+     *
+     * @return void
      */
-    public function boot(): void
+    public function register()
     {
+        $this->app->bind(SmspohApi::class, function ($app) {
+            
+            $token = config('services.smspoh.token'); 
+            $httpClient = new Client();
+
+            return new SmspohApi($token, $httpClient);
+        });
     }
 
     /**
-     * Register the application services.
+     * Bootstrap services.
+     *
+     * @return void
      */
-    public function register(): void
+    public function boot()
     {
-        $this->app->bind(SmspohApi::class, static fn () => new SmspohApi(
-            config('services.smspoh.token'),
-            app(HttpClient::class)
-        ));
-
-        Notification::resolved(static function (ChannelManager $service) {
-            $service->extend('smspoh', static fn ($app) => new SmspohChannel(
-                $app[SmspohApi::class],
-                $app['config']['services.smspoh.sender'])
-            );
-        });
+        //
     }
 }

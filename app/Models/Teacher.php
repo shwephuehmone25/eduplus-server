@@ -30,6 +30,8 @@ class Teacher extends Model implements Authenticatable
         'google_id',
         'avatar',
         'role',
+        'access_token',
+        'refresh_token',
     ];
 
     public function courses()

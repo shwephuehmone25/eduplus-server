@@ -23,9 +23,9 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers','subcategories', 'meetings')
-            ->orderBy('id', 'desc')
-            ->paginate(10);
+        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers','subcategories', 'meetings')->get();
+            // ->orderBy('id', 'desc')
+            // ->paginate(18);
 
         return response()->json(['data' => $courses]);
     }
@@ -214,15 +214,5 @@ class CourseController extends Controller
             'data' => $myCourse,
             'status' => 200
         ]);
-    } 
-
-    protected function getMeeting($myCourse)
-    {
-        $meetings = $myCourse->meetings;
-
-        foreach ($meetings as $meeting) {
-            // Load categories for each course
-            $meeting->load('meetings'); 
-        }
     }
 }

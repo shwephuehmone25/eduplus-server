@@ -26,7 +26,7 @@ class MeetingController extends Controller
         $client->setClientSecret(config('services.google.client_secret'));
         $client->setRedirectUri(config('services.google.redirect'));
         $client->addScope(Google_Service_Calendar::CALENDAR);
-        $client->addScope('https://www.googleapis.com/auth/calendar.events'); // Add other scopes if needed
+        $client->addScope('https://www.googleapis.com/auth/calendar.events'); 
         $client->setAccessType('offline'); // Request offline access
 
         $authUrl = $client->createAuthUrl();
@@ -100,17 +100,14 @@ class MeetingController extends Controller
     
             $teacher_id = $teacher->id;
 
-            $existingMeeting = Meeting::where('teacher_id', $teacher->id)
-                                    ->where('start_time', $request->input('start_time'))
-                                    ->where('end_time', $request->input('end_time'))
-                                    ->first();
+            $existingMeeting = Meeting::where('teacher_id', $teacher->id)->first();
 
             if ($existingMeeting) {
                 // Update the existing meeting link
                 $existingMeeting->meet_link = $meetLink; 
                 $existingMeeting->save();
 
-                return response()->json(['meetLink' => $meetLink], 200);
+                return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link Updated Successfully", 'status' => 200]);
             }
     
             // Store the meeting details in the database
@@ -121,7 +118,7 @@ class MeetingController extends Controller
             $meeting->meet_link = $meetLink;
             $meeting->save();
     
-            return response()->json(['meetLink' => $meetLink], 200);
+            return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link created Successfully", 'status' => 200]);
     }
     
     public function getMeetingLists()

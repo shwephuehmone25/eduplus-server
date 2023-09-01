@@ -53,6 +53,10 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
 });
 
+/**Test Routes */
+Route::post('/send-message', [AuthController::class, 'sendMessage']);
+Route::post('test', [AccountController::class, 'test']);
+
 /* Guard routes*/
 Route::post('admin/register', [AuthController::class, 'registerAsAdmin']);
 Route::post('admin/login', [LoginController::class, 'loginAsAdmin']);

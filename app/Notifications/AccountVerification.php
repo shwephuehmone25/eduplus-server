@@ -21,8 +21,10 @@ class AccountVerification extends Notification
 
     public function toSmspoh($notifiable)
     {
-        
-        return (new SmspohMessage)->content("Your account was approved!");       
+        // Create an SMSPOH message
+        return (new SmspohMessage)
+            ->content('This is the SMS content')
+            ->test(true);
     }
     /**
      * Get the notification's delivery channels.

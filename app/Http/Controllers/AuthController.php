@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Admin;
-use App\Models\OTP;
+use App\Models\Otp;
 use Twilio\Rest\Client;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -13,7 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\AccountVerification;
-
+    
 class AuthController extends Controller
 {
     /**
