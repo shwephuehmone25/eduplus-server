@@ -5,49 +5,74 @@ namespace App\Notifications;
 use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use NotificationChannels\Smspoh\SmspohMessage;
+use GuzzleHttp\Client as HttpClient;
+use Illuminate\Support\Arr;
+use NotificationChannels\Smspoh\Exceptions\CouldNotSendNotification;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\GuzzleException;
 
 class AccountVerification extends Notification
 {
+    protected HttpClient $client;
+    protected string $endpoint;
+    protected string $sender;
+    protected mixed $token;
 
-    /**
-     * Create a new notification instance.
-     *
-     * @return void
-     */
-    public function __construct()
+    public function __construct($token = null, $httpClient = null)
     {
-        //
+        $this->token = $token;
+        $this->client = $httpClient ?: new HttpClient(); // Initialize the $client property with a new HttpClient if it's null
+
+        $this->endpoint = config('services.smspoh.endpoint', 'https://smspoh.com/api/v2/send');
+    }
+
+    public function via($notifiable)
+    {
+        return ["smspoh"];
     }
 
     public function toSmspoh($notifiable)
     {
-        // Create an SMSPOH message
-        return (new SmspohMessage)
-            ->content('This is the SMS content')
-            ->test(true);
+        return (new SmspohMessage)->content("Your account was approved!");       
     }
     /**
-     * Get the notification's delivery channels.
+     * Send text message.
      *
-     * @param  mixed  $notifiable
-     * @return array
+     * <code>
+     * $message = [
+     *   'sender'   => '',
+     *   'to'       => '',
+     *   'message'  => '',
+     *   'test'     => '',
+     * ];
+     * </code>
+     *
+     * @link https://smspoh.com/rest-api-documentation/send?version=2
+     *
+     * @return mixed|\Psr\Http\Message\ResponseInterface
+     *
+     * @throws CouldNotSendNotification
      */
-    public function via($notifiable)
+    public function send(array $message)
     {
-        
-        return ["smspoh"];
-    }
+        try {
+            $response = $this->client->request('POST', $this->endpoint, [
+                'headers' => [
+                    'Authorization' => "Bearer {$this->token}",
+                ],
+                'json' => [
+                    'sender' => Arr::get($message, 'sender'),
+                    'to' => Arr::get($message, 'to'),
+                    'message' => Arr::get($message, 'message'),
+                    'test' => Arr::get($message, 'test', false),
+                ],
+            ]);
 
-    /**
-     * Get the array representation of the notification.
-     *
-     * @param  mixed  $notifiable
-     * @return array
-     */
-    public function toArray($notifiable)
-    {
-        return [
-            //
-        ];
+            return json_decode((string) $response->getBody(), true);
+        } catch (ClientException $e) {
+            throw CouldNotSendNotification::smspohRespondedWithAnError($e);
+        } catch (GuzzleException $e) {
+            throw CouldNotSendNotification::couldNotCommunicateWithSmspoh($e);
+        }
     }
 }

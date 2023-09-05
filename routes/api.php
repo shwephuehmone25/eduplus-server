@@ -32,7 +32,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(['auth:sanctum', 'IsTeacher', 'cors'])->group(function () {
+Route::middleware(['auth:sanctum', 'IsTeacher'])->group(function () {
     /*Teacher Routes*/
     Route::get('/teacher/getAssigncourses/{teacher}', [TeacherController::class, 'getAssignCourses']);
     Route::get('/teacher/show', [TeacherController::class, 'showProfile']);
@@ -53,9 +53,10 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
 });
 
+Route::post('/check/user', [AccountController::class,'checkUserExists']);
+
 /**Test Routes */
 Route::post('/send-message', [AuthController::class, 'sendMessage']);
-Route::post('test', [AccountController::class, 'test']);
 
 /* Guard routes*/
 Route::post('admin/register', [AuthController::class, 'registerAsAdmin']);

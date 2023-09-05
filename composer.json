@@ -13,6 +13,7 @@
         "google/apiclient": "^2.15",
         "guzzlehttp/guzzle": "^7.2",
         "james-heinrich/getid3": "^1.9",
+        "kreait/firebase-php": "^7.5",
         "laravel-notification-channels/smspoh": "^1.4",
         "laravel/framework": "^9.0",
         "laravel/sanctum": "^3.2",
