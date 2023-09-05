@@ -44,25 +44,26 @@ git clone https://github.com/ILBCEdTech/Saungpokki-Backend.git
 `cd` into cloned directory and install dependencies. run below command one by one.
 ```bash
 composer install
-
-
-```bash
+``````
+```
 cp .env.example .env
-
+```
 ```
 php artisan key:generate
 ```
+
 ### Configuration in `.env` file
 
 Database **eg.**
-```
+
+``````
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
 DB_PORT=3306
 DB_DATABASE=social_login
 DB_USERNAME=root
 DB_PASSWORD=
-```
+``````
 Google ID and Secret Key
 ```
 GOOGLE_CLIENT_ID=
