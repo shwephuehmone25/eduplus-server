@@ -163,30 +163,31 @@ class AccountController extends Controller
                     'status' => 200,
                 ]);
             } else {
-                // Create a new teacher record
-                $newTeacher = [
-                    'google_id' => $request->input('google_id'),
-                    'name' => $request->input('name'),
-                    'email' => $request->input('email'),
-                    'email_verified_at' => now(),
-                    'avatar' => $request->input('avatar'),
-                    'access_token' => $request->input('access_token'),
-                    'refresh_token' => $request->input('refresh_token'),
-                ];
+                // // Create a new teacher record
+                // $newTeacher = [
+                //     'google_id' => $request->input('google_id'),
+                //     'name' => $request->input('name'),
+                //     'email' => $request->input('email'),
+                //     'email_verified_at' => now(),
+                //     'avatar' => $request->input('avatar'),
+                //     'access_token' => $request->input('access_token'),
+                //     'refresh_token' => $request->input('refresh_token'),
+                // ];
     
-                $teacher = Teacher::create($newTeacher);
+                // $teacher = Teacher::create($newTeacher);
 
-                // Generate a new API token for the authenticated teacher
-                $token = $teacher->createToken('teacher-token')->plainTextToken;
+                // // Generate a new API token for the authenticated teacher
+                // $token = $teacher->createToken('teacher-token')->plainTextToken;
     
                 return response()->json([
-                    'token' => $token,
-                    'data' => $teacher,
-                    'message' => 'Google data stored successfully',
-                    'status' => 201,
+                    // 'token' => $token,
+                    // 'data' => $teacher,
+                    'message' => 'Unauthorized',
+                    'status' => 401,
                 ]);
             }
-        } catch (Exception $e) {
+        } 
+        catch (Exception $e) {
             return response()->json([
                 'error' => 'An error occurred',
                 'message' => $e->getMessage(),
