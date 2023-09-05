@@ -94,6 +94,35 @@ class AccountController extends Controller
         ]);
     }  
 
+    /**
+     * Check if a teacher with a given email exists.
+     *
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function checkUserExists(Request $request)
+    {
+       // Retrieve user input (you may want to validate this data)
+       $email = $request->input('email');
+
+       // Check if the user already exists in the database
+       $existingTeacher = Teacher::where('email', $email)->first();
+
+       if ($existingTeacher) {
+
+           // Teacher already exists
+           return response()->json([
+               'message' => 'User already exists.',
+           ]);
+       } else {
+
+           return response()->json([
+               'message' => 'User does not exist.',
+           ]);
+        }    
+    }
+
     public function googleLogin(Request $request)
     {    
         try {
