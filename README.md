@@ -46,7 +46,7 @@ git clone https://github.com/ILBCEdTech/Saungpokki-Backend.git
 
 composer install
 
-```
+```bash
 cp .env.example .env
 
 ```
