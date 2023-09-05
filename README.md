@@ -43,10 +43,9 @@ git clone https://github.com/ILBCEdTech/Saungpokki-Backend.git
 ```
 `cd` into cloned directory and install dependencies. run below command one by one.
 ```bash
-
 composer install
 
-```bash
+```
 cp .env.example .env
 
 ```
