@@ -51,6 +51,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/courses/purchase/{courseId}', [CourseController::class, 'buyCourses']);
     Route::get('/mycourses/show/{id}', [CourseController::class, 'getMyCourse']);
     Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
+    Route::post('/courses/enroll/{courseId}', [CourseController::class, 'enroll']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);
@@ -67,11 +68,14 @@ Route::get('auth/google', [AccountController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
 Route::post('/google/login', [AccountController::class, 'googleLogin']);
 Route::post('/meeting/create', [MeetingController::class,'create']);
+Route::post('/test', [MeetingController::class,'test']);
 
 Route::get('/videos', [ VideoController::class, 'index']);
 
 /**Admin Routes*/
 Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
+    // Test
+
     /**Course Routes */
     Route::post('/courses', [CourseController::class, 'store']);
     Route::post('/courses/{id}', [CourseController::class, 'update']);
@@ -87,7 +91,7 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::put('/categories/{id}', [CategoryController::class, 'update']);
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
-    /**Subategory routes*/
+    /**Subcategory routes*/
     Route::get('/subcategories', [SubcategoryController::class,'index']);
     Route::post('/subcategories', [SubcategoryController::class,'store']);
     Route::put('/subcategories/{id}', [SubcategoryController::class,'update']);

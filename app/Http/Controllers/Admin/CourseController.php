@@ -6,6 +6,7 @@ use App\Models\User;
 use App\Mail\SendMail;
 use App\Models\Course;
 use App\Models\Teacher;
+use App\Models\Enrollment;
 use Illuminate\Http\Request;
 use App\Models\TeacherCourse;
 use Illuminate\Support\Facades\DB;
@@ -191,6 +192,43 @@ class CourseController extends Controller
             } 
     }
 
+    public function enroll(Request $request, $courseId)
+    {
+        $course = Course::findOrFail($courseId);
+
+        if(Auth::check()){
+            $user = Auth::user();
+        }
+        // dd($user->courses);
+        if(!$user->courses->contains($course->id)){
+            $user->courses()->attach($course->id);
+
+        $classroom = $course->classrooms->first();
+
+            if(!$classroom){
+                return response()->json(['warning' => 'This course does not have a classroom.'], 422);
+            }
+
+            if($classroom->capacity <= 0){
+                return response()->json(['warning' => 'This course is already full!'], 422);
+            }
+
+            $enrollment = new Enrollment([
+                'enroll_date' => now(),
+                'isPresent' => true
+            ]);
+
+            $course->enrollments()->save($enrollment);
+            $classroom->decrement('capacity', 1);
+
+            return response()->json(['message' => 'Course purchased and enrolled successfully!']);
+        }else{
+
+            return response()->json(['message' => 'You have already purchased this course']);
+        }
+
+    }
+
     /**
      * Summary of getMyCourse
      * @param mixed $id
@@ -200,9 +238,10 @@ class CourseController extends Controller
     {
         $user = User::findOrFail($userId);
 
-        $myCourse = $user->courses()->with('meetings')->get();
+        $myCourse = $user->courses()->with('meetings','classrooms')->get();
 
         if (!$myCourse) {
+            
             return response()->json([
                 'message' => 'Course not found',
                 'status' => 404,
