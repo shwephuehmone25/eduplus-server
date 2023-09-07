@@ -16,15 +16,20 @@ class AccountVerification extends Notification
     protected HttpClient $client;
     protected string $endpoint;
     protected string $sender;
-    protected mixed $token;
+    protected $otp;
 
-    public function __construct($token = null, $httpClient = null)
+    public function __construct($otp)
     {
-        $this->token = $token;
-        $this->client = $httpClient ?: new HttpClient(); // Initialize the $client property with a new HttpClient if it's null
-
-        $this->endpoint = config('services.smspoh.endpoint', 'https://smspoh.com/api/v2/send');
+        $this->otp = $otp;
     }
+
+    // public function __construct($token = null, $httpClient = null)
+    // {
+    //     $this->token = $token;
+    //     $this->client = $httpClient ?: new HttpClient(); // Initialize the $client property with a new HttpClient if it's null
+
+    //     $this->endpoint = config('services.smspoh.endpoint', 'https://smspoh.com/api/v2/send');
+    // }
 
     public function via($notifiable)
     {
@@ -33,7 +38,7 @@ class AccountVerification extends Notification
 
     public function toSmspoh($notifiable)
     {
-        return (new SmspohMessage)->content("Your account was approved!");       
+        return (new SmspohMessage)->content("Your Edu+ verification code is {$this->otp}");
     }
     /**
      * Send text message.

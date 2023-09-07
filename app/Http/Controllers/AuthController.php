@@ -16,7 +16,7 @@ use App\Notifications\AccountVerification;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\ServiceAccount;
 use Kreait\Firebase\Auth;
-    
+
 class AuthController extends Controller
 {
     /**
@@ -25,93 +25,51 @@ class AuthController extends Controller
      * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-//    public function getStart(Request $request)
-//     {
-//         try {
-//             $data = $request->validate([
-//                 'phone_number' => ['required', 'numeric', 'unique:users'],
-//             ]);
-    
-//             /* Get credentials from .env */
-//             $token = getenv("TWILIO_AUTH_TOKEN");
-//             $twilio_sid = getenv("TWILIO_SID");
-//             $twilio_verify_sid = getenv("TWILIO_VERIFY_SID");
-//             $twilio = new Client($twilio_sid, $token);
-    
-//             // Send verification code via Twilio
-//             $twilio->verify->v2->services($twilio_verify_sid)
-//                 ->verifications
-//                 ->create($data['phone_number'], "sms");
-    
-//             // Create a new user
-//             DB::beginTransaction();
-//             User::create([
-//                 'name' => 'your name',
-//                 'phone_number' => $data['phone_number'],
-//                 'dob' => '2000-01-01',
-//                 'password' => '11111111',
-//             ]);
-//             DB::commit();
-    
-//             return response()->json([
-//                 'message' => 'Register Success!',
-//                 'data' => $data['phone_number']
-//             ]);
-//         } catch (ValidationException $e) {
 
-//             // Validation failed
-//             return response()->json([
-//                 'error' => $e->errors(),
-//                 'status' => 422]);
-//         } 
-//     }
 
-    public function getStart(Request $request)
-    {
-        try {
-            // Validate the phone number
-            $validator = Validator::make($request->all(), [
-                'phone_number' => ['required', 'numeric', 'unique:users'],
-            ]);
+    public function getStart(Request $request){
+        // Validate the phone number
+        $validator = Validator::make($request->all(), [
+            'phone_number' => ['required', 'numeric', 'unique:users'],
+        ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'error' => $validator->errors(),
-                    'status' => 422
-                ]);
-            }
-
-            // Generate a random 6-digit OTP
-            $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
-
-            // Save the OTP in the database
-            DB::beginTransaction();
-            User::create([
-                'name' => 'your name',
-                'phone_number' => $request->input('phone_number'),
-                'dob' => '2000-01-01',
-                'password' => '11111111',
-                'otp' => $otp, // Store the OTP in the database
-            ]);
-            DB::commit();
-
-            // Send the OTP via SMS (assuming you have an SMS notification set up)
-            $user = User::where('phone_number', $request->input('phone_number'))->first();
-            if ($user) {
-                $user->notify(new AccountVerification($otp)); // Replace with your notification class
-            }
-
+        if ($validator->fails()) {
             return response()->json([
-                'message' => 'OTP sent successfully!',
-                'data' => $request->input('phone_number')
-            ]);
-        } catch (\Exception $e) {
-            // Handle exceptions
-            return response()->json([
-                'error' => 'Something went wrong.',
-                'status' => 500
+                'error' => $validator->errors(),
+                'status' => 422
             ]);
         }
+
+        // Create a new user record and store the phone number
+        $user = User::create([
+            'name' => 'your name', // You may want to prompt for a name as well
+            'phone_number' => $request->input('phone_number'),
+            'dob' => '2000-01-01',
+            'password' => '11111111',
+        ]);
+
+        // Get the user's ID
+        $user_id = $user->id;
+
+        // Generate a random 6-digit OTP
+        $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+
+        // Store the OTP in the "otp" table with the user's ID
+        Otp::create([
+            'otp' => $otp,
+            'user_id' => $user_id,
+        ]);
+
+        // Send the OTP via SMS (assuming you have an SMS notification set up)
+        if ($user) {
+            $user->notify(new AccountVerification($otp));
+        }
+
+        return response()->json([
+            'message' => 'OTP sent successfully!',
+            'data' => $request->input('phone_number')
+        ]);
+
     }
 
     /**
@@ -126,10 +84,10 @@ class AuthController extends Controller
             'verification_code' => ['required', 'numeric'],
             'phone_number' => ['required', 'string'],
         ]);
-    
+
         // Custom verification logic
         $isValidCode = $this->customVerificationLogic($data['verification_code'], $data['phone_number']);
-    
+
         if ($isValidCode) {
             $user = User::where('phone_number', $data['phone_number'])->first();
             if ($user) {
@@ -143,15 +101,15 @@ class AuthController extends Controller
                     'is_verified' => true,
                 ]);
                 $otp->save();
-    
+
                 // Send the AccountVerification notification
                 $user->notify(new AccountVerification);
-    
+
                 return response()->json(['message' => 'Successfully Registered']);
             }
             return response()->json(['error' => 'User not found.', 'status' => 404]);
         }
-    
+
         return response()->json(['error' => 'Invalid verification code entered!', 'status' => 400]);
     }
 
@@ -164,7 +122,7 @@ class AuthController extends Controller
 
             return false; // User not found, verification fails
         }
-        
+
         $validVerificationCode = $user->otp;
 
         // Compare the provided verification code with the OTP from the database
