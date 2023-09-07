@@ -68,13 +68,11 @@ Route::get('auth/google', [AccountController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
 Route::post('/google/login', [AccountController::class, 'googleLogin']);
 Route::post('/meeting/create', [MeetingController::class,'create']);
-Route::post('/test', [MeetingController::class,'test']);
 
 Route::get('/videos', [ VideoController::class, 'index']);
 
 /**Admin Routes*/
 Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
-    // Test
 
     /**Course Routes */
     Route::post('/courses', [CourseController::class, 'store']);
@@ -87,38 +85,43 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
 
     /**Category Routes */
     Route::get('/categories', [CategoryController::class, 'index']);
+    Route::get('/category/{id}', [CategoryController::class, 'getCategoryDetails']);
     Route::post('/categories', [CategoryController::class, 'store']);
-    Route::put('/categories/{id}', [CategoryController::class, 'update']);
+    Route::post('/categories/{id}', [CategoryController::class, 'update']);
     Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
 
     /**Subcategory routes*/
     Route::get('/subcategories', [SubcategoryController::class,'index']);
+    Route::get('/subcategory/{id}', [SubcategoryController::class, 'getSubcategoryDetails']);
     Route::post('/subcategories', [SubcategoryController::class,'store']);
-    Route::put('/subcategories/{id}', [SubcategoryController::class,'update']);
+    Route::post('/subcategories/{id}', [SubcategoryController::class,'update']);
     Route::delete('/subcategories/{id}', [SubcategoryController::class,'destroy']);
     Route::get('/get/subcategories', [SubcategoryController::class, 'getSubcategoriesByCategory']);
 
     /**Class routes */
     Route::get('/classes', [ClassController::class, 'index']);
+    Route::get('/class/{id}', [ClassController::class, 'getClassDetails']);
     Route::post('/classes', [ClassController::class, 'store']);
-    Route::put('/classes/{class}', [ClassController::class, 'update']);
+    Route::post('/classes/{class}', [ClassController::class, 'update']);
     Route::delete('/classes/{class}', [ClassController::class, 'destroy']);
 
     /**Level Routes */
     Route::get('/levels', [LevelController::class, 'index']);
+    Route::get('/level/{id}', [LevelController::class, 'showLevelDetails']);
     Route::post('/levels', [LevelController::class, 'store']);
-    Route::put('/levels/{level}', [LevelController::class, 'update']);
+    Route::post('/levels/{level}', [LevelController::class, 'update']);
     Route::delete('/levels/{level}', [LevelController::class, 'destroy']);
 
     /**Section routes */
     Route::get('/sections', [SectionController::class, 'index']);
+    Route::get('/section/{id}', [SectionController::class, 'getSectionDetails']);
     Route::post('/sections', [SectionController::class, 'store']);
-    Route::put('/sections/{section}', [SectionController::class, 'update']);
+    Route::post('/sections/{section}', [SectionController::class, 'update']);
     Route::delete('/sections/{section}', [SectionController::class, 'destroy']);
 
     /**Teacher routes */
     Route::post('/teachers', [TeacherController::class, 'store']);
-    Route::put('/teachers/{teacher}', [TeacherController::class, 'update']);
+    Route::post('/teachers/{teacher}', [TeacherController::class, 'update']);
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
     Route::get('/teachers', [TeacherController::class, 'getAllTeachers']);
 });

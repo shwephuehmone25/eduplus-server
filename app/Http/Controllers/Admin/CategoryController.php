@@ -18,8 +18,26 @@ class CategoryController extends Controller
     {
         $subcategories = Subcategory::all();
         $categories = Category::with('subcategories');
-        
+
         return response()->json(['data' => $categories]);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getCategoryDetails($id)
+    {
+        $category = Category::with('subcategories')->find($id);
+
+        if (!$category) {
+
+            return response()->json(['error' => 'Category not found'], 404);
+        }
+
+        return response()->json(['data' => $category]);
     }
 
     /**

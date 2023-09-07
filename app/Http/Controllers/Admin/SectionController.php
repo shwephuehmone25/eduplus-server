@@ -20,6 +20,24 @@ class SectionController extends Controller
         return response()->json(['data' => $sections]);
     }
 
+     /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getSectionDetails($id)
+    {
+        $section = Section::find($id);
+
+        if (!$section) {
+
+            return response()->json(['error' => 'Section not found'], 404);
+        }
+
+        return response()->json(['data' => $section]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -40,7 +58,7 @@ class SectionController extends Controller
 
         return response()->json([
             'message' => 'Section created successfully',
-            'data' => $section, 
+            'data' => $section,
             'status' => 201
             ]);
     }
@@ -65,7 +83,7 @@ class SectionController extends Controller
         $section->update($data);
 
         return response()->json([
-            'message' => 'Section updated successfully', 
+            'message' => 'Section updated successfully',
             'data' => $section,
             'status' => 200
         ]);

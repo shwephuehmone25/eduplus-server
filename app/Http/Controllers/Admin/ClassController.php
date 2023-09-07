@@ -21,6 +21,24 @@ class ClassController extends Controller
     }
 
     /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getClassDetails($id)
+    {
+        $class = Classroom::find($id);
+
+        if (!$class) {
+
+            return response()->json(['error' => 'Class not found'], 404);
+        }
+
+        return response()->json(['data' => $class]);
+    }
+
+    /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request

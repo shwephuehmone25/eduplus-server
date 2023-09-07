@@ -20,6 +20,25 @@ class LevelController extends Controller
         return response()->json(['data' => $levels]);
     }
 
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showLevelDetails($id)
+    {
+        $level = Level::find($id);
+
+        if (!$level) {
+
+            return response()->json(['error' => 'Level not found'], 404);
+        }
+
+        return response()->json(['data' => $level]);
+    }
+
     /**
      * Store a newly created resource in storage.
      *
@@ -36,7 +55,7 @@ class LevelController extends Controller
 
         return response()->json([
             'message' => 'Level created successfully',
-            'data' => $level, 
+            'data' => $level,
             'status' => 201
             ]);
     }

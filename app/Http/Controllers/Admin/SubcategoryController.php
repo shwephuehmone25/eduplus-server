@@ -17,8 +17,26 @@ class SubcategoryController extends Controller
     public function index()
     {
         $subcategories = Subcategory::all();
-        
+
         return response()->json($subcategories);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function getSubcategoryDetails($id)
+    {
+        $subcategory = Subcategory::with('categories')->find($id);
+
+        if (!$subcategory) {
+
+            return response()->json(['error' => 'Subcategory not found'], 404);
+        }
+
+        return response()->json(['data' => $subcategory]);
     }
 
     /**
