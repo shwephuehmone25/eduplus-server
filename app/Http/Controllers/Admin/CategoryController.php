@@ -16,8 +16,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $subcategories = Subcategory::all();
-        $categories = Category::with('subcategories');
+        $categories = Category::with('subcategories')->get();
 
         return response()->json(['data' => $categories]);
     }
@@ -48,11 +47,19 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $category = new Category();
-        $category->name = $request->input('name');
-        $category->save();
+            try {
+            $category = new Category();
+            $category->name = $request->input('name');
+            $category->save();
 
-        return response()->json(['message' => 'Category created successfully', 'data' => $category, 'status' => 201]);
+            $subcategoryIds = $request->input('subcategory_id');
+            $category->subcategories()->attach($subcategoryIds);
+
+            return response()->json(['message' => 'Category created successfully', 'data' => $category, 'status' => 201]);
+        } catch (\Exception $e) {
+            
+            return response()->json(['error' => 'Category creation failed', 'message' => $e->getMessage(), 'status' => 500]);
+        }
     }
 
     /**
@@ -64,11 +71,19 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $category = Category::findOrFail($id);
-        $category->name = $request->input('name');
-        $category->save();
+            try {
+            $category = Category::findOrFail($id);
+            $category->name = $request->input('name');
+            $category->save();
 
-        return response()->json(['message' => 'Category updated successfully', 'data' => $category, 'status' => 200]);
+            $subcategoryIds = $request->input('subcategory_id');
+            $category->subcategories()->sync($subcategoryIds);
+
+            return response()->json(['message' => 'Category updated successfully', 'data' => $category, 'status' => 200]);
+        } catch (\Exception $e) {
+            
+            return response()->json(['error' => 'Category update failed', 'message' => $e->getMessage(), 'status' => 500]);
+        }
     }
 
     /**
@@ -79,9 +94,27 @@ class CategoryController extends Controller
      */
     public function destroy($id)
     {
+        try {
         $category = Category::findOrFail($id);
+
+        // Detach all subcategories from this category
+        $category->subcategories()->detach();
+
+        // Detach all associated courses without deleting them
+        $category->courses()->detach();
+
+        // Now, delete the category itself
         $category->delete();
 
-        return response()->json(['message' => 'Category deleted successfully', 'status' => 200]);
+            return response()->json(['message' => 'Category and associated records deleted successfully', 'status' => 200]);
+        } catch (\Exception $e) {
+            // Check if the error message contains the foreign key constraint error
+            if (strpos($e->getMessage(), 'foreign key constraint') !== false) {
+
+                return response()->json(['error' => 'Cannot delete the category because it has associated records.', 'status' => 400]);
+            }
+
+            return response()->json(['error' => 'Category deletion failed', 'status' => 500]);
+        }
     }
 }
