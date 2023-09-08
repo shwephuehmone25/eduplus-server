@@ -40,8 +40,8 @@ Route::middleware(['auth:sanctum', 'IsTeacher'])->group(function () {
 
 /*User Routes*/
 Route::post('/phone/register', [AuthController::class, 'getStart']);
-Route::post('/otp/verify', [AuthController::class, 'verify']);
-Route::post('/user/create', [AuthController::class, 'createUser']);
+Route::post('/otp/verify/{userId}', [AuthController::class, 'verify']);
+Route::post('/user/create/{userId}', [AuthController::class, 'createUser']);
 Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
 
 /**Common Routes */

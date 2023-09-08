@@ -25,9 +25,8 @@ class AuthController extends Controller
      * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-
-
-    public function getStart(Request $request){
+    public function getStart(Request $request)
+    {
         // Validate the phone number
         $validator = Validator::make($request->all(), [
             'phone_number' => ['required', 'numeric', 'unique:users'],
@@ -42,7 +41,7 @@ class AuthController extends Controller
 
         // Create a new user record and store the phone number
         $user = User::create([
-            'name' => 'your name', // You may want to prompt for a name as well
+            'name' => 'your name',
             'phone_number' => $request->input('phone_number'),
             'dob' => '2000-01-01',
             'password' => '11111111',
@@ -78,55 +77,24 @@ class AuthController extends Controller
      * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function verify(Request $request)
+    public function verify(Request $request, $userId)
     {
         $data = $request->validate([
             'verification_code' => ['required', 'numeric'],
-            'phone_number' => ['required', 'string'],
         ]);
 
-        // Custom verification logic
-        $isValidCode = $this->customVerificationLogic($data['verification_code'], $data['phone_number']);
+        $user = User::find($userId);
 
-        if ($isValidCode) {
-            $user = User::where('phone_number', $data['phone_number'])->first();
-            if ($user) {
-                $user->isVerified = true;
-                $user->save();
+        $verificationCode   = Otp::where('user_id', $user->id)->where('otp', $data['verification_code'])->first();
 
-                // Save the OTP in the 'otps' table
-                $otp = new Otp([
-                    'user_id' => $user->id,
-                    'otp' => $data['verification_code'],
-                    'is_verified' => true,
-                ]);
-                $otp->save();
+        if($verificationCode){
+            $user->isVerified = true;
+            $user->save();
 
-                // Send the AccountVerification notification
-                $user->notify(new AccountVerification);
-
-                return response()->json(['message' => 'Successfully Registered']);
-            }
-            return response()->json(['error' => 'User not found.', 'status' => 404]);
+            return response()->json(['message' => 'Verification successful!', 'status' => 200]);
         }
 
         return response()->json(['error' => 'Invalid verification code entered!', 'status' => 400]);
-    }
-
-    private function customVerificationLogic($verificationCode, $phoneNumber)
-    {
-        // Retrieve the OTP from the database based on the phone number
-        $user = User::where('phone_number', $phoneNumber)->first();
-
-        if (!$user) {
-
-            return false; // User not found, verification fails
-        }
-
-        $validVerificationCode = $user->otp;
-
-        // Compare the provided verification code with the OTP from the database
-        return $verificationCode === $validVerificationCode;
     }
 
     /**
@@ -135,40 +103,45 @@ class AuthController extends Controller
      * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function createUser(Request $request)
+    public function createUser(Request $request, $userId)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'dob' => 'required|date_format:Y-m-d',
-            'phone_number' => 'nullable|string|max:255',
-            'password' => 'required|string|min:8|confirmed',
-            'gender' => 'required|in:male,female,other',
-            'region' => 'required'
-        ]);
+        $user = User::find($userId);
+        
+        if($user->isVerified === 1)
+        {
+            $data = $request->validate([
+                'name' => 'required|string|max:255',
+                'dob' => 'required|date_format:Y-m-d',
+                'password' => 'required|string|min:8|confirmed',
+                'gender' => 'required|in:male,female,other',
+                'region' => 'required'
+            ]);
+           
+            $user->update([
+                'name' => $data['name'],
+                'password' => Hash::make($data['password']),
+                'phone_number' => $user->phone_number,
+                'dob' => $data['dob'],
+                'gender' => $data['gender'],
+                'region' => $data['region']
+            ]);
 
-        $user = Auth::user();
+            $token = $user->createToken('student-token')->plainTextToken;
 
-        $user = User::create([
-            'name' => $data['name'],
-            'password' => Hash::make($data['password']),
-            'phone_number' => $data['phone_number'],
-            'dob' => $data['dob'],
-            'gender' => $data['gender'],
-            'region' => $data['region']
-        ]);
+            $response = [
+                'user' => $user,
+                'token' => $token,
+                'gender_options' => User::getGenderOptions(),
+                'region_values' => User::getRegionValues()
+            ];
 
-        $token = $user->createToken('student-token')->plainTextToken;
+            event(new Registered($user));
 
-        $response = [
-            'user' => $user,
-            'token' => $token,
-            'gender_options' => User::getGenderOptions(),
-            'region_values' => User::getRegionValues()
-        ];
-
-        event(new Registered($user));
-
-        return response()->json(['data' => $response , 'status' => 201]);
+            return response()->json(['data' => $response , 'status' => 201]);
+        }else{
+            
+            return response()->json(['message' => 'Please verify first']);
+        }
     }
 
     /**

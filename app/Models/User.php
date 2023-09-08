@@ -7,7 +7,7 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\OTP;
+use App\Models\Otp;
 
 class User extends Authenticatable
 {
@@ -15,7 +15,7 @@ class User extends Authenticatable
 
     protected $table = 'users';
     protected $primaryKey = 'id';
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -24,7 +24,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         // 'email',
-        'phone_number',
+        // 'phone_number',
         'isVerified',
         'dob',
         'password',
@@ -55,13 +55,13 @@ class User extends Authenticatable
 
     public function routeNotificationForSmspoh()
     {
-        
-        return $this->phone_number; 
+
+        return $this->phone_number;
     }
 
     public function otps()
     {
-        
+
         return $this->hasMany(Otp::class);
     }
 
