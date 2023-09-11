@@ -103,12 +103,10 @@ class MeetingController extends Controller
             $existingMeeting = Meeting::where('teacher_id', $teacher->id)->first();
 
             if ($existingMeeting) {
-                // Update the existing meeting link
+                $courses = $teacher->courses;
+                $existingMeeting->courses()->sync($courses);
                 $existingMeeting->meet_link = $meetLink;
                 $existingMeeting->save();
-
-                $courses = $teacher->courses;
-                $existingMeeting->courses()->attach($courses);
 
                 return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link Updated Successfully", 'status' => 200]);
             }
@@ -121,8 +119,8 @@ class MeetingController extends Controller
             $meeting->meet_link = $meetLink;
             $meeting->save();
 
-            $courses = $teacher->courses; // Assuming you have a relationship between Teacher and Course models
-            $meeting->courses()->attach($courses);
+            $courses = $teacher->courses;
+            $meeting->courses()->sync($courses);
 
             return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link created Successfully", 'status' => 200]);
     }
