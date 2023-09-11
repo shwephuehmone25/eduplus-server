@@ -26,7 +26,7 @@ class MeetingController extends Controller
         $client->setClientSecret(config('services.google.client_secret'));
         $client->setRedirectUri(config('services.google.redirect'));
         $client->addScope(Google_Service_Calendar::CALENDAR);
-        $client->addScope('https://www.googleapis.com/auth/calendar.events'); 
+        $client->addScope('https://www.googleapis.com/auth/calendar.events');
         $client->setAccessType('offline'); // Request offline access
 
         $authUrl = $client->createAuthUrl();
@@ -38,11 +38,11 @@ class MeetingController extends Controller
     {
         $accessToken = $request->header('Authorization');
         $teacher = Teacher::where('access_token', $accessToken)->first();
-    
+
         if (!$teacher) {
             return response()->json(['message' => 'Unauthorized'], 401);
         }
-    
+
         $client = new Google_Client();
         $client->setAuthConfig('client_secrets.json');
         $client->setAccessToken($accessToken);
@@ -57,14 +57,14 @@ class MeetingController extends Controller
         $client->addScope($scopes);
         $client->setAccessType('offline');
         $client->setApprovalPrompt('force');
-    
+
         if ($client->isAccessTokenExpired()) {
             $client->refreshToken($teacher->refresh_token);
             $accessToken = $client->getAccessToken();
         }
-    
+
         $service = new Google_Service_Calendar($client);
-    
+
             $event = new Google_Service_Calendar_Event();
             $startDateTime = new Google_Service_Calendar_EventDateTime();
             $endDateTime = new Google_Service_Calendar_EventDateTime();
@@ -87,40 +87,46 @@ class MeetingController extends Controller
             $conference->setCreateRequest($conferenceRequest);
 
             $event->setConferenceData($conference);
-    
+
             $calendarId = 'primary';
-    
+
             $event = $service->events->insert(
                 $calendarId,
                 $event,
                 [ 'conferenceDataVersion' => 1 ]
             );
-    
+
             $meetLink = $event->getHangoutLink();
-    
+
             $teacher_id = $teacher->id;
 
             $existingMeeting = Meeting::where('teacher_id', $teacher->id)->first();
 
             if ($existingMeeting) {
                 // Update the existing meeting link
-                $existingMeeting->meet_link = $meetLink; 
+                $existingMeeting->meet_link = $meetLink;
                 $existingMeeting->save();
+
+                $courses = $teacher->courses;
+                $existingMeeting->courses()->attach($courses);
 
                 return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link Updated Successfully", 'status' => 200]);
             }
-    
+
             // Store the meeting details in the database
             $meeting = new Meeting();
-            $meeting->start_time = $request->input('start_time'); 
-            $meeting->end_time = $request->input('end_time'); 
-            $meeting->teacher_id = $teacher_id; 
+            $meeting->start_time = $request->input('start_time');
+            $meeting->end_time = $request->input('end_time');
+            $meeting->teacher_id = $teacher_id;
             $meeting->meet_link = $meetLink;
             $meeting->save();
-    
+
+            $courses = $teacher->courses; // Assuming you have a relationship between Teacher and Course models
+            $meeting->courses()->attach($courses);
+
             return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link created Successfully", 'status' => 200]);
     }
-    
+
     public function test(Request $request)
     {
         $accessToken = $request->header('Authorization');
@@ -213,7 +219,7 @@ class MeetingController extends Controller
                 'end_time' => $meeting->end_time,
                 'meet_link' => $meeting->meet_link,
                 'teacher' => [
-                    'name' => $meeting->teacher->name,    
+                    'name' => $meeting->teacher->name,
                 ],
             ];
 

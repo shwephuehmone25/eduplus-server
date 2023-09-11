@@ -18,9 +18,9 @@ class CategoryController extends Controller
     {
         $categories = Category::with('subcategories')->get();
 
-        if ($categories->isEmpty()) 
+        if ($categories->isEmpty())
         {
-        
+
         return response()->json(['message' => 'No categories found.', 'status' => 404]);
         }
 
@@ -63,7 +63,7 @@ class CategoryController extends Controller
 
             return response()->json(['message' => 'Category created successfully', 'data' => $category, 'status' => 201]);
         } catch (\Exception $e) {
-            
+
             return response()->json(['error' => 'Category creation failed', 'message' => $e->getMessage(), 'status' => 500]);
         }
     }
@@ -87,7 +87,7 @@ class CategoryController extends Controller
 
             return response()->json(['message' => 'Category updated successfully', 'data' => $category, 'status' => 200]);
         } catch (\Exception $e) {
-            
+
             return response()->json(['error' => 'Category update failed', 'message' => $e->getMessage(), 'status' => 500]);
         }
     }

@@ -16,7 +16,7 @@ use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
 class AccountController extends Controller
-{ 
+{
     public function redirectToGoogle(): JsonResponse
     {
         $scopes = [
@@ -31,12 +31,12 @@ class AccountController extends Controller
         $url = Socialite::driver('google')
             ->scopes($scopes)
             ->stateless()
-            ->with(['access_type' => 'offline'])
+            ->with(['access_type' => 'offline', 'approval_prompt' => 'force'])
             ->redirect()
             ->getTargetUrl();
 
         return response()->json([
-            'url' => Socialite::driver('google')->stateless()->redirect()->getTargetUrl(),
+            'url' => $url,
         ]);
     }
 
@@ -45,12 +45,12 @@ class AccountController extends Controller
         try {
             /** @var SocialiteTeacher $socialiteTeacher */
             $socialiteTeacher = Socialite::driver('google')->stateless()->user();
-            
+
             // Validate email domain
             $email = $socialiteTeacher->getEmail();
             $allowedDomain = '@ilbcedu.com';
             if (strpos($email, $allowedDomain) === false) {
-                
+
                 return response()->json(['error' => 'Unauthorized email domain.'], 403);
             }
         } catch (ClientException $e) {
@@ -92,7 +92,7 @@ class AccountController extends Controller
             'google_access_token'   => $socialiteTeacher->token,
             'token_type' => 'Bearer',
         ]);
-    }  
+    }
 
     /**
      * Check if a teacher with a given email exists.
@@ -120,11 +120,11 @@ class AccountController extends Controller
            return response()->json([
                'message' => 'User does not exist.',
            ]);
-        }    
+        }
     }
 
     public function googleLogin(Request $request)
-    {    
+    {
         // try {
         //     // Validate the incoming data
         //     $validator = Validator::make($request->all(), [
@@ -135,15 +135,15 @@ class AccountController extends Controller
         //         'access_token' => 'required',
         //         'refresh_token' => 'nullable',
         //     ]);
-    
+
         //     if ($validator->fails()) {
-                
+
         //         return response()->json(['error' => $validator->errors()], 422);
         //     }
-    
+
         //     // Find teacher by email
         //     $teacher = Teacher::where('email', $request->input('email'))->first();
-    
+
         //     if ($teacher) {
         //         // Update existing teacher's Google ID and avatar
         //         $teacher->update([
@@ -152,7 +152,7 @@ class AccountController extends Controller
         //             'access_token' => $request->input('access_token'),
         //             'refresh_token' => $request->input('refresh_token'),
         //         ]);
-    
+
         //         // Generate a new API token for the authenticated teacher
         //         $token = $teacher->createToken('teacher-token')->plainTextToken;
 
@@ -173,12 +173,12 @@ class AccountController extends Controller
         //         //     'access_token' => $request->input('access_token'),
         //         //     'refresh_token' => $request->input('refresh_token'),
         //         // ];
-    
+
         //         // $teacher = Teacher::create($newTeacher);
 
         //         // // Generate a new API token for the authenticated teacher
         //         // $token = $teacher->createToken('teacher-token')->plainTextToken;
-    
+
         //         return response()->json([
         //             // 'token' => $token,
         //             // 'data' => $teacher,
@@ -186,7 +186,7 @@ class AccountController extends Controller
         //             'status' => 401,
         //         ]);
         //     }
-        // } 
+        // }
         // catch (Exception $e) {
         //     return response()->json([
         //         'error' => 'An error occurred',
@@ -203,11 +203,11 @@ class AccountController extends Controller
                 'access_token' => 'required',
                 'refresh_token' => 'nullable',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json(['error' => $validator->errors()], 422);
             }
-    
+
             // Find or create a teacher by email
             $teacher = Teacher::firstOrCreate(['email' => $request->input('email')], [
                 'google_id' => $request->input('google_id'),
@@ -215,19 +215,19 @@ class AccountController extends Controller
                 'email_verified_at' => now(),
                 'avatar' => $request->input('avatar'),
             ]);
-    
+
             // Update the access_token and refresh_token (if provided)
             $teacher->update([
                 'access_token' => $request->input('access_token'),
                 'refresh_token' => $request->input('refresh_token'),
             ]);
-    
+
             // Authenticate the teacher
             Auth::login($teacher);
-    
+
             // Generate a new API token for the authenticated teacher
             $token = $teacher->createToken('teacher-token')->plainTextToken;
-    
+
             return response()->json([
                 'token' => $token,
                 'data' => $teacher,
