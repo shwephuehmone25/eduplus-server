@@ -51,7 +51,6 @@ class SectionController extends Controller
             'description' => 'nullable|string',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i',
-            'capacity' => 'required|integer|min:0',
         ]);
 
         $section = Section::create($data);
@@ -77,7 +76,6 @@ class SectionController extends Controller
             'description' => 'nullable|string',
             'start_time' => 'required|date_format:H:i',
             'end_time' => 'required|date_format:H:i',
-            'capacity' => 'required|integer|min:0',
         ]);
 
         $section->update($data);
