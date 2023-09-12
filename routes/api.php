@@ -86,6 +86,8 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::post('/courses', [CourseController::class, 'store']);
     Route::post('/courses/{id}', [CourseController::class, 'update']);
     Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
+    Route::get('/courses/restore/{id}', [CourseController::class, 'restore']);
+    Route::get('restoreAll', [CourseController::class, 'restoreAll']);
 
     /**Video Routes */
     Route::post('/video/create', [ VideoController::class, 'store']);

@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use App\Models\TeacherCourse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Meeting;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -98,13 +99,14 @@ class CourseController extends Controller
             $course->classrooms()->attach($request->input('classroom_id'));
             $course->sections()->attach($request->input('section_id'));
             $course->teachers()->attach($request->input('teacher_id'));
+            $course->save();
 
             DB::commit();
 
             return response()->json(['message' => 'Course created successfully', 'data' => $course,'status' => 201]);
         } catch (\Exception $e) {
             DB::rollback();
-
+            dd($e);
             return response()->json(['message' => 'Failed to create the course','status' =>  500 ]);
         }
     }
@@ -183,10 +185,29 @@ class CourseController extends Controller
      */
     public function destroy($id)
     {
+        try {
+        DB::beginTransaction();
+
         $course = Course::findOrFail($id);
+
+        // Detach all related relationships
+        $course->categories()->detach();
+        $course->levels()->detach();
+        $course->classrooms()->detach();
+        $course->sections()->detach();
+        $course->teachers()->detach();
+
+        // Delete the course
         $course->delete();
 
-        return response()->json(['message' => 'Course deleted successfully', 'status' =>200]);
+        DB::commit();
+
+        return response()->json(['message' => 'Course is deleted successfully', 'status' => 200]);
+    } catch (\Exception $e) {
+        DB::rollback();
+
+        return response()->json(['message' => 'Failed to delete the course', 'error' => $e->getMessage(), 'status' => 500]);
+        }
     }
 
     /**
@@ -194,29 +215,29 @@ class CourseController extends Controller
      * @param $request
      * @return \Illuminate\Http\JsonResponse
      */
+    // public function buyCourses(Request $request, $courseId)
+    // {
+    // // Find the course by ID
+    // $course = Course::findOrFail($courseId);
+
+    // // Check if the user is authenticated
+    // if (Auth::check()) {
+    //     $user = Auth::user();
+
+    //     // Check if the user has already purchased the course
+    //     if (!$user->courses->contains($course->id)) {
+    //         // Attach the course to the user's purchased courses
+    //         $user->courses()->attach($course->id);
+
+    //         return response()->json(['message' => 'Course purchased successfully']);
+    //     } else {
+
+    //         return response()->json(['message' => 'You have already purchased this course']);
+    //             }
+    //         }
+    // }
+
     public function buyCourses(Request $request, $courseId)
-    {
-    // Find the course by ID
-    $course = Course::findOrFail($courseId);
-
-    // Check if the user is authenticated
-    if (Auth::check()) {
-        $user = Auth::user();
-
-        // Check if the user has already purchased the course
-        if (!$user->courses->contains($course->id)) {
-            // Attach the course to the user's purchased courses
-            $user->courses()->attach($course->id);
-
-            return response()->json(['message' => 'Course purchased successfully']);
-        } else {
-
-            return response()->json(['message' => 'You have already purchased this course']);
-                }
-            }
-    }
-
-    public function enroll(Request $request, $courseId)
     {
         $course = Course::findOrFail($courseId);
 
@@ -225,7 +246,7 @@ class CourseController extends Controller
         }
         // dd($user->courses);
         if(!$user->courses->contains($course->id)){
-            $user->courses->attach($course->id);
+            $user->courses()->attach($course->id);
 
         $classroom = $course->classrooms->first();
 
@@ -307,6 +328,44 @@ class CourseController extends Controller
         foreach ($meetings as $meeting) {
             // Load categories for each course
             $meeting->load('meetings');
+        }
+    }
+
+   /**
+     * Restore a single deleted course by ID.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function restore($id)
+    {
+        $restoredCourse =Course::withTrashed()->find($id)->restore();
+
+        if ($restoredCourse) 
+        {
+            return response()->json(['message' => 'Course restored successfully'], 200);
+        } else {
+            
+            return response()->json(['message' => 'Course not found or already restored'], 404);
+        }
+    }
+
+    /**
+     * Restore all deleted courses.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function restoreAll()
+    {
+        $restoredCourses =Course::onlyTrashed()->restore();
+
+        if ($restoredCourses) 
+        {
+
+            return response()->json(['message' => 'All deleted Courses restored successfully', 'status' => 200]);
+        } else {
+
+            return response()->json(['message' => 'No deleted Courses found to restore', 'status' => 404]);
         }
     }
 }
