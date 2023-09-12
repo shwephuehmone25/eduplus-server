@@ -14,10 +14,12 @@ use App\Models\Subcategory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Contracts\Likeable;
+use App\Models\Concerns\Likes;
 
-class Course extends Model
+class Course extends Model implements Likeable
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Likes;
 
     protected $fillable = ['course_name', 'description','price','period','announce_date'];
 

@@ -5,6 +5,7 @@ use App\Http\Middleware\IsAdmin;
 use App\Http\Middleware\IsTeacher;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\LikeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\ClassController;
 use App\Http\Controllers\Admin\LevelController;
@@ -43,6 +44,12 @@ Route::post('/phone/register', [AuthController::class, 'getStart']);
 Route::post('/otp/verify/{userId}', [AuthController::class, 'verify']);
 Route::post('/user/create/{userId}', [AuthController::class, 'createUser']);
 Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
+
+Route::middleware('auth:api')->group(function () {
+    Route::post('/like', [LikeController::class, 'like']);
+    Route::post('/unlike', [LikeController::class,'unlike']);
+});
+
 
 /**Common Routes */
 Route::middleware('auth:sanctum')->group(function(){
