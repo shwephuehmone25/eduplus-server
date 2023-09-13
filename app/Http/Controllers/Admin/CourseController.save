@@ -2,12 +2,22 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\User;
 use App\Models\Category;
-use App\Models\Subcategory;
+use App\Mail\SendMail;
+use App\Models\Course;
+use App\Models\Teacher;
+use App\Models\Enrollment;
 use Illuminate\Http\Request;
+use App\Models\TeacherCourse;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Meeting;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Validator;
 
-class CategoryController extends Controller
+class CourseController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -16,15 +26,34 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::with('subcategories')->get();
+        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers','subcategories', 'meetings')->get();
+             ->orderBy('id', 'desc')
+             ->paginate(18);
 
-        if ($categories->isEmpty())
+        if ($courses->isEmpty())
         {
 
-        return response()->json(['message' => 'No categories found.', 'status' => 404]);
+        return response()->json(['message' => 'No courses found.', 'status' => 404]);
         }
 
-        return response()->json(['data' => $categories]);
+        return response()->json(['data' => $courses]);
+    }
+
+    public function getCoursesbyCategory(Request $request, $categoryName)
+    {
+         Find the category by its name in the 'categories' table
+        $category = Category::where('name', $categoryName)->first();
+
+         Check if the category does not exist
+        if (!$category) {
+            return response()->json(['error' => 'Category not found'], 404);
+        }
+
+         Retrieve the courses associated with the found category
+        $courses = $category->courses;
+
+         Return the courses as JSON response
+        return response()->json(['courses' => $courses]);
     }
 
     /**
@@ -33,16 +62,17 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function getCategoryDetails($id)
+    public function showCourseDetails($id)
     {
-        $category = Category::with('subcategories')->find($id);
+        $course = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers', 'subcategories')
+            ->find($id);
 
-        if (!$category) {
+        if (!$course) {
 
-            return response()->json(['error' => 'Category not found', 'status' => 404]);
+            return response()->json(['error' => 'Course not found'], 404);
         }
 
-        return response()->json(['data' => $category]);
+        return response()->json(['data' => $course]);
     }
 
     /**
@@ -53,18 +83,31 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-            try {
-            $category = new Category();
-            $category->name = $request->input('name');
-            $category->save();
+        try {
+            DB::beginTransaction();
 
-            $subcategoryIds = $request->input('subcategory_id');
-            $category->subcategories()->attach($subcategoryIds);
+            $course = Course::create([
+                'course_name' => $request->input('course_name'),
+                'description' => $request->input('description'),
+                'price' => $request->input('price'),
+                'period' => $request->input('period'),
+                'announce_date' => $request->input('announce_date')
+            ]);
 
-            return response()->json(['message' => 'Category created successfully', 'data' => $category, 'status' => 201]);
+            $course->categories()->attach($request->input('category_id'));
+            $course->levels()->attach($request->input('level_id'));
+            $course->classrooms()->attach($request->input('classroom_id'));
+            $course->sections()->attach($request->input('section_id'));
+            $course->teachers()->attach($request->input('teacher_id'));
+            $course->save();
+
+            DB::commit();
+
+            return response()->json(['message' => 'Course created successfully', 'data' => $course,'status' => 201]);
         } catch (\Exception $e) {
-
-            return response()->json(['error' => 'Category creation failed', 'message' => $e->getMessage(), 'status' => 500]);
+            DB::rollback();
+            dd($e);
+            return response()->json(['message' => 'Failed to create the course','status' =>  500 ]);
         }
     }
 
@@ -77,18 +120,60 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-            try {
-            $category = Category::findOrFail($id);
-            $category->name = $request->input('name');
-            $category->save();
+        try {
+            $todayDate = date('Y-m-d');
 
-            $subcategoryIds = $request->input('subcategory_id');
-            $category->subcategories()->sync($subcategoryIds);
+            $validator = Validator::make($request->all(), [
+                'course_name' => 'required|string|max:255',
+                'description' => 'required|string',
+                'price' => 'required|numeric',
+                'period' => 'required|string',
+                'announce_date' => 'required|date_format:Y-m-d|after_or_equal:' . $todayDate,
+                'category_id' => 'nullable|exists:categories,id',
+                'level_id' => 'nullable|exists:levels,id',
+                'classroom_id' => 'nullable|exists:classrooms,id',
+                'section_id' => 'nullable|exists:sections,id',
+                'teacher_id' => 'nullable|exists:teachers,id',
+            ]);
 
-            return response()->json(['message' => 'Category updated successfully', 'data' => $category, 'status' => 200]);
+            if ($validator->fails()) {
+                return response()->json(['errors' => $validator->errors()], 422);
+            }
+
+            DB::beginTransaction();
+
+            $course = Course::findOrFail($id);
+            $course->update([
+                'course_name' => $request->input('course_name'),
+                'description' => $request->input('description'),
+                'price' => $request->input('price'),
+                'period' => $request->input('period'),
+                'announce_date' => $request->input('announce_date'),
+            ]);
+
+            $relatedData = [
+                'categories' => $request->input('category_id'),
+                'levels' => $request->input('level_id'),
+                'classrooms' => $request->input('classroom_id'),
+                'sections' => $request->input('section_id'),
+                'teachers' => $request->input('teacher_id'),
+            ];
+
+            foreach ($relatedData as $relation => $ids) {
+                if (!empty($ids)) {
+                    $course->{$relation}()->sync($ids);
+                } else {
+                    $course->{$relation}()->detach();
+                }
+            }
+
+            DB::commit();
+
+            return response()->json(['message' => 'Course updated successfully', 'data' => $course, 'status' => 200]);
         } catch (\Exception $e) {
+            DB::rollback();
 
-            return response()->json(['error' => 'Category update failed', 'message' => $e->getMessage(), 'status' => 500]);
+            return response()->json(['message' => 'Failed to update the course', 'error' => $e->getMessage(), 'status' => 500]);
         }
     }
 
@@ -101,26 +186,186 @@ class CategoryController extends Controller
     public function destroy($id)
     {
         try {
-        $category = Category::findOrFail($id);
+        DB::beginTransaction();
 
-        // Detach all subcategories from this category
-        $category->subcategories()->detach();
+        $course = Course::findOrFail($id);
 
-        // Detach all associated courses without deleting them
-        $category->courses()->detach();
+         Detach all related relationships
+        $course->categories()->detach();
+        $course->levels()->detach();
+        $course->classrooms()->detach();
+        $course->sections()->detach();
+        $course->teachers()->detach();
 
-        // Now, delete the category itself
-        $category->delete();
+         Delete the course
+        $course->delete();
 
-            return response()->json(['message' => 'Category and associated records deleted successfully', 'status' => 200]);
-        } catch (\Exception $e) {
-            // Check if the error message contains the foreign key constraint error
-            if (strpos($e->getMessage(), 'foreign key constraint') !== false) {
+        DB::commit();
 
-                return response()->json(['error' => 'Cannot delete the category because it has associated records.', 'status' => 400]);
-            }
+        return response()->json(['message' => 'Course is deleted successfully', 'status' => 200]);
+    } catch (\Exception $e) {
+        DB::rollback();
 
-            return response()->json(['error' => 'Category deletion failed', 'status' => 500]);
+        return response()->json(['message' => 'Failed to delete the course', 'error' => $e->getMessage(), 'status' => 500]);
+        }
+    }
+
+    /**
+     * Summary of buyCourse
+     * @param $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+     public function buyCourses(Request $request, $courseId)
+     {
+      Find the course by ID
+     $course = Course::findOrFail($courseId);
+
+      Check if the user is authenticated
+     if (Auth::check()) {
+         $user = Auth::user();
+
+          Check if the user has already purchased the course
+         if (!$user->courses->contains($course->id)) {
+              Attach the course to the user's purchased courses
+             $user->courses()->attach($course->id);
+
+             return response()->json(['message' => 'Course purchased successfully']);
+         } else {
+
+             return response()->json(['message' => 'You have already purchased this course']);
+                 }
+             }
+     }
+
+    public function buyCourses(Request $request, $courseId)
+    {
+         $course = Course::findOrFail($courseId);
+
+         if(Auth::check()){
+             $user = Auth::user();
+         }
+          dd($user->courses);
+         if(!$user->courses->contains($course->id)){
+             $user->courses()->attach($course->id);
+
+         $classroom = $course->classrooms->first();
+
+             if(!$classroom){
+                 return response()->json(['warning' => 'This course does not have a classroom.'], 422);
+             }
+
+             if($classroom->capacity <= 0){
+                 return response()->json(['warning' => 'This course is already full!'], 422);
+             }
+
+             $enrollment = new Enrollment([
+                 'enroll_date' => now(),
+                 'isPresent' => true
+             ]);
+
+             $course->enrollments()->save($enrollment);
+             $classroom->decrement('capacity', 1);
+
+             return response()->json(['message' => 'Course purchased and enrolled successfully!']);
+         }else{
+
+             return response()->json(['message' => 'You have already purchased this course']);
+         }
+        
+    }
+
+    /**
+     * Summary of getMyCourse
+     * @param mixed $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+     public function getMyCourse($userId)
+     {
+         $user = User::findOrFail($userId);
+
+         $myCourse = $user->courses()->get();
+         $myCourse = $this->getMeeting($myCourse);
+
+         if (!$myCourse) {
+
+             return response()->json([
+                 'message' => 'Course not found',
+                 'status' => 404,
+             ] );
+         }
+
+         return response()->json([
+             'message' => 'Your Purchased Courses are',
+             'data' => $myCourse,
+             'status' => 200
+         ]);
+     }
+
+    public function getMyCourse($userId)
+    {
+        $user = User::findOrFail($userId);
+
+        $myCourse = $user->courses()->with('meetings')->get();
+
+        if (!$myCourse) {
+            return response()->json([
+                'message' => 'Course not found',
+                'status' => 404,
+            ] );
+        }
+
+        return response()->json([
+            'message' => 'Your Purchased Courses are',
+            'data' => $myCourse,
+            'status' => 200
+        ]);
+    }
+
+    protected function getMeeting($myCourse)
+    {
+        $meetings = $myCourse->meetings;
+
+        foreach ($meetings as $meeting) {
+             Load categories for each course
+            $meeting->load('meetings');
+        }
+    }
+
+   /**
+     * Restore a single deleted course by ID.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function restore($id)
+    {
+        $restoredCourse =Course::withTrashed()->find($id)->restore();
+
+        if ($restoredCourse)
+        {
+            return response()->json(['message' => 'Course restored successfully'], 200);
+        } else {
+
+            return response()->json(['message' => 'Course not found or already restored'], 404);
+        }
+    }
+
+    /**
+     * Restore all deleted courses.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function restoreAll()
+    {
+        $restoredCourses =Course::onlyTrashed()->restore();
+
+        if ($restoredCourses)
+        {
+
+            return response()->json(['message' => 'All deleted Courses restored successfully', 'status' => 200]);
+        } else {
+
+            return response()->json(['message' => 'No deleted Courses found to restore', 'status' => 404]);
         }
     }
 }

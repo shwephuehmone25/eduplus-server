@@ -137,7 +137,7 @@ class CourseController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['errors' => $validator->errors()], 422);
+                return response()->json(['errors' => $validator->errors(), 'status' => 422]);
             }
 
             DB::beginTransaction();
@@ -215,47 +215,21 @@ class CourseController extends Controller
      * @param $request
      * @return \Illuminate\Http\JsonResponse
      */
-    // public function buyCourses(Request $request, $courseId)
-    // {
-    // // Find the course by ID
-    // $course = Course::findOrFail($courseId);
-
-    // // Check if the user is authenticated
-    // if (Auth::check()) {
-    //     $user = Auth::user();
-
-    //     // Check if the user has already purchased the course
-    //     if (!$user->courses->contains($course->id)) {
-    //         // Attach the course to the user's purchased courses
-    //         $user->courses()->attach($course->id);
-
-    //         return response()->json(['message' => 'Course purchased successfully']);
-    //     } else {
-
-    //         return response()->json(['message' => 'You have already purchased this course']);
-    //             }
-    //         }
-    // }
-
     public function buyCourses(Request $request, $courseId)
     {
         $course = Course::findOrFail($courseId);
+        $user = Auth::user();
 
-        if(Auth::check()){
-            $user = Auth::user();
-        }
-        // dd($user->courses);
         if(!$user->courses->contains($course->id)){
             $user->courses()->attach($course->id);
 
-        $classroom = $course->classrooms->first();
+            $classroom = $course->classrooms->first();
 
-            if(!$classroom){
-                return response()->json(['warning' => 'This course does not have a classroom.'], 422);
-            }
-
-            if($classroom->capacity <= 0){
-                return response()->json(['warning' => 'This course is already full!'], 422);
+            if(!$classroom || $classroom->capacity <= 0){
+                return response()->json([
+                    'warning' => !$classroom ? 'This course does not have a classroom.' : 'This course is already full!', 
+                    'status' => 422
+                ]);
             }
 
             $enrollment = new Enrollment([
@@ -267,11 +241,9 @@ class CourseController extends Controller
             $classroom->decrement('capacity', 1);
 
             return response()->json(['message' => 'Course purchased and enrolled successfully!']);
-        }else{
-
-            return response()->json(['message' => 'You have already purchased this course']);
         }
 
+        return response()->json(['message' => 'You have already purchased this course']);
     }
 
     /**
@@ -279,28 +251,6 @@ class CourseController extends Controller
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
-    // public function getMyCourse($userId)
-    // {
-    //     $user = User::findOrFail($userId);
-
-    //     $myCourse = $user->courses()->get();
-    //     $myCourse = $this->getMeeting($myCourse);
-
-    //     if (!$myCourse) {
-
-    //         return response()->json([
-    //             'message' => 'Course not found',
-    //             'status' => 404,
-    //         ] );
-    //     }
-
-    //     return response()->json([
-    //         'message' => 'Your Purchased Courses are',
-    //         'data' => $myCourse,
-    //         'status' => 200
-    //     ]);
-    // }
-
     public function getMyCourse($userId)
     {
         $user = User::findOrFail($userId);
@@ -341,11 +291,11 @@ class CourseController extends Controller
     {
         $restoredCourse =Course::withTrashed()->find($id)->restore();
 
-        if ($restoredCourse) 
+        if ($restoredCourse)
         {
             return response()->json(['message' => 'Course restored successfully'], 200);
         } else {
-            
+
             return response()->json(['message' => 'Course not found or already restored'], 404);
         }
     }
@@ -359,7 +309,7 @@ class CourseController extends Controller
     {
         $restoredCourses =Course::onlyTrashed()->restore();
 
-        if ($restoredCourses) 
+        if ($restoredCourses)
         {
 
             return response()->json(['message' => 'All deleted Courses restored successfully', 'status' => 200]);
