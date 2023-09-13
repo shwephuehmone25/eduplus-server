@@ -60,6 +60,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
     Route::post('/courses/enroll/{courseId}', [CourseController::class, 'enroll']);
     Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
+    Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);
