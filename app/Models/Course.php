@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\User;
 use App\Models\Level;
+use App\Models\Like;
 use App\Models\Policy;
 use App\Models\Meeting;
 use App\Models\Teacher;
@@ -44,7 +45,7 @@ class Course extends Model implements Likeable
     public function students()
     {
 
-        return $this->belongsToMany(User::class, 'students_courses', 'course_id','user_id')->withTimestamps();
+        return $this->belongsToMany(User::class, 'students_courses', 'course_id','user_id');
     }
 
     public function enrollments()
@@ -87,5 +88,11 @@ class Course extends Model implements Likeable
     {
         
         return $this->hasOne(Policy::class);
+    }
+
+    public function likedCourses(): MorphMany
+    {
+        
+        return $this->morphMany(Like::class, 'likeable');
     }
 }

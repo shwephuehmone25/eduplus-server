@@ -318,4 +318,28 @@ class CourseController extends Controller
             return response()->json(['message' => 'No deleted Courses found to restore', 'status' => 404]);
         }
     }
+
+    public function getLikedCourses($userId)
+    {
+        $user = User::find($userId);
+
+    if (!$user) {
+        // where the user doesn't exist,
+        return response()->json(['message' => 'User not found', 'status' => 404]);
+    }
+
+    //load the liked courses for the user.
+    $likedCourses = $user->likes()
+        ->where('likeable_type', 'App\Models\Course')
+        ->with('likeable') // Load the associated course
+        ->get()
+        ->pluck('likeable'); // Extract the courses from the collection
+
+        if ($likedCourses->isEmpty()) {
+        // Handle the case where there are no liked courses.
+        return response()->json(['message' => 'No liked courses found', 'status' => 204]);
+    }
+    
+    return response()->json(['liked_courses' => $likedCourses, 'status' => 200]);
+    }
 }
