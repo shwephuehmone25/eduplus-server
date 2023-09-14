@@ -13,6 +13,8 @@ use App\Models\TeacherCourse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Meeting;
+use App\Models\CourseCategory;
+use App\Models\StudentCourse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -274,17 +276,43 @@ class CourseController extends Controller
         ]);
     }
 
-    protected function getMeeting($myCourse)
+     /**
+     * Summary of getPurchasedCoursesByCategory
+     * @param mixed $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getPurchasedCoursesByCategory(Request $request, $categoryName)
     {
-        $meetings = $myCourse->meetings;
-
-        foreach ($meetings as $meeting) {
-            // Load categories for each course
-            $meeting->load('meetings');
+        $category = Category::where('name', $categoryName)->first();
+        
+        if (!$category) 
+        {
+           
+            return response()->json(['error' => 'Category not found'], 404);
         }
+
+        $studentId = auth()->user()->id;
+
+        $purchasedCourses = StudentCourse::where('user_id', $studentId)
+            ->whereIn('course_id', $category->courses->pluck('id'))
+            ->get();
+
+            $courseDetails = [];
+
+            foreach ($purchasedCourses as $purchasedCourse) {
+                $course = Course::find($purchasedCourse->course_id);
+                if ($course) {
+                    $courseDetails[] = $course;
+                }
+            }
+
+        return response()->json([
+            'purchasedCourses' => $courseDetails,
+            'status' => 200
+        ]);
     }
 
-   /**
+    /**
      * Restore a single deleted course by ID.
      *
      * @param  int  $id
