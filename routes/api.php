@@ -45,12 +45,6 @@ Route::post('/otp/verify/{userId}', [AuthController::class, 'verify']);
 Route::post('/user/create/{userId}', [AuthController::class, 'createUser']);
 Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
 
-Route::middleware('auth:api')->group(function () {
-    Route::post('/like', [LikeController::class, 'like']);
-    Route::post('/unlike', [LikeController::class,'unlike']);
-});
-
-
 /**Common Routes */
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('/courses', [CourseController::class, 'index']);
@@ -61,6 +55,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/courses/enroll/{courseId}', [CourseController::class, 'enroll']);
     Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
     Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
+    Route::post('/like', [LikeController::class, 'like']);
+    Route::post('/unlike', [LikeController::class,'unlike']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);
@@ -99,15 +95,15 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::get('/category/{id}', [CategoryController::class, 'getCategoryDetails']);
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::post('/categories/{id}', [CategoryController::class, 'update']);
-    Route::delete('/categories/{id}', [CategoryController::class, 'destroy']);
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 
     /**Subcategory routes*/
-    Route::get('/subcategories', [SubcategoryController::class,'index']);
-    Route::get('/subcategory/{id}', [SubcategoryController::class, 'getSubcategoryDetails']);
-    Route::post('/subcategories', [SubcategoryController::class,'store']);
-    Route::post('/subcategories/{id}', [SubcategoryController::class,'update']);
-    Route::delete('/subcategories/{id}', [SubcategoryController::class,'destroy']);
-    Route::get('/get/subcategories', [SubcategoryController::class, 'getSubcategoriesByCategory']);
+    // Route::get('/subcategories', [SubcategoryController::class,'index']);
+    // Route::get('/subcategory/{id}', [SubcategoryController::class, 'getSubcategoryDetails']);
+    // Route::post('/subcategories', [SubcategoryController::class,'store']);
+    // Route::post('/subcategories/{id}', [SubcategoryController::class,'update']);
+    // Route::delete('/subcategories/{id}', [SubcategoryController::class,'destroy']);
+    // Route::get('/get/subcategories', [SubcategoryController::class, 'getSubcategoriesByCategory']);
 
     /**Class routes */
     Route::get('/classes', [ClassController::class, 'index']);

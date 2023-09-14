@@ -17,11 +17,11 @@ class Category extends Model
         return $this->belongsToMany(Course::class, 'courses_categories');
     }
 
-    public function subcategories()
-    {
+    // public function subcategories()
+    // {
 
-        return $this->belongsToMany(Subcategory::class, 'categories_subcategories');
-    }
+    //     return $this->belongsToMany(Subcategory::class, 'categories_subcategories');
+    // }
 
     public function videos()
     {

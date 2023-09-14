@@ -26,7 +26,7 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers','subcategories', 'meetings')->get();
+        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers', 'meetings')->get();
             // ->orderBy('id', 'desc')
             // ->paginate(18);
 
@@ -64,7 +64,7 @@ class CourseController extends Controller
      */
     public function showCourseDetails($id)
     {
-        $course = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers', 'subcategories')
+        $course = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers')
             ->find($id);
 
         if (!$course) {
@@ -227,7 +227,7 @@ class CourseController extends Controller
 
             if(!$classroom || $classroom->capacity <= 0){
                 return response()->json([
-                    'warning' => !$classroom ? 'This course does not have a classroom.' : 'This course is already full!', 
+                    'warning' => !$classroom ? 'This course does not have a classroom.' : 'This course is already full!',
                     'status' => 422
                 ]);
             }
@@ -239,6 +239,9 @@ class CourseController extends Controller
 
             $course->enrollments()->save($enrollment);
             $classroom->decrement('capacity', 1);
+
+            $teacherId = $course->teachers->first()->id;
+            $user->teachers()->attach($teacherId);
 
             return response()->json(['message' => 'Course purchased and enrolled successfully!']);
         }
@@ -339,7 +342,7 @@ class CourseController extends Controller
         // Handle the case where there are no liked courses.
         return response()->json(['message' => 'No liked courses found', 'status' => 204]);
     }
-    
+
     return response()->json(['liked_courses' => $likedCourses, 'status' => 200]);
     }
 }

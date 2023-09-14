@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Category;
-use App\Models\Subcategory;
+// use App\Models\Subcategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -16,7 +16,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $categories = Category::with('subcategories')->get();
+        $categories = Category::get();
 
         if ($categories->isEmpty()) 
         {
@@ -35,7 +35,7 @@ class CategoryController extends Controller
      */
     public function getCategoryDetails($id)
     {
-        $category = Category::with('subcategories')->find($id);
+        $category = Category::find($id);
 
         if (!$category) {
 
@@ -58,8 +58,8 @@ class CategoryController extends Controller
             $category->name = $request->input('name');
             $category->save();
 
-            $subcategoryIds = $request->input('subcategory_id');
-            $category->subcategories()->attach($subcategoryIds);
+            // $subcategoryIds = $request->input('subcategory_id');
+            // $category->subcategories()->attach($subcategoryIds);
 
             return response()->json(['message' => 'Category created successfully', 'data' => $category, 'status' => 201]);
         } catch (\Exception $e) {
@@ -82,8 +82,8 @@ class CategoryController extends Controller
             $category->name = $request->input('name');
             $category->save();
 
-            $subcategoryIds = $request->input('subcategory_id');
-            $category->subcategories()->sync($subcategoryIds);
+            // $subcategoryIds = $request->input('subcategory_id');
+            // $category->subcategories()->sync($subcategoryIds);
 
             return response()->json(['message' => 'Category updated successfully', 'data' => $category, 'status' => 200]);
         } catch (\Exception $e) {
@@ -98,29 +98,10 @@ class CategoryController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Category $category)
     {
-        try {
-        $category = Category::findOrFail($id);
+       $category->delete();
 
-        // Detach all subcategories from this category
-        $category->subcategories()->detach();
-
-        // Detach all associated courses without deleting them
-        $category->courses()->detach();
-
-        // Now, delete the category itself
-        $category->delete();
-
-            return response()->json(['message' => 'Category and associated records deleted successfully', 'status' => 200]);
-        } catch (\Exception $e) {
-            // Check if the error message contains the foreign key constraint error
-            if (strpos($e->getMessage(), 'foreign key constraint') !== false) {
-
-                return response()->json(['error' => 'Cannot delete the category because it has associated records.', 'status' => 400]);
-            }
-
-            return response()->json(['error' => 'Category deletion failed', 'status' => 500]);
-        }
+        return response()->json(['message' => 'Category deleted successfully', 'status' => 200]);
     }
 }
