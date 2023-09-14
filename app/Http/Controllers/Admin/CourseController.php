@@ -274,6 +274,16 @@ class CourseController extends Controller
         ]);
     }
 
+    protected function getMeeting($myCourse)
+    {
+        $meetings = $myCourse->meetings;
+
+        foreach ($meetings as $meeting) {
+            // Load categories for each course
+            $meeting->load('meetings');
+        }
+    }
+
    /**
      * Restore a single deleted course by ID.
      *
@@ -312,29 +322,24 @@ class CourseController extends Controller
         }
     }
 
-     /**
-     * Summary of getLikedCourses
-     * @param mixed $id
-     * @return \Illuminate\Http\JsonResponse
-     */
     public function getLikedCourses($userId)
     {
         $user = User::find($userId);
 
     if (!$user) {
-       
+        // where the user doesn't exist,
         return response()->json(['message' => 'User not found', 'status' => 404]);
     }
 
-    
+    //load the liked courses for the user.
     $likedCourses = $user->likes()
         ->where('likeable_type', 'App\Models\Course')
-        ->with('likeable') 
+        ->with('likeable') // Load the associated course
         ->get()
-        ->pluck('likeable'); 
+        ->pluck('likeable'); // Extract the courses from the collection
 
         if ($likedCourses->isEmpty()) {
-       
+        // Handle the case where there are no liked courses.
         return response()->json(['message' => 'No liked courses found', 'status' => 204]);
     }
 
