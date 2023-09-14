@@ -10,4 +10,5 @@ class StudentCourse extends Model
     use HasFactory;
 
     protected $table = 'students_courses';
+    protected $fillable = ['user_id', 'course_id'];
 }
