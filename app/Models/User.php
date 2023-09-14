@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Otp;
+use App\Models\Enrollment;
 use App\Contracts\Likeable;
 use App\Models\Like;
 
@@ -70,13 +71,19 @@ class User extends Authenticatable
     public function courses()
     {
 
-        return $this->belongsToMany(Course::class, 'students_courses', 'user_id','course_id')->withTimestamps();
+        return $this->belongsToMany(Course::class, 'students_courses', 'user_id','course_id');
     }
 
     public function teachers()
     {
 
         return $this->belongsToMany(Teacher::class, 'teachers_students', 'user_id', 'teacher_id');
+    }
+
+    public function enrollments()
+    {
+
+        return $this->belongsToMany(Enrollment::class, 'students_enrollments', 'user_id', 'enrollment_id');
     }
 
     public static function getGenderOptions(){
