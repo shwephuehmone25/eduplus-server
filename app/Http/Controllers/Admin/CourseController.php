@@ -281,7 +281,7 @@ class CourseController extends Controller
         ]);
     }
 
-     /**
+    /**
      * Summary of getPurchasedCoursesByCategory
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
@@ -314,6 +314,35 @@ class CourseController extends Controller
         return response()->json([
             'purchasedCourses' => $courseDetails,
             'status' => 200
+        ]);
+    }
+
+    /**
+     * Summary of getPurchasedCoursesByCategory
+     * @param mixed $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getPurchasedCoursesDetails($userId, $courseId)
+    {
+        $user = User::findOrFail($userId);
+
+        $purchasedCourse = $user->courses()
+            ->with('meetings')
+            ->where('courses.id', $courseId)
+            ->first();
+
+        if (!$purchasedCourse) 
+        {
+            return response()->json([
+                'message' => 'Course not found in your purchased courses',
+                'status' => 404,
+            ]);
+        }
+
+        return response()->json([
+            'message' => 'Purchased Course Details',
+            'data' => $purchasedCourse,
+            'status' => 200,
         ]);
     }
 
