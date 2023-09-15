@@ -14,9 +14,12 @@ use App\Http\Controllers\Admin\CourseController;
 use App\Http\Controllers\Admin\SectionController;
 use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\NoticeController;
 use App\Http\Controllers\Teacher\MeetingController;
 use App\Http\Controllers\Admin\SubcategoryController;
+use App\Http\Controllers\Admin\VarietyController;
 use App\Http\Controllers\Teacher\AccountController;
+use Google\Service\Adsense\Row;
 
 /*
 |--------------------------------------------------------------------------
@@ -132,4 +135,21 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::post('/teachers/{teacher}', [TeacherController::class, 'update']);
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
     Route::get('/teachers', [TeacherController::class, 'getAllTeachers']);
+
+    /**News Variety route */
+    Route::get('/varieties', [VarietyController::class, 'index']);
+    Route::post('/varieties', [VarietyController::class, 'store']);
+    Route::get('/varieties/{variety}', [VarietyController::class, 'getVarietyDetails']);
+    Route::post('/varieties/{variety}', [VarietyController::class, 'update']);
+    Route::delete('/varieties/{variety}', [VarietyController::class, 'destroy']);
+
+    /**News Routes */
+    Route::get('/news', [NoticeController::class, 'index']);
+    Route::get('/news/{news}', [NoticeController::class, 'getNoticeDetails']);
+    Route::post('/news', [NoticeController::class, 'store']);
+    Route::post('/news/{news}', [NoticeController::class, 'update']);
+    Route::delete('/news/{news}', [NoticeController::class, 'destroy']);
+    Route::get('/get/getNewsByVariety/{varietyName}', [NoticeController::class, 'getNewsByVariety']);
+    Route::get('/news/restore/{id}', [NoticeController::class, 'restore']);
+    Route::get('/news/restoreAll', [NoticeController::class, 'restoreAll']);
 });
