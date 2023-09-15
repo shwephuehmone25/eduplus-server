@@ -131,11 +131,11 @@ class CourseController extends Controller
             $todayDate = date('Y-m-d');
 
             $validator = Validator::make($request->all(), [
-                'course_name' => 'required|string|max:255',
-                'description' => 'required|string',
-                'price' => 'required|numeric',
-                'period' => 'required|string',
-                'announce_date' => 'required|date_format:Y-m-d|after_or_equal:' . $todayDate,
+                // 'course_name' => 'required|string|max:255',
+                // 'description' => 'required|string',
+                // 'price' => 'required|numeric',
+                // 'period' => 'required|string',
+                // 'announce_date' => 'required|date_format:Y-m-d|after_or_equal:' . $todayDate,
                 'category_id' => 'nullable|exists:categories,id',
                 'level_id' => 'nullable|exists:levels,id',
                 'classroom_id' => 'nullable|exists:classrooms,id',
@@ -165,6 +165,14 @@ class CourseController extends Controller
                 'sections' => $request->input('section_id'),
                 'teachers' => $request->input('teacher_id'),
             ];
+
+            $teacherId = $request->input('teacher_id');
+            $teacher = Teacher::find($teacherId);
+
+            if ($teacher && $teacher->meeting) {
+                $meetingId = $teacher->meeting->id;
+                $course->meetings()->attach($meetingId);
+            }
 
             foreach ($relatedData as $relation => $ids) {
                 if (!empty($ids)) {
@@ -331,7 +339,7 @@ class CourseController extends Controller
             ->where('courses.id', $courseId)
             ->first();
 
-        if (!$purchasedCourse) 
+        if (!$purchasedCourse)
         {
             return response()->json([
                 'message' => 'Course not found in your purchased courses',
