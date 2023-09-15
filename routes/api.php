@@ -44,6 +44,7 @@ Route::post('/phone/register', [AuthController::class, 'getStart']);
 Route::post('/otp/verify/{userId}', [AuthController::class, 'verify']);
 Route::post('/user/create/{userId}', [AuthController::class, 'createUser']);
 Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
+Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
 
 /**Common Routes */
 Route::middleware('auth:sanctum')->group(function(){
@@ -53,9 +54,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/mycourses/show/{id}', [CourseController::class, 'getMyCourse']);
     Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
     Route::post('/courses/enroll/{courseId}', [CourseController::class, 'enroll']);
-    Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
     Route::get('/get/purchasedCourses/{categoryName}', [CourseController::class, 'getPurchasedCoursesByCategory']);
-    Route::get('/get/{userId}/purchasedcourseDetails/{courseId}', [CourseController::class, 'getPurchasedCoursesDetails']);
     Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
     Route::post('/like', [LikeController::class, 'like']);
     Route::post('/unlike', [LikeController::class,'unlike']);
@@ -87,6 +86,7 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
     Route::get('/courses/restore/{id}', [CourseController::class, 'restore']);
     Route::get('restoreAll', [CourseController::class, 'restoreAll']);
+    Route::get('/get/{userId}/purchasedcourseDetails/{courseId}', [CourseController::class, 'getPurchasedCoursesDetails']);
 
     /**Video Routes */
     Route::post('/video/create', [ VideoController::class, 'store']);
