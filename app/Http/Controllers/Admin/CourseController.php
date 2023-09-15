@@ -101,6 +101,15 @@ class CourseController extends Controller
             $course->classrooms()->attach($request->input('classroom_id'));
             $course->sections()->attach($request->input('section_id'));
             $course->teachers()->attach($request->input('teacher_id'));
+
+            $teacherId = $request->input('teacher_id');
+            $teacher = Teacher::find($teacherId);
+
+            if ($teacher && $teacher->meeting) {
+                $meetingId = $teacher->meeting->id;
+                $course->meetings()->attach($meetingId);
+            }
+
             $course->save();
 
             DB::commit();
@@ -284,10 +293,10 @@ class CourseController extends Controller
     public function getPurchasedCoursesByCategory(Request $request, $categoryName)
     {
         $category = Category::where('name', $categoryName)->first();
-        
-        if (!$category) 
+
+        if (!$category)
         {
-           
+
             return response()->json(['error' => 'Category not found'], 404);
         }
 
@@ -355,18 +364,18 @@ class CourseController extends Controller
         $user = User::find($userId);
 
     if (!$user) {
-        
+
         return response()->json(['message' => 'User not found', 'status' => 404]);
     }
 
     $likedCourses = $user->likes()
         ->where('likeable_type', 'App\Models\Course')
-        ->with('likeable') 
+        ->with('likeable')
         ->get()
-        ->pluck('likeable'); 
+        ->pluck('likeable');
 
         if ($likedCourses->isEmpty()) {
-       
+
         return response()->json(['message' => 'No liked courses found', 'status' => 204]);
     }
 
