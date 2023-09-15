@@ -16,7 +16,7 @@ use App\Http\Controllers\Admin\TeacherController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Teacher\MeetingController;
 use App\Http\Controllers\Admin\SubcategoryController;
-use App\Http\Controllers\Teacher\AccountController;
+use App\Http\Controllers\Teacher\GoogleAccountController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,7 +60,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/unlike', [LikeController::class,'unlike']);
 });
 
-Route::post('/check/user', [AccountController::class,'checkUserExists']);
+Route::post('/check/user', [GoogleAccountController::class,'checkUserExists']);
 
 /**Test Routes */
 Route::post('/send-message', [AuthController::class, 'sendMessage']);
@@ -70,9 +70,9 @@ Route::post('admin/register', [AuthController::class, 'registerAsAdmin']);
 Route::post('admin/login', [LoginController::class, 'loginAsAdmin']);
 Route::post('teacher/login', [LoginController::class, 'loginAsTeacher']);
 
-Route::get('auth/google', [AccountController::class, 'redirectToGoogle']);
-Route::get('/auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
-Route::post('/google/login', [AccountController::class, 'googleLogin']);
+Route::get('auth/google', [GoogleAccountController::class, 'redirectToGoogle']);
+Route::get('/auth/google/callback', [GoogleAccountController::class, 'handleGoogleCallback']);
+Route::post('/google/login', [GoogleAccountController::class, 'googleLogin']);
 Route::post('/meeting/create', [MeetingController::class,'create']);
 
 Route::get('/videos', [ VideoController::class, 'index']);
