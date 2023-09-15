@@ -43,18 +43,14 @@ class CourseController extends Controller
 
     public function getCoursesbyCategory(Request $request, $categoryName)
     {
-        // Find the category by its name in the 'categories' table
         $category = Category::where('name', $categoryName)->first();
 
-        // Check if the category does not exist
         if (!$category) {
             return response()->json(['error' => 'Category not found'], 404);
         }
 
-        // Retrieve the courses associated with the found category
         $courses = $category->courses;
 
-        // Return the courses as JSON response
         return response()->json(['courses' => $courses]);
     }
 
