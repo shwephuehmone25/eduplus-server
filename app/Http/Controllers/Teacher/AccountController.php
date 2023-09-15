@@ -15,7 +15,7 @@ use Laravel\Socialite\Facades\Socialite;
 use Illuminate\Support\Facades\Validator;
 use Symfony\Component\HttpKernel\Exception\UnprocessableEntityHttpException;
 
-class GoogleAccountController extends Controller
+class AccountController extends Controller
 {
     public function redirectToGoogle(): JsonResponse
     {
