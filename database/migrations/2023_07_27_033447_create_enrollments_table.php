@@ -14,7 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('enrollments', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedBigInteger('id');
+            $table->index('id');
             $table->date('enroll_date');
             $table->boolean('isPresent')->default(false);
             $table->timestamps();

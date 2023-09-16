@@ -14,7 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('videos', function (Blueprint $table) {
-                $table->id();
+                $table->unsignedBigInteger('id');
+                $table->index('id');
                 $table->string('title');
                 $table->string('url');
                 $table->integer('duration');

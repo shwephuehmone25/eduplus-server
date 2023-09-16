@@ -14,7 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedBigInteger('id');
+            $table->index('id');
             $table->string('name');
             $table->string('email')->nullable();
             $table->timestamp('email_verified_at')->nullable();
@@ -25,8 +26,8 @@ return new class extends Migration
             $table->enum('gender', ['male', 'female', 'other']);
             $table->enum('region', ['Kachin State', 'Kayah State', 'Karen State', 'Chin State', 'Mon State', 'Rakhine State', 'Shan State', 'Ayeyarwady Division', 'Bago Division', 'Magway Division', 'Mandalay Division', 'Yangon Division', 'Tanintharyi Division', 'Sagaing Division']);
             $table->string('role')->default('student');
-            $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
