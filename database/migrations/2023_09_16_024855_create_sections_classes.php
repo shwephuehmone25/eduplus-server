@@ -13,8 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('meetings', function (Blueprint $table) {
-            $table->renameColumn('teacher_id', 'course_id');
+        Schema::create('sections_classes', function (Blueprint $table) {
+            $table->unsignedBigInteger('section');
+            $table->foreign('section')->references('id')->on('sections');
+            $table->unsignedBigInteger('class_id');
+            $table->foreign('class_id')->references('id')->on('classrooms');
         });
     }
 
@@ -25,8 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('meetings', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('sections_classes');
     }
 };

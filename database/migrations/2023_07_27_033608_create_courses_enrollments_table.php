@@ -14,9 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('courses_enrollments', function (Blueprint $table) {
-            $table->foreignId('enrollment_id')->constrained();
-            $table->foreignId('course_id')->constrained();
-            $table->timestamps();
+            $table->unsignedBigInteger('course_id');
+            $table->foreign('course_id')->references('id')->on('courses');
+            $table->unsignedBigInteger('enrollment_id');
+            $table->foreign('enrollment_id')->references('id')->on('enrollments');
         });
     }
 
