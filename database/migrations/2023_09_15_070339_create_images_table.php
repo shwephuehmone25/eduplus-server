@@ -13,8 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('meetings', function (Blueprint $table) {
-            $table->renameColumn('teacher_id', 'course_id');
+        Schema::create('images', function (Blueprint $table) {
+            $table->id();
+            $table->string('url');
+            $table->unsignedBigInteger('imageable_id');
+            $table->string('imageable_type');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('meetings', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('images');
     }
 };
