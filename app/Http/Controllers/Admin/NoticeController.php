@@ -49,11 +49,10 @@ class NoticeController extends Controller
         $news->save();
 
         if ($request->hasFile('image')) {
+            $s3Path = Storage::disk('s3')->put('news', $request->file('image'));
+
             $image = new Image();
-
-            $filename = $request->file('image')->store('public/images');
-
-            $image->url = $filename;
+            $image->url = Storage::disk('s3')->url($s3Path);
             $news->images()->save($image);
 
             $news->load('images');
@@ -85,16 +84,18 @@ class NoticeController extends Controller
         if ($request->hasFile('image')) {
             $image = $news->images()->first();
             if ($image) {
-                if (Storage::exists($image->url)) {
-                    Storage::delete($image->url);
+                $imageUrl = parse_url($image->url, PHP_URL_PATH);
+                if (Storage::disk('s3')->exists($imageUrl)) {
+                    Storage::disk('s3')->delete($imageUrl);
                 }
+                $image->delete();
             } else {
                 $image = new Image();
             }
 
-            $filename = $request->file('image')->store('public/images');
+            $s3Path = Storage::disk('s3')->put('news', $request->file('image'));
 
-            $image->url = $filename;
+            $image->url = $s3Path;
             $news->images()->save($image);
         }
 
@@ -105,13 +106,19 @@ class NoticeController extends Controller
     {
         $news = Notice::find($id);
 
-        $image = $news->images()->first();
-        if ($image) 
-        {
-            if (Storage::exists($image->url)) 
-            {
-                Storage::delete($image->url);
+        if(!$news){
+            return response()->json(['error' => 'News not found!', 'status' => 404]);
+        }
+
+        if ($news->images->count() > 0) {
+            $image = $news->images->first();
+            $imageUrl = parse_url($image->url, PHP_URL_PATH);
+
+            if (Storage::disk('s3')->exists($imageUrl)) {
+                // Delete the image from S3
+                Storage::disk('s3')->delete($imageUrl);
             }
+            $image->delete();
         }
 
         $news->delete();
@@ -125,7 +132,7 @@ class NoticeController extends Controller
         $varietyId = $variety->id;
         $notice = Notice::where('variety_id', $varietyId)->get();
 
-        if (!$notice) 
+        if (!$notice)
         {
             return response()->json(['error' => 'News not found'], 404);
         }
@@ -143,10 +150,10 @@ class NoticeController extends Controller
     {
         $restoredNews = Notice::withTrashed()->find($id)->restore();
 
-        if ($restoredNews) 
+        if ($restoredNews)
         {
             return response()->json(['message' => 'News restored successfully', 'status' => 200]);
-        } else 
+        } else
         {
 
             return response()->json(['message' => 'News not found or already restored', 'status' => 404]);
@@ -162,7 +169,7 @@ class NoticeController extends Controller
     {
         $restoredAllNews = Notice::onlyTrashed()->restore();
 
-        if ($restoredAllNews) 
+        if ($restoredAllNews)
         {
 
             return response()->json(['message' => 'All deleted news restored successfully', 'status' => 200]);
