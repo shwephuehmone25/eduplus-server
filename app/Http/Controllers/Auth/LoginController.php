@@ -34,7 +34,7 @@ class LoginController extends Controller
         ]);
 
         if ($validator->fails()) {
-            
+
             return response()->json(['error' => 'Invalid login credentials'], 422);
         }
 
@@ -68,7 +68,7 @@ class LoginController extends Controller
         ]);
 
         if ($validator->fails()) {
-            
+
             return response()->json(['error' => 'Invalid login credentials'], 422);
         }
 
@@ -95,19 +95,25 @@ class LoginController extends Controller
      */
     public function loginAsStudent(Request $request)
     {
-        $validator = Validator::make($request->only('email', 'password'), [
-            'email' => ['required', 'email', 'ends_with:@ilbcedu.com', 'exists:users,email'],
+            $validator = Validator::make($request->only('phone_number', 'password'), [
+            'phone_number' => ['required', 'regex:/^\+?[0-9]+$/'],
             'password' => ['required', 'min:6', 'max:255', 'string'],
         ]);
+
         if ($validator->fails()){
-            
             return response()->json($validator->errors(), 400);
         }
-            
-        $credentials = $validator->validated();
-        $user = User::where('email', $credentials['email'])->first();
 
-        if ($user && password_verify($credentials['password'], $user->password)) {
+        $credentials = $validator->validated();
+
+        // Check if a user with the given phone number exists
+        $user = User::where('phone_number', $credentials['phone_number'])->first();
+
+        if (!$user) {
+            return response()->json(['error' => 'User not found', 'status' => 404]);
+        }
+
+        if (password_verify($credentials['password'], $user->password)) {
             // Generate a new API token for the authenticated user
             $token = $user->createToken('user-token')->plainTextToken;
 

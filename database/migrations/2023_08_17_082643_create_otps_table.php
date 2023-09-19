@@ -14,8 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('otps', function (Blueprint $table) {
-            $table->unsignedBigInteger('id');
-            $table->index('id');
+            $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('otp');
             $table->boolean('is_verified')->default(false);
