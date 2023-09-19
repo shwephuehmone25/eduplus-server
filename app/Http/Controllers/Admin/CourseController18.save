@@ -13,6 +13,8 @@ use App\Models\TeacherCourse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Meeting;
+use App\Models\CourseCategory;
+use App\Models\StudentCourse;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -26,9 +28,9 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers','subcategories', 'meetings')->get();
-             ->orderBy('id', 'desc')
-             ->paginate(18);
+        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers', 'meetings')->get();
+            // ->orderBy('id', 'desc')
+            // ->paginate(18);
 
         if ($courses->isEmpty())
         {
@@ -41,18 +43,14 @@ class CourseController extends Controller
 
     public function getCoursesbyCategory(Request $request, $categoryName)
     {
-         Find the category by its name in the 'categories' table
         $category = Category::where('name', $categoryName)->first();
 
-         Check if the category does not exist
         if (!$category) {
             return response()->json(['error' => 'Category not found'], 404);
         }
 
-         Retrieve the courses associated with the found category
         $courses = $category->courses;
 
-         Return the courses as JSON response
         return response()->json(['courses' => $courses]);
     }
 
@@ -64,7 +62,7 @@ class CourseController extends Controller
      */
     public function showCourseDetails($id)
     {
-        $course = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers', 'subcategories')
+        $course = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers')
             ->find($id);
 
         if (!$course) {
@@ -99,6 +97,15 @@ class CourseController extends Controller
             $course->classrooms()->attach($request->input('classroom_id'));
             $course->sections()->attach($request->input('section_id'));
             $course->teachers()->attach($request->input('teacher_id'));
+
+            $teacherId = $request->input('teacher_id');
+            $teacher = Teacher::find($teacherId);
+
+            if ($teacher && $teacher->meeting) {
+                $meetingId = $teacher->meeting->id;
+                $course->meetings()->attach($meetingId);
+            }
+
             $course->save();
 
             DB::commit();
@@ -137,7 +144,7 @@ class CourseController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(['errors' => $validator->errors()], 422);
+                return response()->json(['errors' => $validator->errors(), 'status' => 422]);
             }
 
             DB::beginTransaction();
@@ -190,14 +197,14 @@ class CourseController extends Controller
 
         $course = Course::findOrFail($id);
 
-         Detach all related relationships
+        // Detach all related relationships
         $course->categories()->detach();
         $course->levels()->detach();
         $course->classrooms()->detach();
         $course->sections()->detach();
         $course->teachers()->detach();
 
-         Delete the course
+        // Delete the course
         $course->delete();
 
         DB::commit();
@@ -215,63 +222,38 @@ class CourseController extends Controller
      * @param $request
      * @return \Illuminate\Http\JsonResponse
      */
-     public function buyCourses(Request $request, $courseId)
-     {
-      Find the course by ID
-     $course = Course::findOrFail($courseId);
-
-      Check if the user is authenticated
-     if (Auth::check()) {
-         $user = Auth::user();
-
-          Check if the user has already purchased the course
-         if (!$user->courses->contains($course->id)) {
-              Attach the course to the user's purchased courses
-             $user->courses()->attach($course->id);
-
-             return response()->json(['message' => 'Course purchased successfully']);
-         } else {
-
-             return response()->json(['message' => 'You have already purchased this course']);
-                 }
-             }
-     }
-
     public function buyCourses(Request $request, $courseId)
     {
-         $course = Course::findOrFail($courseId);
+        $course = Course::findOrFail($courseId);
+        $user = Auth::user();
 
-         if(Auth::check()){
-             $user = Auth::user();
-         }
-          dd($user->courses);
-         if(!$user->courses->contains($course->id)){
-             $user->courses()->attach($course->id);
+        if(!$user->courses->contains($course->id)){
+            $user->courses()->attach($course->id);
 
-         $classroom = $course->classrooms->first();
+            $classroom = $course->classrooms->first();
 
-             if(!$classroom){
-                 return response()->json(['warning' => 'This course does not have a classroom.'], 422);
-             }
+            if(!$classroom || $classroom->capacity <= 0){
+                return response()->json([
+                    'warning' => !$classroom ? 'This course does not have a classroom.' : 'This course is already full!',
+                    'status' => 422
+                ]);
+            }
 
-             if($classroom->capacity <= 0){
-                 return response()->json(['warning' => 'This course is already full!'], 422);
-             }
+            $enrollment = new Enrollment([
+                'enroll_date' => now(),
+                'isPresent' => true
+            ]);
 
-             $enrollment = new Enrollment([
-                 'enroll_date' => now(),
-                 'isPresent' => true
-             ]);
+            $course->enrollments()->save($enrollment);
+            $classroom->decrement('capacity', 1);
 
-             $course->enrollments()->save($enrollment);
-             $classroom->decrement('capacity', 1);
+            $teacherId = $course->teachers->first()->id;
+            $user->teachers()->attach($teacherId);
 
-             return response()->json(['message' => 'Course purchased and enrolled successfully!']);
-         }else{
+            return response()->json(['message' => 'Course purchased and enrolled successfully!']);
+        }
 
-             return response()->json(['message' => 'You have already purchased this course']);
-         }
-        
+        return response()->json(['message' => 'You have already purchased this course']);
     }
 
     /**
@@ -279,28 +261,6 @@ class CourseController extends Controller
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
-     public function getMyCourse($userId)
-     {
-         $user = User::findOrFail($userId);
-
-         $myCourse = $user->courses()->get();
-         $myCourse = $this->getMeeting($myCourse);
-
-         if (!$myCourse) {
-
-             return response()->json([
-                 'message' => 'Course not found',
-                 'status' => 404,
-             ] );
-         }
-
-         return response()->json([
-             'message' => 'Your Purchased Courses are',
-             'data' => $myCourse,
-             'status' => 200
-         ]);
-     }
-
     public function getMyCourse($userId)
     {
         $user = User::findOrFail($userId);
@@ -321,17 +281,43 @@ class CourseController extends Controller
         ]);
     }
 
-    protected function getMeeting($myCourse)
+     /**
+     * Summary of getPurchasedCoursesByCategory
+     * @param mixed $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getPurchasedCoursesByCategory(Request $request, $categoryName)
     {
-        $meetings = $myCourse->meetings;
+        $category = Category::where('name', $categoryName)->first();
 
-        foreach ($meetings as $meeting) {
-             Load categories for each course
-            $meeting->load('meetings');
+        if (!$category)
+        {
+
+            return response()->json(['error' => 'Category not found'], 404);
         }
+
+        $studentId = auth()->user()->id;
+
+        $purchasedCourses = StudentCourse::where('user_id', $studentId)
+            ->whereIn('course_id', $category->courses->pluck('id'))
+            ->get();
+
+            $courseDetails = [];
+
+            foreach ($purchasedCourses as $purchasedCourse) {
+                $course = Course::find($purchasedCourse->course_id);
+                if ($course) {
+                    $courseDetails[] = $course;
+                }
+            }
+
+        return response()->json([
+            'purchasedCourses' => $courseDetails,
+            'status' => 200
+        ]);
     }
 
-   /**
+    /**
      * Restore a single deleted course by ID.
      *
      * @param  int  $id
@@ -367,5 +353,28 @@ class CourseController extends Controller
 
             return response()->json(['message' => 'No deleted Courses found to restore', 'status' => 404]);
         }
+    }
+
+    public function getLikedCourses($userId)
+    {
+        $user = User::find($userId);
+
+    if (!$user) {
+
+        return response()->json(['message' => 'User not found', 'status' => 404]);
+    }
+
+    $likedCourses = $user->likes()
+        ->where('likeable_type', 'App\Models\Course')
+        ->with('likeable')
+        ->get()
+        ->pluck('likeable');
+
+        if ($likedCourses->isEmpty()) {
+
+        return response()->json(['message' => 'No liked courses found', 'status' => 204]);
+    }
+
+    return response()->json(['liked_courses' => $likedCourses, 'status' => 200]);
     }
 }

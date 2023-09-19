@@ -16,7 +16,6 @@ return new class extends Migration
         Schema::create('videos_categories', function (Blueprint $table) {
             $table->foreignId('category_id')->constrained();
             $table->foreignId('video_id')->constrained();
-            $table->timestamps();
         });
     }
 

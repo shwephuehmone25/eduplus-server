@@ -14,7 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('meetings', function (Blueprint $table) {
-            $table->id();
+            $table->unsignedBigInteger('id');
+            $table->index('id');
             $table->string('start_time');
             $table->string('end_time');
             $table->string('meet_link');
