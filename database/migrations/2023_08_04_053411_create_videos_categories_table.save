@@ -13,11 +13,10 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('sections_classes', function (Blueprint $table) {
-            $table->unsignedBigInteger('section');
-            $table->foreign('section')->references('id')->on('sections');
-            $table->unsignedBigInteger('class_id');
-            $table->foreign('class_id')->references('id')->on('classrooms');
+        Schema::create('videos_categories', function (Blueprint $table) {
+            $table->foreignId('category_id')->constrained();
+            $table->foreignId('video_id')->constrained();
+            $table->timestamps();
         });
     }
 
@@ -28,6 +27,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sections_classes');
+        Schema::dropIfExists('video_categories');
     }
 };

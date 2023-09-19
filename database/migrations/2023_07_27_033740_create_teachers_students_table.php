@@ -14,10 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::create('teachers_students', function (Blueprint $table) {
-            $table->unsignedBigInteger('teacher_id');
-            $table->foreign('teacher_id')->references('id')->on('teachers');
-            $table->unsignedBigInteger('user_id');
-            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreignId('teacher_id')->constrained();
+            $table->foreignId('user_id')->constrained();
         });
     }
 

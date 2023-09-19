@@ -14,8 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::create('levels', function (Blueprint $table) {
-            $table->unsignedBigInteger('id');
-            $table->index('id');
+            $table->id();
             $table->string('name');
             $table->timestamps();
         });

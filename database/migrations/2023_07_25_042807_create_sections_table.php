@@ -14,12 +14,12 @@ return new class extends Migration
     public function up()
     {
         Schema::create('sections', function (Blueprint $table) {
-            $table->unsignedBigInteger('id');
-            $table->index('id');
+            $table->id();
             $table->string('name');
             $table->text('description')->nullable();
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
+            $table->integer('capacity')->default(0);
             $table->timestamps();
         });
     }
