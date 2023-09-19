@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\NoticeController;
 use App\Http\Controllers\Teacher\MeetingController;
 use App\Http\Controllers\Admin\SubcategoryController;
+use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VarietyController;
 use App\Http\Controllers\Teacher\AccountController;
 use Google\Service\Adsense\Row;
@@ -83,6 +84,9 @@ Route::get('/videos', [ VideoController::class, 'index']);
 
 /**Admin Routes*/
 Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
+
+    /**Users Routes */
+    Route::get('/allUsers', [UserController::class, 'getAllUsers']);
 
     /**Course Routes */
     Route::post('/courses', [CourseController::class, 'store']);

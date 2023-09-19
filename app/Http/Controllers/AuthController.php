@@ -66,7 +66,8 @@ class AuthController extends Controller
 
         return response()->json([
             'message' => 'OTP sent successfully!',
-            'data' => $request->input('phone_number')
+            'user_id' => $user_id,
+            'status' => 200
         ]);
 
     }
@@ -91,7 +92,7 @@ class AuthController extends Controller
             $user->isVerified = true;
             $user->save();
 
-            return response()->json(['message' => 'Verification successful!', 'status' => 200]);
+            return response()->json(['message' => 'Verification successful!', 'user_id' => $user->id, 'status' => 200]);
         }
 
         return response()->json(['error' => 'Invalid verification code entered!', 'status' => 400]);
@@ -120,7 +121,6 @@ class AuthController extends Controller
             $user->update([
                 'name' => $data['name'],
                 'password' => Hash::make($data['password']),
-                'phone_number' => $user->phone_number,
                 'dob' => $data['dob'],
                 'gender' => $data['gender'],
                 'region' => $data['region']
@@ -165,7 +165,7 @@ class AuthController extends Controller
 
         // Create a new admin with the provided data
         $data = $validator->validated();
-        $data['password'] = bcrypt($data['password']); // Hash the password before saving
+        $data['password'] = bcrypt($data['password']); 
         $admin = Admin::create($data);
 
         // Generate a new API token for the registered admin
