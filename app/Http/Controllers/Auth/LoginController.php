@@ -42,7 +42,7 @@ class LoginController extends Controller
         $credentials = $validator->validated();
         $admin = Admin::where('email', $credentials['email'])->first();
 
-        if (Auth::guard('admin') && password_verify($credentials['password'], $admin->password)) {
+        if ($admin && password_verify($credentials['password'], $admin->password)) {
             // Generate a new API token for the authenticated admin
             $token = $admin->createToken('admin-token')->plainTextToken;
 
@@ -96,7 +96,7 @@ class LoginController extends Controller
     public function loginAsStudent(Request $request)
     {
             $validator = Validator::make($request->only('phone_number', 'password'), [
-            'phone_number' => ['required', 'regex:/^\+?[0-9]+$/'],
+            'phone_number' => ['required', 'regex:/^[0-9]+$/'],
             'password' => ['required', 'min:6', 'max:255', 'string'],
         ]);
 
@@ -106,8 +106,10 @@ class LoginController extends Controller
 
         $credentials = $validator->validated();
 
-        // Check if a user with the given phone number exists
-        $user = User::where('phone_number', $credentials['phone_number'])->first();
+        //Phone number without country code
+
+        $phoneNumber = ltrim($credentials['phone_number'], '+0');
+        $user = User::where('phone_number', 'LIKE', '%' . $phoneNumber)->first();
 
         if (!$user) {
             return response()->json(['error' => 'User not found', 'status' => 404]);

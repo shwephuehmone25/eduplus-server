@@ -23,6 +23,7 @@ class NoticeController extends Controller
     public function getNoticeDetails($id)
     {
         $notice = Notice::find($id);
+        $notice->load('images');
 
         if (!$notice) {
 
