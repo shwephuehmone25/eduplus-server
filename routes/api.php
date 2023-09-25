@@ -19,7 +19,9 @@ use App\Http\Controllers\Teacher\MeetingController;
 use App\Http\Controllers\Admin\SubcategoryController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Admin\VarietyController;
+use App\Http\Controllers\Admin\RankController;
 use App\Http\Controllers\Teacher\AccountController;
+use App\Http\Controllers\Admin\AllocationController;
 use Google\Service\Adsense\Row;
 
 /*
@@ -95,6 +97,13 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::get('/courses/restore/{id}', [CourseController::class, 'restore']);
     Route::get('restoreAll', [CourseController::class, 'restoreAll']);
 
+    /**Allocation Routes */
+    Route::post('/allocations', [AllocationController::class, 'store']);
+    Route::post('/allocation/{allocation}', [AllocationController::class, 'update']);
+    Route::delete('/allocation/{allocation}', [AllocationController::class, 'destroy']);
+    Route::get('/allocations/restore/{id}', [AllocationController::class, 'restore']);
+    Route::get('restoreAll', [AllocationController::class, 'restoreAll']);
+
     /**Video Routes */
     Route::post('/video/create', [ VideoController::class, 'store']);
     Route::delete('/videos/{id}', [VideoController::class, 'destroy']);
@@ -128,12 +137,19 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::post('/levels/{level}', [LevelController::class, 'update']);
     Route::delete('/levels/{level}', [LevelController::class, 'destroy']);
 
+    /**Rank Routes */
+    Route::get('/ranks', [RankController::class, 'index']);
+    Route::get('/rank/{id}', [RankController::class, 'showRankDetails']);
+    Route::post('/ranks', [RankController::class, 'store']);
+    Route::post('/ranks/{rank}', [RankController::class, 'update']);
+    Route::delete('/ranks/{rank}', [RankController::class, 'destroy']);
+
     /**Section routes */
     Route::get('/sections', [SectionController::class, 'index']);
     Route::get('/section/{id}', [SectionController::class, 'getSectionDetails']);
-    Route::post('/sections', [SectionController::class, 'store']);
-    Route::post('/sections/{section}', [SectionController::class, 'update']);
-    Route::delete('/sections/{section}', [SectionController::class, 'destroy']);
+    Route::post('/section/create', [SectionController::class, 'store']);
+    Route::post('/section/edit/{section}', [SectionController::class, 'update']);
+    Route::delete('/section/{section}', [SectionController::class, 'destroy']);
 
     /**Teacher routes */
     Route::post('/teachers', [TeacherController::class, 'store']);

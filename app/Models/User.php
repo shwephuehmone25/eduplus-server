@@ -11,6 +11,7 @@ use App\Models\Otp;
 use App\Models\Enrollment;
 use App\Contracts\Likeable;
 use App\Models\Like;
+use App\Models\Section;
 
 class User extends Authenticatable
 {
@@ -71,7 +72,7 @@ class User extends Authenticatable
     public function courses()
     {
 
-        return $this->belongsToMany(Course::class, 'students_courses', 'user_id','course_id');
+        return $this->belongsToMany(Course::class, 'students_sections', 'user_id','course_id');
     }
 
     public function teachers()
@@ -154,5 +155,11 @@ class User extends Authenticatable
         return $likeable->likes()
             ->whereHas('user', fn($q) =>  $q->whereId($this->id))
             ->exists();
+    }
+
+    public function sections()
+    {
+
+        return $this->belongsToMany(Section::class, 'students_sections', 'user_id' , 'section_id');
     }
 }

@@ -15,12 +15,14 @@ return new class extends Migration
     {
         Schema::create('sections', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('course_id')->constrained()->onDelete('cascade') ;
+            $table->foreignId('rank_id')->constrained()->onDelete('cascade') ;
             $table->string('name');
-            $table->text('description')->nullable();
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
             $table->integer('capacity')->default(0);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

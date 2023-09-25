@@ -5,10 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class TeacherCourse extends Model
+class Allocation extends Model
 {
     use HasFactory;
 
-    protected $table = 'teacher_courses';
-    protected $fillable = ['teacher_id', 'course_id'];
+    protected $fillable = ['course_id', 'rank_id', 'section_id', 'teacher_id'];
 }

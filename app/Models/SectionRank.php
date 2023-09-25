@@ -5,9 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class MeetingCourse extends Model
+class SectionRank extends Model
 {
     use HasFactory;
 
-    protected $table = 'meeting_sections';
+    protected $table = 'sections_ranks';
 }
