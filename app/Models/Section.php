@@ -7,14 +7,14 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Meeting;
 use App\Models\Teacher;
-use App\Models\Batch;
+use App\Models\Rank;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Section extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'description', 'start_time', 'end_time', 'capacity', 'course_id'];
+    protected $fillable = ['name', 'description', 'start_time', 'end_time', 'capacity', 'rank_id', 'course_id'];
 
     public function courses()
     {
@@ -40,8 +40,9 @@ class Section extends Model
         return $this->belongsToMany(User::class, 'students_sections', 'section_id','user_id');
     }
 
-    public function batches()
+    public function ranks()
     {
-        return $this->hasMany(Batch::class);
+        
+        return $this->belongsToMany(Rank::class, 'sections_ranks', 'section_id', 'rank_id');
     }
 }

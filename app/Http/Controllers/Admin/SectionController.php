@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Teacher;
+use App\Models\Rank;
 use App\Models\Section;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -54,13 +54,13 @@ class SectionController extends Controller
                 'start_time' => 'required|date_format:H:i',
                 'end_time' => 'required|date_format:H:i',
                 'capacity' => 'required',
-                'teacher_id' => 'required',
+                'rank_id' => 'required',
                 'course_id' => 'required|exists:courses,id',
             ]);
 
             $section = Section::create($data);
 
-            $section->teachers()->sync($data['teacher_id']);
+            $section->ranks()->sync($data['rank_id']);
 
             return response()->json([
                 'message' => 'Section created successfully',

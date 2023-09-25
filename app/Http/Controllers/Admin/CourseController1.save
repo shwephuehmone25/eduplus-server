@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Meeting;
 use App\Models\CourseCategory;
-use App\Models\StudentCourse;
+use App\Models\StudentSection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -298,7 +298,7 @@ class CourseController extends Controller
 
         $studentId = auth()->user()->id;
 
-        $purchasedCourses = StudentCourse::where('user_id', $studentId)
+        $purchasedCourses = StudentSection::where('user_id', $studentId)
             ->whereIn('course_id', $category->courses->pluck('id'))
             ->get();
 

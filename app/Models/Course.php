@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Models\User;
 use App\Models\Level;
+use App\Models\Rank;
 use App\Models\Like;
 use App\Models\Policy;
 use App\Models\Meeting;
@@ -22,7 +23,7 @@ class Course extends Model implements Likeable
 {
     use HasFactory, SoftDeletes, Likes;
 
-    protected $fillable = ['course_name', 'description','price_per_batch','period'];
+    protected $fillable = ['course_name', 'description', 'price_per_rank', 'period'];
 
     public function categories()
     {
@@ -94,5 +95,11 @@ class Course extends Model implements Likeable
     {
 
         return $this->morphMany(Like::class, 'likeable');
+    }
+
+    public function ranks()
+    {
+        
+        return $this->belongsToMany(Rank::class, 'courses_ranks', 'course_id', 'rank_id');
     }
 }

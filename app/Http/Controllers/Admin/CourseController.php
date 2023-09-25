@@ -14,7 +14,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Meeting;
 use App\Models\CourseCategory;
-use App\Models\StudentCourse;
+use App\Models\StudentSection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -87,7 +87,7 @@ class CourseController extends Controller
             $course = Course::create([
                 'course_name' => $request->input('course_name'),
                 'description' => $request->input('description'),
-                'price_per_batch' => $request->input('price_per_batch'),
+                'price_per_rank' => $request->input('price_per_rank'),
                 'period' => $request->input('period'),
             ]);
 
@@ -129,7 +129,7 @@ class CourseController extends Controller
             $validator = Validator::make($request->all(), [
                 'course_name' => 'required|string|max:255',
                 'description' => 'required|string',
-                'price_per_batch' => 'required|numeric',
+                'price_per_rank' => 'required|numeric',
                 'period' => 'required|string',
                 'category_id' => 'nullable|exists:categories,id',
                 'level_id' => 'nullable|exists:levels,id',
@@ -145,7 +145,7 @@ class CourseController extends Controller
             $course->update([
                 'course_name' => $request->input('course_name'),
                 'description' => $request->input('description'),
-                'price_per_batch' => $request->input('price_per_batch'),
+                'price_per_Rank' => $request->input('price_per_Rank'),
                 'period' => $request->input('period'),
             ]);
 
@@ -283,7 +283,7 @@ class CourseController extends Controller
 
         $studentId = auth()->user()->id;
 
-        $purchasedCourses = StudentCourse::where('user_id', $studentId)
+        $purchasedCourses = StudentSection::where('user_id', $studentId)
             ->whereIn('course_id', $category->courses->pluck('id'))
             ->get();
 

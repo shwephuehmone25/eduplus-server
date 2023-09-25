@@ -13,16 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('sections', function (Blueprint $table) {
-            $table->id();
+        Schema::create('courses_ranks', function (Blueprint $table) {
             $table->foreignId('course_id')->constrained()->onDelete('cascade') ;
             $table->foreignId('rank_id')->constrained()->onDelete('cascade') ;
-            $table->string('name');
-            $table->time('start_time')->nullable();
-            $table->time('end_time')->nullable();
-            $table->integer('capacity')->default(0);
-            $table->timestamps();
-            $table->softDeletes();
         });
     }
 
@@ -33,6 +26,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sections');
+        Schema::dropIfExists('courses_ranks');
     }
 };
