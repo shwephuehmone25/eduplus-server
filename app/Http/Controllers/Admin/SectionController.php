@@ -16,7 +16,7 @@ class SectionController extends Controller
      */
     public function index()
     {
-        $sections = Section::all();
+        $sections = Section::with('teachers', 'meetings')->get();
 
         return response()->json(['data' => $sections]);
     }
@@ -29,7 +29,7 @@ class SectionController extends Controller
      */
     public function getSectionDetails($id)
     {
-        $section = Section::find($id);
+        $section = Section::with('teachers', 'meetings')->find($id);
 
         if (!$section) {
 
@@ -84,20 +84,34 @@ class SectionController extends Controller
      */
     public function update(Request $request, Section $section)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_time' => 'required|date_format:Y-m-d H:i',
-            'end_time' => 'required|date_format:Y-m-d H:i',
-        ]);
+            try {
+            $data = $request->validate([
+                'name' => 'string|max:255',
+                'start_time' => 'date_format:H:i',
+                'end_time' => 'date_format:H:i',
+                'capacity' => 'integer',
+                'teacher_id' => 'exists:teachers,id',
+                'course_id' => 'exists:courses,id',
+            ]);
 
-        $section->update($data);
+            $section->update($data);
 
-        return response()->json([
-            'message' => 'Section updated successfully',
-            'data' => $section,
-            'status' => 200
-        ]);
+            if (isset($data['teacher_id'])) 
+            {
+                $section->teachers()->sync([$data['teacher_id']]);
+            }
+
+            return response()->json([
+                'message' => 'Section updated successfully',
+                'data' => $section,
+                'status' => 200
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Section update failed: ' . $e->getMessage(),
+                'status' => 500
+            ]);
+        }
     }
 
     /**
