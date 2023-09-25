@@ -22,7 +22,7 @@ class Course extends Model implements Likeable
 {
     use HasFactory, SoftDeletes, Likes;
 
-    protected $fillable = ['course_name', 'description','price','period','announce_date'];
+    protected $fillable = ['course_name', 'description','price_per_batch','period'];
 
     public function categories()
     {
@@ -39,13 +39,13 @@ class Course extends Model implements Likeable
     public function sections()
     {
 
-        return $this->belongsToMany(Section::class, 'courses_sections', 'course_id','section_id');
+        return $this->hasMany(Section::class);
     }
 
     public function students()
     {
 
-        return $this->belongsToMany(User::class, 'students_courses', 'course_id','user_id');
+        return $this->belongsToMany(User::class, 'students_sections', 'course_id','user_id');
     }
 
     public function enrollments()
@@ -74,7 +74,7 @@ class Course extends Model implements Likeable
 
     public function meetings()
     {
-        
+
         return $this->belongsToMany(Meeting::class, 'meeting_courses', 'course_id',  'meeting_id');
     }
 
@@ -86,13 +86,13 @@ class Course extends Model implements Likeable
 
     public function policy()
     {
-        
+
         return $this->hasOne(Policy::class);
     }
 
     public function likedCourses(): MorphMany
     {
-        
+
         return $this->morphMany(Like::class, 'likeable');
     }
 }

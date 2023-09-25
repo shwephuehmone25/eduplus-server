@@ -28,7 +28,7 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers', 'meetings')->get();
+        $courses = Course::with('categories', 'levels', 'sections', 'teachers', 'meetings')->get();
             // ->orderBy('id', 'desc')
             // ->paginate(18);
 
@@ -87,24 +87,20 @@ class CourseController extends Controller
             $course = Course::create([
                 'course_name' => $request->input('course_name'),
                 'description' => $request->input('description'),
-                'price' => $request->input('price'),
+                'price_per_batch' => $request->input('price_per_batch'),
                 'period' => $request->input('period'),
-                'announce_date' => $request->input('announce_date')
             ]);
 
             $course->categories()->attach($request->input('category_id'));
             $course->levels()->attach($request->input('level_id'));
-            $course->classrooms()->attach($request->input('classroom_id'));
-            $course->sections()->attach($request->input('section_id'));
-            $course->teachers()->attach($request->input('teacher_id'));
 
-            $teacherId = $request->input('teacher_id');
-            $teacher = Teacher::find($teacherId);
+            // $teacherId = $request->input('teacher_id');
+            // $teacher = Teacher::find($teacherId);
 
-            if ($teacher && $teacher->meeting) {
-                $meetingId = $teacher->meeting->id;
-                $course->meetings()->attach($meetingId);
-            }
+            // if ($teacher && $teacher->meeting) {
+            //     $meetingId = $teacher->meeting->id;
+            //     $course->meetings()->attach($meetingId);
+            // }
 
             $course->save();
 
@@ -133,14 +129,10 @@ class CourseController extends Controller
             $validator = Validator::make($request->all(), [
                 'course_name' => 'required|string|max:255',
                 'description' => 'required|string',
-                'price' => 'required|numeric',
+                'price_per_batch' => 'required|numeric',
                 'period' => 'required|string',
-                'announce_date' => 'required|date_format:Y-m-d|after_or_equal:' . $todayDate,
                 'category_id' => 'nullable|exists:categories,id',
                 'level_id' => 'nullable|exists:levels,id',
-                'classroom_id' => 'nullable|exists:classrooms,id',
-                'section_id' => 'nullable|exists:sections,id',
-                'teacher_id' => 'nullable|exists:teachers,id',
             ]);
 
             if ($validator->fails()) {
@@ -153,19 +145,15 @@ class CourseController extends Controller
             $course->update([
                 'course_name' => $request->input('course_name'),
                 'description' => $request->input('description'),
-                'price' => $request->input('price'),
+                'price_per_batch' => $request->input('price_per_batch'),
                 'period' => $request->input('period'),
-                'announce_date' => $request->input('announce_date'),
             ]);
 
             $relatedData = [
                 'categories' => $request->input('category_id'),
                 'levels' => $request->input('level_id'),
-                'classrooms' => $request->input('classroom_id'),
-                'sections' => $request->input('section_id'),
-                'teachers' => $request->input('teacher_id'),
             ];
-
+            
             foreach ($relatedData as $relation => $ids) {
                 if (!empty($ids)) {
                     $course->{$relation}()->sync($ids);
@@ -200,9 +188,6 @@ class CourseController extends Controller
         // Detach all related relationships
         $course->categories()->detach();
         $course->levels()->detach();
-        $course->classrooms()->detach();
-        $course->sections()->detach();
-        $course->teachers()->detach();
 
         // Delete the course
         $course->delete();

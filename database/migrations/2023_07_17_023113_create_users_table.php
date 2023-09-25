@@ -27,6 +27,7 @@ return new class extends Migration
             $table->string('role')->default('student');
             $table->rememberToken();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

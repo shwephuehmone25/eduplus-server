@@ -13,10 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('teacher_courses', function (Blueprint $table) {
-            $table->foreignId('teacher_id')->constrained();
-            $table->foreignId('course_id')->constrained();
-            $table->timestamps();
+        Schema::table('sections', function (Blueprint $table) {
+            $table->unsignedBigInteger('course_id');
+            $table->foreign('course_id')
+                    ->references('id')
+                    ->on('courses')
+                    ->onDelete('cascade');
         });
     }
 
@@ -27,6 +29,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('teacher_courses');
+        Schema::table('sections', function (Blueprint $table) {
+            //
+        });
     }
 };

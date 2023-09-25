@@ -13,14 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('sections', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->time('start_time')->nullable();
-            $table->time('end_time')->nullable();
-            $table->integer('capacity')->default(0);
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::create('teachers_sections', function (Blueprint $table) {
+            $table->foreignId('teacher_id')->constrained()->onDelete('cascade');
+            $table->foreignId('section_id')->constrained()->onDelete('cascade');
         });
     }
 

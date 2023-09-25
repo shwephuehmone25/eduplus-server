@@ -17,9 +17,9 @@ return new class extends Migration
             $table->id();
             $table->string('course_name');
             $table->text('description');
-            $table->bigInteger('price');
+            $table->bigInteger('price_per_batch');
             $table->string('period');
-            $table->date('announce_date');
+            $table->date('announce_date')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

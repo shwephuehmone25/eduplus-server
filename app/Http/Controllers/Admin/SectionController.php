@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Models\Teacher;
 use App\Models\Section;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -46,20 +47,32 @@ class SectionController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_time' => 'required|date_format:H:i',
-            'end_time' => 'required|date_format:H:i',
-        ]);
 
-        $section = Section::create($data);
-
-        return response()->json([
-            'message' => 'Section created successfully',
-            'data' => $section,
-            'status' => 201
+        try {
+            $data = $request->validate([
+                'name' => 'required|string|max:255',
+                'start_time' => 'required|date_format:H:i',
+                'end_time' => 'required|date_format:H:i',
+                'capacity' => 'required',
+                'teacher_id' => 'required',
+                'course_id' => 'required|exists:courses,id',
             ]);
+
+            $section = Section::create($data);
+
+            $section->teachers()->sync($data['teacher_id']);
+
+            return response()->json([
+                'message' => 'Section created successfully',
+                'data' => $section,
+                'status' => 201
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'message' => 'Section creation failed: ' . $e->getMessage(),
+                'status' => 500
+            ]);
+        }
     }
 
     /**
