@@ -127,8 +127,8 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::get('/sections', [SectionController::class, 'index']);
     Route::get('/section/{id}', [SectionController::class, 'getSectionDetails']);
     Route::post('/section/create', [SectionController::class, 'store']);
-    Route::post('/sections/{section}', [SectionController::class, 'update']);
-    Route::delete('/sections/{section}', [SectionController::class, 'destroy']);
+    Route::post('/section/edit/{section}', [SectionController::class, 'update']);
+    Route::delete('/section/{section}', [SectionController::class, 'destroy']);
 
     /**Teacher routes */
     Route::post('/teachers', [TeacherController::class, 'store']);

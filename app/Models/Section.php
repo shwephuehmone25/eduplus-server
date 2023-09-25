@@ -8,10 +8,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\Meeting;
 use App\Models\Teacher;
 use App\Models\Batch;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Section extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = ['name', 'description', 'start_time', 'end_time', 'capacity', 'course_id'];
 
