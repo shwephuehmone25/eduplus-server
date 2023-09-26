@@ -13,12 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ranks', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->bigInteger('price');
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::create('allocations_meetings', function (Blueprint $table) {
+            $table->foreignId('allocation_id')->constrained()->onDelete('cascade');
+            $table->foreignId('meeting_id')->constrained()->onDelete('cascade');
         });
     }
 
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ranks');
+        Schema::dropIfExists('allocations_meetings');
     }
 };

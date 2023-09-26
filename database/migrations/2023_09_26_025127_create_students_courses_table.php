@@ -13,12 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ranks', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->bigInteger('price');
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::create('students_courses', function (Blueprint $table) {
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('course_id')->constrained()->onDelete('cascade');
         });
     }
 
@@ -29,6 +26,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ranks');
+        Schema::dropIfExists('students_courses');
     }
 };

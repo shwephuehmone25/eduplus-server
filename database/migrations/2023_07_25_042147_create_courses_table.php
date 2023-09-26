@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('course_name');
             $table->text('description');
-            $table->bigInteger('price_per_rank');
+            $table->bigInteger('price');
             $table->string('period');
             $table->date('announce_date')->nullable();
             $table->timestamps();

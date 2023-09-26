@@ -25,7 +25,7 @@ class Teacher extends Model implements Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'email_verified_at', 
+        'email_verified_at',
         'password',
         'google_id',
         'avatar',
@@ -36,7 +36,7 @@ class Teacher extends Model implements Authenticatable
 
     public function courses()
     {
-        
+
         return $this->belongsToMany(Course::class, 'teacher_courses', 'teacher_id','course_id');
     }
 
@@ -48,7 +48,13 @@ class Teacher extends Model implements Authenticatable
 
     public function students()
     {
-        
+
         return $this->belongsToMany(User::class, 'teachers_students', 'teacher_id','user_id');
+    }
+
+    public function allocations()
+    {
+
+        return $this->hasMany(Allocation::class);
     }
 }
