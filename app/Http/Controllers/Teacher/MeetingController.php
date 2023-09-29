@@ -103,11 +103,10 @@ class MeetingController extends Controller
             $existingMeeting = Meeting::where('teacher_id', $teacher->id)->first();
 
             if ($existingMeeting) {
+                $courses = $teacher->courses;
+                $existingMeeting->courses()->sync($courses);
                 $existingMeeting->meet_link = $meetLink;
-                $allocations = $teacher->allocations;
-
                 $existingMeeting->save();
-                $existingMeeting->allocations()->sync($allocations);
 
                 return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link Updated Successfully", 'status' => 200]);
             }
@@ -118,13 +117,10 @@ class MeetingController extends Controller
             $meeting->end_time = $request->input('end_time');
             $meeting->teacher_id = $teacher_id;
             $meeting->meet_link = $meetLink;
-            $allocations = $teacher->allocations;
             $meeting->save();
-            $meeting->allocations()->sync($allocations);
 
-
-
-            //$meeting->allocations()->attach($allocations);
+            $courses = $teacher->courses;
+            $meeting->courses()->sync($courses);
 
             return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link created Successfully", 'status' => 200]);
     }

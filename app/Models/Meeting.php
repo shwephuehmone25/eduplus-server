@@ -24,10 +24,4 @@ class Meeting extends Model
 
         return $this->belongsTo(Teacher::class);
     }
-
-    public function allocations()
-    {
-
-        return $this->belongsToMany(Allocation::class, 'allocations_meetings', 'meeting_id', 'allocation_id');
-    }
 }

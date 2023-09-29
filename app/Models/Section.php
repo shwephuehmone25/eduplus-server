@@ -42,13 +42,7 @@ class Section extends Model
 
     public function ranks()
     {
-
+        
         return $this->belongsToMany(Rank::class, 'sections_ranks', 'section_id', 'rank_id');
-    }
-
-    public function allocations()
-    {
-
-        return $this->hasMany(Allocation::class);
     }
 }
