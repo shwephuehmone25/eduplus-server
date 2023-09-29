@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Section;
 use App\Models\Course;
+use App\Models\User;
 
 class Rank extends Model
 {
@@ -30,5 +31,11 @@ class Rank extends Model
     {
 
         return $this->hasMany(Allocation::class);
+    }
+
+    public function students()
+    {
+
+        return $this->belongsToMany(User::class, 'students_modules', 'rank_id', 'user_id');
     }
 }

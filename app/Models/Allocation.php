@@ -4,6 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
+use App\Models\Meeting;
+use App\Models\Course;
+use App\Models\Teacher;
+use App\Models\Rank;
+use App\Models\Section;
 
 class Allocation extends Model
 {
@@ -15,6 +21,12 @@ class Allocation extends Model
     {
 
         return $this->belongsToMany(Meeting::class, 'allocations_meetings', 'allocation_id', 'meeting_id');
+    }
+
+    public function users()
+    {
+
+        return $this->belongsToMany(User::class, 'students_allocations', 'allocation_id', 'user_id');
     }
 
     public function teacher()
