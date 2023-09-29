@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Allocation;
+use App\Models\Teacher;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AllocationController extends Controller
 {
@@ -16,7 +18,7 @@ class AllocationController extends Controller
     public function index()
     {
         $allocations = Allocation::all();
-        
+
         if ($allocations->isEmpty())
         {
 
@@ -43,6 +45,14 @@ class AllocationController extends Controller
         ]);
 
         $allocation = Allocation::create($request->all());
+
+            $teacherId = $request->input('teacher_id');
+            $teacher = Teacher::find($teacherId);
+
+            if ($teacher && $teacher->meeting) {
+                $meetingId = $teacher->meeting->id;
+                $allocation->meeting_id = $meetingId;
+            }
 
         return response()->json(['data' => $allocation, 'message' => 'Assigned to teachers successfully', 'status' => 201]);
     }
@@ -77,10 +87,19 @@ class AllocationController extends Controller
 
             $allocation->update($request->all());
 
-            return response()->json(['message' => 'Assigned to teachers successfully', 'data' => $allocation, 'status' => 200 ]);
-        } catch (\Exception $e) {
+            // Find the teacher 
+            $teacherId = $request->input('teacher_id');
+            $teacher = Teacher::find($teacherId);
 
-            return response()->json(['error' => 'An error occurred while updating the allocation.', 'status' => 500]);
+            $allocation->save();
+
+            return response()->json(['data' => $allocation, 'message' => 'Allocation updated successfully', 'status' => 200]);
+        } catch (ModelNotFoundException $e) 
+        {
+            return response()->json(['message' => 'Allocation not found', 'status' => 404]);
+        } catch (\Exception $e) 
+        {
+            return response()->json(['message' => 'An error occurred while updating the allocation'. $e->getMessage(), 'status' => 500]);
         }
     }
 

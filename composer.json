@@ -9,7 +9,6 @@
         "barryvdh/laravel-cors": "^3.0",
         "bref/bref": "^2.1",
         "bref/laravel-bridge": "^2.1",
-        "darkaonline/l5-swagger": "*",
         "fruitcake/laravel-cors": "^2.0.5",
         "google/apiclient": "^2.15",
         "guzzlehttp/guzzle": "^7.2",
@@ -20,8 +19,6 @@
         "laravel/sanctum": "^3.2",
         "laravel/socialite": "^5.6",
         "laravel/tinker": "^2.7",
-        "league/flysystem-aws-s3-v3": "^3.16",
-        "mrlinnth/mm-regions-cities": "^0.1.1",
         "spatie/laravel-backup": "^8.3",
         "twilio/sdk": "^7.5"
     },

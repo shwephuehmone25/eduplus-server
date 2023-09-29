@@ -105,20 +105,12 @@ class CourseController extends Controller
             $course = Course::create([
                 'course_name' => $request->input('course_name'),
                 'description' => $request->input('description'),
-                'price_per_rank' => $request->input('price_per_rank'),
+                'price' => $request->input('price'),
                 'period' => $request->input('period'),
             ]);
 
             $course->categories()->attach($request->input('category_id'));
             $course->levels()->attach($request->input('level_id'));
-
-            // $teacherId = $request->input('teacher_id');
-            // $teacher = Teacher::find($teacherId);
-
-            // if ($teacher && $teacher->meeting) {
-            //     $meetingId = $teacher->meeting->id;
-            //     $course->meetings()->attach($meetingId);
-            // }
 
             $course->save();
 
@@ -163,7 +155,7 @@ class CourseController extends Controller
             $course->update([
                 'course_name' => $request->input('course_name'),
                 'description' => $request->input('description'),
-                'price_per_Rank' => $request->input('price_per_Rank'),
+                'price' => $request->input('price'),
                 'period' => $request->input('period'),
             ]);
 

@@ -26,7 +26,7 @@ class TeacherController extends Controller
             		->where('name', 'LIKE', "%$search%")
             		->get();
         }
-     
+
         return response()->json(['data' => $teachers]);
     }
 
@@ -50,7 +50,7 @@ class TeacherController extends Controller
         $teacher->password = bcrypt($request->input('password'));
         $teacher->google_id = $request->input('google_id');
         $teacher->save();
-       
+
         return response()->json(['message' => 'Teacher created successfully', 'data' => $teacher, 'status' => 201]);
     }
 
@@ -102,36 +102,30 @@ class TeacherController extends Controller
 
     public function getAssignCourses($id)
     {
-        $teacher = Teacher::with('meeting', 'courses')->find($id);
-       
-        if ($teacher) 
-        { 
-            // Retrieve and attach course details
-            $this->getCourseDetail($teacher); 
+        $teacher = Teacher::with('meeting', 'allocations')->find($id);
 
+        if ($teacher)
+        {
+            $this->getAllocationDetail($teacher);
+            // Retrieve and attach course details
             $data = [
                 'teacher' => $teacher,
-                'courses' => $teacher->courses->map(function ($course) use ($teacher) {
-                    $course->meeting = $teacher->meeting;
-                    return $course;
-                }),
             ];
-    
+
             return response()->json(['data' => $data, 'status' => 200]);
-        } 
-        else 
-        { 
+        }
+        else
+        {
             return response()->json(['message' => 'Teacher not found.', 'status' => 404]);
-        }   
+        }
     }
 
-    protected function getCourseDetail($teacher)
+    protected function getAllocationDetail($teacher)
     {
-        $courses = $teacher->courses;
+    $allocations = $teacher->allocations;
 
-        foreach ($courses as $course) {
-            // Load categories for each course
-            $course->load('categories'); 
+        foreach ($allocations as $allocation) {
+            $allocation->load('course', 'rank', 'section');
         }
     }
 
@@ -149,7 +143,7 @@ class TeacherController extends Controller
         $teacher = Teacher::where('email', $email)->first();
 
         if (!$teacher) {
-            
+
             return response()->json(['error' => 'Unauthorized', 'status' => 403]);
         }
 

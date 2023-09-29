@@ -9,6 +9,6 @@ class TeacherCourse extends Model
 {
     use HasFactory;
 
-    protected $table = 'teachers_sectionss';
+    protected $table = 'teachers_sections';
     protected $fillable = ['teacher_id', 'section_id'];
 }
