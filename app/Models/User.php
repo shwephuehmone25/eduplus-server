@@ -12,8 +12,6 @@ use App\Models\Enrollment;
 use App\Contracts\Likeable;
 use App\Models\Like;
 use App\Models\Section;
-use App\Models\Allocation;
-use App\Models\Rank;
 
 class User extends Authenticatable
 {
@@ -87,12 +85,6 @@ class User extends Authenticatable
     {
 
         return $this->belongsToMany(Enrollment::class, 'students_enrollments', 'user_id', 'enrollment_id');
-    }
-
-    public function allocations()
-    {
-
-        return $this->belongsToMany(Allocation::class, 'students_allocations', 'user_id' , 'allocation_id');
     }
 
     public static function getGenderOptions(){
@@ -169,11 +161,5 @@ class User extends Authenticatable
     {
 
         return $this->belongsToMany(Section::class, 'students_sections', 'user_id' , 'section_id');
-    }
-
-    public function modules()
-    {
-
-        return $this->belongsToMany(Rank::class, 'students_modules', 'user_id', 'rank_id');
     }
 }

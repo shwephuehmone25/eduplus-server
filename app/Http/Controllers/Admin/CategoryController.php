@@ -6,7 +6,6 @@ use App\Models\Category;
 // use App\Models\Subcategory;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Validator;
 
 class CategoryController extends Controller
 {
@@ -54,18 +53,7 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        $rules = [
-            'name' => 'required|string|max:255|unique:categories,name', 
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) 
-        {
-            return response()->json(['error' => $validator->errors(), 'status' => 422]);
-        }
-
-        try {
+            try {
             $category = new Category();
             $category->name = $request->input('name');
             $category->save();
@@ -74,8 +62,8 @@ class CategoryController extends Controller
             // $category->subcategories()->attach($subcategoryIds);
 
             return response()->json(['message' => 'Category created successfully', 'data' => $category, 'status' => 201]);
-        } catch (\Exception $e) 
-        {
+        } catch (\Exception $e) {
+            
             return response()->json(['error' => 'Category creation failed', 'message' => $e->getMessage(), 'status' => 500]);
         }
     }
@@ -89,18 +77,7 @@ class CategoryController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $rules = [
-            'name' => 'required|string|max:255|unique:categories,name', 
-        ];
-
-        $validator = Validator::make($request->all(), $rules);
-
-        if ($validator->fails()) 
-        {
-            return response()->json(['error' => $validator->errors(), 'status' => 422]);
-        }
-
-        try {
+            try {
             $category = Category::findOrFail($id);
             $category->name = $request->input('name');
             $category->save();

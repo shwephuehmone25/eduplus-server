@@ -27,13 +27,13 @@ class RankController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function showModuleDetails($id)
+    public function showRankDetails($id)
     {
         $rank = Rank::find($id);
 
         if (!$rank) {
 
-            return response()->json(['error' => 'Module not found'], 404);
+            return response()->json(['error' => 'Rank not found'], 404);
         }
 
         return response()->json(['data' => $rank]);
@@ -54,7 +54,7 @@ class RankController extends Controller
         $rank = Rank::create($data);
 
         return response()->json([
-            'message' => 'Module is created successfully',
+            'message' => 'Rank created successfully',
             'data' => $rank,
             'status' => 201
             ]);
@@ -75,7 +75,7 @@ class RankController extends Controller
 
         $rank->update($data);
 
-        return response()->json(['message' => 'Module is updated successfully', 'data' => $rank, 'status' => 200]);
+        return response()->json(['message' => 'Rank updated successfully', 'data' => $rank, 'status' => 200]);
     }
 
     /**
@@ -88,6 +88,6 @@ class RankController extends Controller
     {
         $rank->delete();
 
-        return response()->json(['message' => 'Module is deleted successfully', 'status' => 200]);
+        return response()->json(['message' => 'Rank deleted successfully', 'status' => 200]);
     }
 }

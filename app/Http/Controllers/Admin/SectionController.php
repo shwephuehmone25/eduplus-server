@@ -16,7 +16,7 @@ class SectionController extends Controller
      */
     public function index()
     {
-        $sections = Section::with('courses', 'ranks')->get();
+        $sections = Section::with('teachers', 'meetings')->get();
 
         return response()->json(['data' => $sections]);
     }
@@ -29,7 +29,7 @@ class SectionController extends Controller
      */
     public function getSectionDetails($id)
     {
-        $section = Section::with('courses', 'ranks')->find($id);
+        $section = Section::with('teachers', 'meetings')->find($id);
 
         if (!$section) {
 
@@ -96,7 +96,7 @@ class SectionController extends Controller
 
             $section->update($data);
 
-            if (isset($data['teacher_id']))
+            if (isset($data['teacher_id'])) 
             {
                 $section->teachers()->sync([$data['teacher_id']]);
             }

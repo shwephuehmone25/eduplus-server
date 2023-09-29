@@ -8,18 +8,13 @@ use App\Mail\SendMail;
 use App\Models\Course;
 use App\Models\Teacher;
 use App\Models\Enrollment;
-use App\Models\StudentModule;
 use Illuminate\Http\Request;
 use App\Models\TeacherCourse;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use App\Models\Meeting;
-use App\Models\Allocation;
 use App\Models\CourseCategory;
-use App\Models\TeacherStudent;
 use App\Models\StudentSection;
-use App\Models\StudentAllocation;
-use Google\Service\Classroom\Resource\Courses;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
@@ -33,7 +28,9 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('categories', 'levels')->get();
+        $courses = Course::with('categories', 'levels', 'sections', 'teachers', 'meetings')->get();
+            // ->orderBy('id', 'desc')
+            // ->paginate(18);
 
         if ($courses->isEmpty())
         {
@@ -65,7 +62,7 @@ class CourseController extends Controller
      */
     public function showCourseDetails($id)
     {
-        $course = Course::with('categories', 'levels')
+        $course = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers')
             ->find($id);
 
         if (!$course) {
@@ -85,21 +82,6 @@ class CourseController extends Controller
     public function store(Request $request)
     {
         try {
-            $todayDate = date('Y-m-d');
-
-            $validator = Validator::make($request->all(), [
-                'course_name' => 'required|string|max:255',
-                'description' => 'required|string',
-                'period' => 'required|string',
-                'category_id' => 'required',
-                'level_id' => 'required',
-            ]);
-
-            if ($validator->fails())
-            {
-                return response()->json(['errors' => $validator->errors(), 'status' => 422]);
-            }
-
             DB::beginTransaction();
 
             $course = Course::create([
@@ -147,8 +129,9 @@ class CourseController extends Controller
             $validator = Validator::make($request->all(), [
                 'course_name' => 'required|string|max:255',
                 'description' => 'required|string',
+                'price' => 'required|numeric',
                 'period' => 'required|string',
-                // 'announce_date' => 'required|date_format:Y-m-d|after_or_equal:' . $todayDate,
+                'announce_date' => 'required|date_format:Y-m-d|after_or_equal:' . $todayDate,
                 'category_id' => 'nullable|exists:categories,id',
                 'level_id' => 'nullable|exists:levels,id',
             ]);
@@ -225,69 +208,38 @@ class CourseController extends Controller
      * @param $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function buyCourses(Request $request, $allocationId)
+    public function buyCourses(Request $request, $courseId)
     {
-        $allocation = Allocation::findOrFail($allocationId);
+        $course = Course::findOrFail($courseId);
         $user = Auth::user();
 
-        $existingAllocation = $user->allocations()
-                            ->where('allocation_id', '!=', $allocation->id)
-                            ->where('course_id', $allocation->course_id)
-                            ->where('rank_id', $allocation->rank_id)
-                            ->first();
+        if(!$user->courses->contains($course->id)){
+            $user->courses()->attach($course->id);
 
-        if ($existingAllocation)
-        {
-            return response()->json(['message' => 'You have already purchased this course.']);
-        }
+            $classroom = $course->classrooms->first();
 
-        $studentModule = StudentModule::where('user_id', $user->id)
-            ->where('course_id', $allocation->course_id)
-            ->first();
-
-        if ($studentModule && $studentModule->is_complete === false )
-        {
-            return response()->json(['message' => 'You need to complete this course before purchasing.']);
-        }
-
-        if (!$allocation->users->contains($user->id)) {
-
-            if ($allocation->capacity === 1) {
-                $teacherId = $allocation->teacher_id;
-                $user->teachers()->attach($teacherId);
-
-                $allocation->users()->attach($user->id);
-                $allocation->decrement('capacity', 1);
-
-                $enrollment = new Enrollment([
-                    'enroll_date' => now(),
-                    'isPresent' => true,
-                    'user_id' => $user->id,
-                    'course_id' => $allocation->course_id,
-                    'end_date' => now(),
+            if(!$classroom || $classroom->capacity <= 0){
+                return response()->json([
+                    'warning' => !$classroom ? 'This course does not have a classroom.' : 'This course is already full!',
+                    'status' => 422
                 ]);
-                $enrollment->save();
-
-                if (!$studentModule) {
-                    $studentModule = new StudentModule([
-                        'user_id' => $user->id,
-                        'course_id' => $allocation->course_id,
-                        'rank_id' => $allocation->rank_id,
-                        'is_complete' => true,
-                        'end_date' => now(),
-                    ]);
-                } else {
-                    $studentModule->is_complete = true;
-                }
-                $studentModule->save();
-
-                return response()->json(['message' => 'Course purchased and enrolled successfully!']);
-            } else {
-                return response()->json(['message' => 'This course is already full!']);
             }
-        } else {
-            return response()->json(['message' => 'Course already purchased and enrolled.']);
+
+            $enrollment = new Enrollment([
+                'enroll_date' => now(),
+                'isPresent' => true
+            ]);
+
+            $course->enrollments()->save($enrollment);
+            $classroom->decrement('capacity', 1);
+
+            $teacherId = $course->teachers->first()->id;
+            $user->teachers()->attach($teacherId);
+
+            return response()->json(['message' => 'Course purchased and enrolled successfully!']);
         }
+
+        return response()->json(['message' => 'You have already purchased this course']);
     }
 
     /**
@@ -299,7 +251,7 @@ class CourseController extends Controller
     {
         $user = User::findOrFail($userId);
 
-        $myCourse = $user->allocations()->with('section', 'course', 'rank', 'teacher', 'meetings')->get();
+        $myCourse = $user->courses()->with('meetings')->get();
 
         if (!$myCourse) {
             return response()->json([
@@ -332,12 +284,10 @@ class CourseController extends Controller
 
         $studentId = auth()->user()->id;
 
-        $purchasedCourses = Allocation::join('students_allocations', 'allocations.id', '=', 'students_allocations.allocation_id')
-                                        ->join('courses_categories', 'allocations.course_id', '=', 'courses_categories.course_id')
-                                        ->join('categories', 'categories.id', '=', 'courses_categories.category_id')
-                                        ->where('categories.name', '=', $categoryName, 'and', 'students_allocations.user_id', '=', $studentId)
-                                        ->get('allocations.*');
-                                        
+        $purchasedCourses = StudentSection::where('user_id', $studentId)
+            ->whereIn('course_id', $category->courses->pluck('id'))
+            ->get();
+
             $courseDetails = [];
 
             foreach ($purchasedCourses as $purchasedCourse) {
@@ -354,7 +304,7 @@ class CourseController extends Controller
     }
 
     /**
-     * Summary of getPurchasedCoursesDetails
+     * Summary of getPurchasedCoursesByCategory
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
