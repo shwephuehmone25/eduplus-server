@@ -33,7 +33,7 @@ class AllocationController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function assignedToTeachers(Request $request)
     {
         $request->validate([
             'course_id' => 'required',

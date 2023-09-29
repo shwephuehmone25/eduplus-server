@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Enrollment extends Model
 {
     use HasFactory;
-    protected $fillable = ['enroll_date', 'isPresent'];
+    protected $fillable = ['enroll_date', 'isPresent', 'user_id', 'course_id'];
 
     public function students()
     {

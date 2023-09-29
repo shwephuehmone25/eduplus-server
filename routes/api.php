@@ -57,7 +57,7 @@ Route::get('/get/{userId}/purchasedcourseDetails/{courseId}', [CourseController:
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('/courses', [CourseController::class, 'index']);
     Route::get('/courses/{id}', [CourseController::class, 'showCourseDetails']);
-    Route::get('/courses/purchase/{courseId}', [CourseController::class, 'buyCourses']);
+    Route::get('/courses/purchase/{allocationId}', [CourseController::class, 'buyCourses']);
     Route::get('/mycourses/show/{id}', [CourseController::class, 'getMyCourse']);
     Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
     Route::post('/courses/enroll/{courseId}', [CourseController::class, 'enroll']);
@@ -98,7 +98,7 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::get('restoreAll', [CourseController::class, 'restoreAll']);
 
     /**Allocation Routes */
-    Route::post('/allocations', [AllocationController::class, 'store']);
+    Route::post('/allocations', [AllocationController::class, 'assignedToTeachers']);
     Route::post('/allocation/{allocation}', [AllocationController::class, 'update']);
     Route::delete('/allocation/{allocation}', [AllocationController::class, 'destroy']);
     Route::get('/allocations/restore/{id}', [AllocationController::class, 'restore']);
@@ -138,11 +138,11 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::delete('/levels/{level}', [LevelController::class, 'destroy']);
 
     /**Rank Routes */
-    Route::get('/ranks', [RankController::class, 'index']);
-    Route::get('/rank/{id}', [RankController::class, 'showRankDetails']);
-    Route::post('/ranks', [RankController::class, 'store']);
-    Route::post('/ranks/{rank}', [RankController::class, 'update']);
-    Route::delete('/ranks/{rank}', [RankController::class, 'destroy']);
+    Route::get('/modules', [RankController::class, 'index']);
+    Route::get('/module/{id}', [RankController::class, 'showModuleDetails']);
+    Route::post('/modules', [RankController::class, 'store']);
+    Route::post('/modules/{module}', [RankController::class, 'update']);
+    Route::delete('/modules/{module}', [RankController::class, 'destroy']);
 
     /**Section routes */
     Route::get('/sections', [SectionController::class, 'index']);
