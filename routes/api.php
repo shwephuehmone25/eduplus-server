@@ -65,8 +65,10 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
     Route::post('/like', [LikeController::class, 'like']);
     Route::post('/unlike', [LikeController::class,'unlike']);
-    Route::post('/change-password/{user}', [UserController::class, 'changePassword']);
-    Route::post('/forgot-password', [UserController::class, 'forgotPassword']);
+    Route::post('/changePassword/{user}', [UserController::class, 'changePassword']);
+    Route::post('/forgotPassword', [UserController::class, 'forgotPassword']);
+    Route::post('/resetPassword/{user}', [UserController::class, 'resetPassword']);
+    Route::post('/newPhoneNumber', [UserController::class, 'changePhoneNumber']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);
@@ -91,6 +93,7 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
 
     /**Users Routes */
     Route::get('/allUsers', [UserController::class, 'getAllUsers']);
+    Route::get('/getUsersByCategoryId/{category}', [UserController::class, 'getUsersByCategoryId']);
 
     /**Course Routes */
     Route::post('/courses', [CourseController::class, 'store']);
