@@ -65,6 +65,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
     Route::post('/like', [LikeController::class, 'like']);
     Route::post('/unlike', [LikeController::class,'unlike']);
+    Route::post('/change-password/{user}', [UserController::class, 'changePassword']);
+    Route::post('/forgot-password', [UserController::class, 'forgotPassword']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);
