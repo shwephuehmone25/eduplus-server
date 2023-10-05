@@ -23,6 +23,8 @@ use Google\Service\Classroom\Resource\Courses;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Image;
+use Illuminate\Support\Facades\Storage;
 
 class CourseController extends Controller
 {
@@ -33,7 +35,7 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('categories', 'levels')->get();
+        $courses = Course::with('categories', 'levels', 'images')->get();
 
         if ($courses->isEmpty())
         {
@@ -65,7 +67,7 @@ class CourseController extends Controller
      */
     public function showCourseDetails($id)
     {
-        $course = Course::with('categories', 'levels')
+        $course = Course::with('categories', 'levels', 'images')
             ->find($id);
 
         if (!$course) {
@@ -113,6 +115,16 @@ class CourseController extends Controller
             $course->levels()->attach($request->input('level_id'));
 
             $course->save();
+
+            if ($request->hasFile('image')) {
+                $s3Path = Storage::disk('s3')->put('courses', $request->file('image'));
+    
+                $image = new Image();
+                $image->url = Storage::disk('s3')->url($s3Path);
+                $course->images()->save($image);
+    
+                $course->load('images');
+            }
 
             DB::commit();
 
@@ -170,6 +182,24 @@ class CourseController extends Controller
                 } else {
                     $course->{$relation}()->detach();
                 }
+            }
+
+            if ($request->hasFile('image')) {
+                $image =$course->images()->first();
+                if ($image) {
+                    $imageUrl = parse_url($image->url, PHP_URL_PATH);
+                    if (Storage::disk('s3')->exists($imageUrl)) {
+                        Storage::disk('s3')->delete($imageUrl);
+                    }
+                    $image->delete();
+                } else {
+                    $image = new Image();
+                }
+    
+                $s3Path = Storage::disk('s3')->put('news', $request->file('image'));
+    
+                $image->url = $s3Path;
+                $course->images()->save($image);
             }
 
             DB::commit();

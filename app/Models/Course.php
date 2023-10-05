@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Image;
 use App\Models\Level;
 use App\Models\Rank;
 use App\Models\Like;
@@ -107,5 +108,11 @@ class Course extends Model implements Likeable
     {
 
         return $this->hasMany(Allocation::class);
+    }
+
+    public function images()
+    {
+
+        return $this->morphMany(Image::class, 'imageable');
     }
 }
