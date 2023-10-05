@@ -9,11 +9,12 @@ use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\AccountVerification;
-
+use App\Models\Image;
+use Illuminate\Support\Facades\Storage;
 class UserController extends Controller
 {
     /**
-     * Get all news
+     * Get all users
      *
      * @return \Illuminate\Http\JsonResponse
      */
@@ -22,6 +23,35 @@ class UserController extends Controller
         $users = User::where('isVerified', 1)->get();
 
         return response()->json(['data' => $users, 'status' => 200]);
+    }
+
+    public function editProfile(Request $request, User $user)
+    {
+        $request->validate([
+            'name' => 'required|string',
+            'phone_number' => 'required|string',
+            'dob' => 'required|date',
+            'gender' => 'required|string',
+            'image' => 'image|mimes:jpeg,png,jpg,gif',
+        ]);
+
+        $user->name = $request->input('name');
+        $user->phone_number = $request->input('phone_number');
+        $user->dob = $request->input('dob');
+        $user->gender = $request->input('gender');
+        $user->save();
+
+        if ($request->hasFile('image')) {
+            $s3Path = Storage::disk('s3')->put('students', $request->file('image'));
+
+            $image = new Image();
+            $image->url = Storage::disk('s3')->url($s3Path);
+            $user->images()->save($image);
+
+            $user->load('images');
+        }
+
+        return response()->json(['message' => 'User info updated successfully', 'data' => $user, 'status' => 200]);
     }
 
     public function changePassword(Request $request, $id){
@@ -36,7 +66,8 @@ class UserController extends Controller
 
         if($user)
         {
-            if(!Hash::check($request->old_password, $user->password)){
+            if(!Hash::check($request->old_password, $user->password))
+            {
                 return response()->json(['message' => 'Old password is incorrect!', 'status' => 422]);
             }
     
@@ -62,7 +93,8 @@ class UserController extends Controller
 
         $user = User::where('phone_number', $request->input('phone_number'))->first();
 
-        if(!$user){
+        if(!$user)
+        {
             return response()->json(['message' => 'User not found!', 'status' => 404]);
         }
 
@@ -75,7 +107,8 @@ class UserController extends Controller
             'user_id' => $user_id,
         ]);
 
-        if ($user) {
+        if ($user) 
+        {
             $user->notify(new AccountVerification($otp));
         }
 
