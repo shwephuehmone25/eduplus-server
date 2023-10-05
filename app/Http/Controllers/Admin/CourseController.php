@@ -67,7 +67,7 @@ class CourseController extends Controller
      */
     public function showCourseDetails($id)
     {
-        $course = Course::with('categories', 'levels', 'images')
+        $course = Course::with('categories', 'levels', 'images', 'sections')
             ->find($id);
 
         if (!$course) {
@@ -118,11 +118,11 @@ class CourseController extends Controller
 
             if ($request->hasFile('image')) {
                 $s3Path = Storage::disk('s3')->put('courses', $request->file('image'));
-    
+
                 $image = new Image();
                 $image->url = Storage::disk('s3')->url($s3Path);
                 $course->images()->save($image);
-    
+
                 $course->load('images');
             }
 
@@ -195,9 +195,9 @@ class CourseController extends Controller
                 } else {
                     $image = new Image();
                 }
-    
+
                 $s3Path = Storage::disk('s3')->put('news', $request->file('image'));
-    
+
                 $image->url = $s3Path;
                 $course->images()->save($image);
             }
@@ -359,7 +359,7 @@ class CourseController extends Controller
                                         ->join('categories', 'categories.id', '=', 'courses_categories.category_id')
                                         ->where('categories.name', '=', $categoryName, 'and', 'students_allocations.user_id', '=', $studentId)
                                         ->get('allocations.*');
-                                        
+
             $courseDetails = [];
 
             foreach ($purchasedCourses as $purchasedCourse) {

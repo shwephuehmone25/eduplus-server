@@ -92,7 +92,7 @@ Route::get('/videos', [ VideoController::class, 'index']);
 Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
 
     /**Users Routes */
-    Route::get('/allUsers', [UserController::class, 'getAllUsers']);
+    Route::get('/users/get', [UserController::class, 'getAllUsers']);
 
     /**Course Routes */
     Route::post('/courses', [CourseController::class, 'store']);

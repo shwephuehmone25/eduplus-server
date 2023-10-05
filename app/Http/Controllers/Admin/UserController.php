@@ -20,7 +20,7 @@ class UserController extends Controller
      */
     public function getAllUsers()
     {
-        $users = User::where('isVerified', 1)->get();
+        $users = User::where('isVerified', 1)->with('images')->get();
 
         return response()->json(['data' => $users, 'status' => 200]);
     }
@@ -50,7 +50,9 @@ class UserController extends Controller
             'name' => 'required|string',
             'phone_number' => 'required|string',
             'dob' => 'required|date',
-            'gender' => 'required|string',
+            'address' => 'required|string',
+            'region' => 'required|string',
+            'address' => 'required|string',
             'image' => 'image|mimes:jpeg,png,jpg,gif',
         ]);
 
@@ -58,6 +60,8 @@ class UserController extends Controller
         $user->phone_number = $request->input('phone_number');
         $user->dob = $request->input('dob');
         $user->gender = $request->input('gender');
+        $user->region = $request->input('region');
+        $user->address = $request->input('address');
         $user->save();
 
         if ($request->hasFile('image')) {

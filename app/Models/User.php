@@ -37,7 +37,8 @@ class User extends Authenticatable
         'google_id',
         'avatar',
         'gender',
-        'region'
+        'region',
+        'address',
     ];
 
     /**
