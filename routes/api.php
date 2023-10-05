@@ -49,6 +49,7 @@ Route::middleware(['auth:sanctum', 'IsTeacher'])->group(function () {
 Route::post('/phone/register', [AuthController::class, 'getStart']);
 Route::post('/otp/verify/{userId}', [AuthController::class, 'verify']);
 Route::post('/user/create/{userId}', [AuthController::class, 'createUser']);
+Route::post('/user/editProfile/{user}', [UserController::class, 'editProfile']);
 Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
 Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
 Route::get('/get/{userId}/purchasedcourseDetails/{courseId}', [CourseController::class, 'getPurchasedCoursesDetails']);
