@@ -22,8 +22,8 @@ class TeacherController extends Controller
 
         if($request->has('q')){
             $search = $request->q;
-            $teachers =Teacher::select("id", "name")
-            		->where('name', 'LIKE', "%$search%")
+            $teachers =Teacher::select("id", "email")
+            		->where('email', 'LIKE', "%$search%")
             		->get();
         }
 
