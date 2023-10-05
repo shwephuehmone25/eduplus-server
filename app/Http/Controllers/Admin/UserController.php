@@ -25,6 +25,25 @@ class UserController extends Controller
         return response()->json(['data' => $users, 'status' => 200]);
     }
 
+     /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showUserDetails($id)
+    {
+        $user = User::with('images','allocations')
+                ->find($id);
+
+        if (!$user) {
+
+            return response()->json(['error' => 'User not found'], 404);
+        }
+
+        return response()->json(['data' => $user]);
+    }
+
     public function editProfile(Request $request, User $user)
     {
         $request->validate([
@@ -70,7 +89,7 @@ class UserController extends Controller
             {
                 return response()->json(['message' => 'Old password is incorrect!', 'status' => 422]);
             }
-    
+
             $user->update(['password' => Hash::make($request->new_password)]);
             return response()->json(['message' => 'Password changed successfully!', 'status' => 200]);
         }
@@ -107,7 +126,7 @@ class UserController extends Controller
             'user_id' => $user_id,
         ]);
 
-        if ($user) 
+        if ($user)
         {
             $user->notify(new AccountVerification($otp));
         }

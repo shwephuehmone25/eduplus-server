@@ -53,6 +53,7 @@ Route::post('/user/editProfile/{user}', [UserController::class, 'editProfile']);
 Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
 Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
 Route::get('/get/{userId}/purchasedcourseDetails/{courseId}', [CourseController::class, 'getPurchasedCoursesDetails']);
+Route::get('/user/{id}', [UserController::class, 'showUserDetails']);
 
 /**Common Routes */
 Route::middleware('auth:sanctum')->group(function(){
