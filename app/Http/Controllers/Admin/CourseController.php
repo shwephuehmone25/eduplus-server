@@ -65,8 +65,10 @@ class CourseController extends Controller
      */
     public function showCourseDetails($id)
     {
-        $course = Course::with('categories', 'levels')
+        $course = Course::with('categories', 'levels', 'sections', 'sections.teachers')
             ->find($id);
+
+        // dd($course);
 
         if (!$course) {
 

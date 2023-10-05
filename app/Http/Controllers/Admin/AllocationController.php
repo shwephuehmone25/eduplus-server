@@ -48,10 +48,12 @@ class AllocationController extends Controller
 
             $teacherId = $request->input('teacher_id');
             $teacher = Teacher::find($teacherId);
+            $teacher->sections()->attach($request->input('section_id'));
 
             if ($teacher && $teacher->meeting) {
                 $meetingId = $teacher->meeting->id;
-                $allocation->meeting_id = $meetingId;
+                // $allocation->meeting_id = $meetingId;
+                $allocation->meetings()->attach($meetingId);
             }
 
         return response()->json(['data' => $allocation, 'message' => 'Assigned to teachers successfully', 'status' => 201]);
