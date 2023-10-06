@@ -31,8 +31,7 @@ class SectionController extends Controller
     {
         $section = Section::with('courses', 'ranks')->find($id);
 
-        if (!$section)
-        {
+        if (!$section) {
 
             return response()->json(['error' => 'Section not found'], 404);
         }

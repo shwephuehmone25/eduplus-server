@@ -53,13 +53,11 @@ Route::post('/user/editProfile/{user}', [UserController::class, 'editProfile']);
 Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
 Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
 Route::get('/get/{userId}/purchasedcourseDetails/{courseId}', [CourseController::class, 'getPurchasedCoursesDetails']);
-Route::get('/courses/{id}', [CourseController::class, 'showCourseDetails']);
-Route::get('/user/showDetails/{id}', [UserController::class, 'showUserDetails']);
-Route::post('/user/editProfile/{user}',[UserController::class, 'editProfile']);
 
 /**Common Routes */
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('/courses', [CourseController::class, 'index']);
+    Route::get('/courses/{id}', [CourseController::class, 'showCourseDetails']);
     Route::get('/courses/purchase/{allocationId}', [CourseController::class, 'buyCourses']);
     Route::get('/mycourses/show/{id}', [CourseController::class, 'getMyCourse']);
     Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
@@ -68,10 +66,6 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
     Route::post('/like', [LikeController::class, 'like']);
     Route::post('/unlike', [LikeController::class,'unlike']);
-    Route::post('/change-password/{user}', [UserController::class, 'changePassword']);
-    Route::post('/forgot-password', [UserController::class, 'forgotPassword']);
-    Route::post('/reset-password/{user}', [UserController::class, 'resetPassword']);
-    Route::post('/newPhoneNumber', [UserController::class, 'changePhoneNumber']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);
@@ -96,7 +90,6 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
 
     /**Users Routes */
     Route::get('/allUsers', [UserController::class, 'getAllUsers']);
-    Route::get('/getUsersByCategoryId/{category}', [UserController::class, 'getUsersByCategoryId']);
 
     /**Course Routes */
     Route::post('/courses', [CourseController::class, 'store']);

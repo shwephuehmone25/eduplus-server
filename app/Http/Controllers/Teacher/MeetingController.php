@@ -121,11 +121,95 @@ class MeetingController extends Controller
             $allocations = $teacher->allocations;
             $meeting->save();
             $meeting->allocations()->sync($allocations);
-            
+
+
+
+            //$meeting->allocations()->attach($allocations);
+
             return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link created Successfully", 'status' => 200]);
             //$meeting->allocations()->attach($allocations);
 
             return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link created Successfully", 'status' => 200]);
+    }
+
+    public function test(Request $request)
+    {
+        $accessToken = $request->header('Authorization');
+        $teacher = Teacher::where('access_token', $accessToken)->first();
+
+        if (!$teacher) {
+            return response()->json(['message' => 'Unauthorized'], 401);
+        }
+
+        // Initialize the Google Client
+        $client = new Google_Client();
+        $client->setAccessToken($teacher->access_token);
+
+        if ($client->isAccessTokenExpired()) {
+            // Handle token refresh if needed
+            $client->fetchAccessTokenWithRefreshToken($teacher->refresh_token);
+            // Update the access token in the teacher table with $client->getAccessToken()
+        }
+
+        $service = new Google_Service_Calendar($client);
+
+        // Create a new event
+        $event = new Google_Service_Calendar_Event();
+        $startDateTime = new Google_Service_Calendar_EventDateTime();
+        $endDateTime = new Google_Service_Calendar_EventDateTime();
+
+        $event->setSummary('Meeting');
+        $event->setDescription('Google Meeting');
+        $startDateTime->setDateTime($request->input('start_time') . ':00');
+        $endDateTime->setDateTime($request->input('end_time') . ':00');
+        $startDateTime->setTimeZone('Asia/Yangon');
+        $endDateTime->setTimeZone('Asia/Yangon');
+        $event->setStart($startDateTime);
+        $event->setEnd($endDateTime);
+
+        // Create conference data
+        $conferenceRequest = new Google_Service_Calendar_CreateConferenceRequest();
+        $conferenceRequest->setRequestId(uniqid());
+        $solution_key = new Google_Service_Calendar_ConferenceSolutionKey();
+        $solution_key->setType("hangoutsMeet");
+        $conferenceRequest->setConferenceSolutionKey($solution_key);
+
+        $conference = new Google_Service_Calendar_ConferenceData();
+        $conference->setCreateRequest($conferenceRequest);
+        $event->setConferenceData($conference);
+
+        $calendarId = 'primary';
+
+        // Insert the event into Google Calendar
+        $event = $service->events->insert(
+            $calendarId,
+            $event,
+            ['conferenceDataVersion' => 1]
+        );
+
+        $meetLink = $event->getHangoutLink();
+
+        $teacher_id = $teacher->id;
+
+        $existingMeeting = Meeting::where('teacher_id', $teacher->id)->first();
+
+        if ($existingMeeting) {
+            // Update the existing meeting link
+            $existingMeeting->meet_link = $meetLink;
+            $existingMeeting->save();
+
+            return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link Updated Successfully", 'status' => 200]);
+        }
+
+        // Store the meeting details in the database
+        $meeting = new Meeting();
+        $meeting->start_time = $request->input('start_time');
+        $meeting->end_time = $request->input('end_time');
+        $meeting->teacher_id = $teacher_id;
+        $meeting->meet_link = $meetLink;
+        $meeting->save();
+
+        return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link created Successfully", 'status' => 200]);
     }
 
     public function getMeetingLists()

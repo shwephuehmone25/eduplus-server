@@ -58,7 +58,7 @@ class CourseController extends Controller
 
         $courses = $category->courses;
 
-        return response()->json(['data' => $courses]);
+        return response()->json(['courses' => $courses]);
     }
 
     /**
@@ -69,7 +69,7 @@ class CourseController extends Controller
      */
     public function showCourseDetails($id)
     {
-        $course = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers')
+        $course = Course::with('categories', 'levels')
             ->find($id);
 
         if (!$course) {
@@ -119,14 +119,14 @@ class CourseController extends Controller
             $course->save();
 
             if ($request->hasFile('image')) {
-                $s3Path = Storage::disk('s3')->put('courses', $request->file('image'));
+            $s3Path = Storage::disk('s3')->put('courses', $request->file('image'));
 
-                $image = new Image();
-                $image->url = Storage::disk('s3')->url($s3Path);
-                $course->images()->save($image);
+            $image = new Image();
+            $image->url = Storage::disk('s3')->url($s3Path);
+            $course->images()->save($image);
 
-                $course->load('images');
-            }
+            $course->load('images');
+        }
 
             DB::commit();
 

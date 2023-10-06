@@ -14,7 +14,6 @@ use App\Models\Like;
 use App\Models\Section;
 use App\Models\Allocation;
 use App\Models\Rank;
-use App\Models\Image;
 
 class User extends Authenticatable
 {
@@ -95,12 +94,6 @@ class User extends Authenticatable
     {
 
         return $this->belongsToMany(Allocation::class, 'students_allocations', 'user_id' , 'allocation_id');
-    }
-
-    public function images()
-    {
-
-        return $this->morphMany(Image::class, 'imageable');
     }
 
     public static function getGenderOptions(){
