@@ -24,7 +24,7 @@ class Course extends Model implements Likeable
 {
     use HasFactory, SoftDeletes, Likes;
 
-    protected $fillable = ['course_name', 'description', 'period'];
+    protected $fillable = ['course_name', 'description', 'price_per_rank', 'period'];
 
     public function categories()
     {
@@ -100,19 +100,13 @@ class Course extends Model implements Likeable
 
     public function ranks()
     {
-
+        
         return $this->belongsToMany(Rank::class, 'courses_ranks', 'course_id', 'rank_id');
     }
 
-    public function allocations()
+     public function images()
     {
 
-        return $this->hasMany(Allocation::class);
-    }
-
-    public function images()
-    {
-        
         return $this->morphMany(Image::class, 'imageable');
     }
 }

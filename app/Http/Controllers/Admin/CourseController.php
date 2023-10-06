@@ -35,7 +35,9 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('categories', 'levels', 'images')->get();
+        $courses = Course::with('categories', 'levels', 'sections', 'teachers', 'meetings')->get();
+            // ->orderBy('id', 'desc')
+            // ->paginate(18);
 
         if ($courses->isEmpty())
         {
@@ -56,7 +58,7 @@ class CourseController extends Controller
 
         $courses = $category->courses;
 
-        return response()->json(['courses' => $courses]);
+        return response()->json(['data' => $courses]);
     }
 
     /**
@@ -67,7 +69,7 @@ class CourseController extends Controller
      */
     public function showCourseDetails($id)
     {
-        $course = Course::with('categories', 'levels', 'images', 'sections')
+        $course = Course::with('categories', 'levels', 'classrooms', 'sections', 'teachers')
             ->find($id);
 
         if (!$course) {
@@ -87,16 +89,18 @@ class CourseController extends Controller
    public function store(Request $request)
     {
         try {
+            $todayDate = date('Y-m-d');
+
             $validator = Validator::make($request->all(), [
                 'course_name' => 'required|string|max:255',
                 'description' => 'required|string',
                 'period' => 'required|string',
                 'category_id' => 'required',
                 'level_id' => 'required',
-                'image' => 'image|mimes:jpeg,png,jpg,gif',
             ]);
 
-            if ($validator->fails()) {
+            if ($validator->fails())
+            {
                 return response()->json(['errors' => $validator->errors(), 'status' => 422]);
             }
 
@@ -112,14 +116,13 @@ class CourseController extends Controller
             $course->categories()->attach($request->input('category_id'));
             $course->levels()->attach($request->input('level_id'));
 
+            $course->save();
+
             if ($request->hasFile('image')) {
-                $imageFile = $request->file('image');
-                $imageName = uniqid() . '.' . $imageFile->getClientOriginalExtension();
-                $s3Path = Storage::disk('s3')->put('courses', $imageFile, 'public');
+                $s3Path = Storage::disk('s3')->put('courses', $request->file('image'));
 
                 $image = new Image();
                 $image->url = Storage::disk('s3')->url($s3Path);
-
                 $course->images()->save($image);
 
                 $course->load('images');
@@ -127,10 +130,11 @@ class CourseController extends Controller
 
             DB::commit();
 
-            return response()->json(['message' => 'Course created successfully', 'data' => $course, 'status' => 201]);
+            return response()->json(['message' => 'Course created successfully', 'data' => $course,'status' => 201]);
         } catch (\Exception $e) {
             DB::rollback();
-            return response()->json(['message' => 'Failed to create the course', 'error' => $e->getMessage(), 'status' => 500]);
+            dd($e);
+            return response()->json(['message' => 'Failed to create the course','status' =>  500 ]);
         }
     }
 
@@ -352,11 +356,9 @@ class CourseController extends Controller
 
         $studentId = auth()->user()->id;
 
-        $purchasedCourses = Allocation::join('students_allocations', 'allocations.id', '=', 'students_allocations.allocation_id')
-                                        ->join('courses_categories', 'allocations.course_id', '=', 'courses_categories.course_id')
-                                        ->join('categories', 'categories.id', '=', 'courses_categories.category_id')
-                                        ->where('categories.name', '=', $categoryName, 'and', 'students_allocations.user_id', '=', $studentId)
-                                        ->get('allocations.*');
+        $purchasedCourses = StudentCourse::where('user_id', $studentId)
+            ->whereIn('course_id', $category->courses->pluck('id'))
+            ->get();
 
             $courseDetails = [];
 
