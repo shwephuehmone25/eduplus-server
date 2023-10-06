@@ -9,8 +9,6 @@ use App\Models\Meeting;
 use App\Models\Teacher;
 use App\Models\Rank;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use App\Models\Rank;
-use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Section extends Model
 {
@@ -44,7 +42,6 @@ class Section extends Model
 
     public function ranks()
     {
-        
-        return $this->belongsToMany(Rank::class, 'sections_ranks', 'section_id', 'rank_id');
+        return $this->belongsToMany(Rank::class, 'sections_ranks', 'section_id' , 'rank_id');
     }
 }

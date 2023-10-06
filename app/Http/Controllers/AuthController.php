@@ -27,7 +27,6 @@ class AuthController extends Controller
      */
     public function getStart(Request $request)
     {
-        // Validate the phone number
         $validator = Validator::make($request->all(), [
             'phone_number' => ['required', 'numeric', 'unique:users'],
         ]);
@@ -40,6 +39,9 @@ class AuthController extends Controller
         }
 
         $user = User::create([
+            'name' => 'your name',
+            'dob' => '2000-01-01',
+            'password' => 11111111,
             'phone_number' => $request->input('phone_number'),
         ]);
 
@@ -62,7 +64,6 @@ class AuthController extends Controller
             'user_id' => $user_id,
             'status' => 200
         ]);
-
     }
 
     /**

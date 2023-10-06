@@ -35,7 +35,7 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('categories', 'levels', 'sections', 'teachers', 'meetings')->get();
+        $courses = Course::with('categories', 'levels', 'sections', 'images')->get();
             // ->orderBy('id', 'desc')
             // ->paginate(18);
 
@@ -69,13 +69,27 @@ class CourseController extends Controller
      */
     public function showCourseDetails($id)
     {
-        $course = Course::with('categories', 'levels')
-            ->find($id);
+        $course = Course::with('categories', 'levels', 'sections', 'ranks', 'sections.teachers', 'images')
+        ->find($id);
 
-        if (!$course) {
-
+        if (!$course) 
+        {
             return response()->json(['error' => 'Course not found'], 404);
         }
+
+        $ranks = [];
+
+        foreach ($course->sections as $section) {
+            if ($section->rank) {
+                $ranks[] = [
+                    'section_id' => $section->id,
+                    'module_name' => $section->rank->name,
+                    'module_price' => $section->rank->price,
+                ];
+            }
+        }
+
+        $course->ranks = $ranks;
 
         return response()->json(['data' => $course]);
     }

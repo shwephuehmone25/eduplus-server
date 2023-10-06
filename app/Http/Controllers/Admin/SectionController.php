@@ -6,6 +6,7 @@ use App\Models\Rank;
 use App\Models\Section;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class SectionController extends Controller
 {
@@ -47,26 +48,35 @@ class SectionController extends Controller
      */
     public function store(Request $request)
     {
-
         try {
-            $data = $request->validate([
-                'name' => 'required|string|max:255',
-                'start_time' => 'required|date_format:H:i',
-                'end_time' => 'required|date_format:H:i',
-                'capacity' => 'required',
-                'rank_id' => 'required',
-                'course_id' => 'required|exists:courses,id',
-            ]);
+        $data = $request->validate([
+            'name' => 'required|string|max:255',
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i',
+            'capacity' => 'required',
+            'rank_id' => 'required',
+            'course_id' => 'required|exists:courses,id',
+        ]);
 
-            $section = Section::create($data);
+        $section = Section::create([
+            'name' => $data['name'],
+            'start_time' => $data['start_time'],
+            'end_time' => $data['end_time'],
+            'capacity' => $data['capacity'],
+            'course_id' => $data['course_id'],
+            'rank_id' => $data['rank_id'],
+        ]);
 
-            $section->ranks()->sync($data['rank_id']);
+        DB::table('courses_ranks')->insert([
+            'course_id' => $data['course_id'],
+            'rank_id' => $data['rank_id'],
+        ]);
 
-            return response()->json([
-                'message' => 'Section created successfully',
-                'data' => $section,
-                'status' => 201
-            ]);
+        return response()->json([
+            'message' => 'Section created successfully',
+            'data' => $section,
+            'status' => 201
+        ]);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Section creation failed: ' . $e->getMessage(),
