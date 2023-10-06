@@ -100,7 +100,7 @@ class Course extends Model implements Likeable
 
     public function ranks()
     {
-        
+
         return $this->belongsToMany(Rank::class, 'courses_ranks', 'course_id', 'rank_id');
     }
 
@@ -112,7 +112,7 @@ class Course extends Model implements Likeable
 
     public function images()
     {
-
+        
         return $this->morphMany(Image::class, 'imageable');
     }
 }

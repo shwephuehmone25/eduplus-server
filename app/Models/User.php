@@ -15,6 +15,8 @@ use App\Models\Section;
 use App\Models\Allocation;
 use App\Models\Rank;
 use App\Models\Image;
+use App\Models\Image;
+
 class User extends Authenticatable
 {
     use HasFactory, HasApiTokens, Notifiable;

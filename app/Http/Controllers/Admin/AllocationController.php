@@ -57,22 +57,29 @@ class AllocationController extends Controller
         return response()->json(['data' => $allocation, 'message' => 'Assigned to teachers successfully', 'status' => 201]);
     }
 
-    /**
+     /**
      * Display the specified resource.
      *
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function showAllocationDetails($id)
     {
-        //
+        $allocation = Allocation::find($id);
+
+        if (!$allocation) {
+
+            return response()->json(['error' => 'Course not found'], 404);
+        }
+
+        return response()->json(['data' => $allocation]);
     }
+
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $allocation
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, Allocation $allocation)
@@ -85,19 +92,23 @@ class AllocationController extends Controller
                 'teacher_id' => 'required',
             ]);
 
-            $allocation->update($request->all());
-
-            // Find the teacher 
             $teacherId = $request->input('teacher_id');
             $teacher = Teacher::find($teacherId);
+
+            $allocation->update($request->all());
+
+            if ($teacher && $teacher->meeting) {
+                $meetingId = $teacher->meeting->id;
+                $allocation->meeting_id = $meetingId;
+            }
 
             $allocation->save();
 
             return response()->json(['data' => $allocation, 'message' => 'Allocation updated successfully', 'status' => 200]);
-        } catch (ModelNotFoundException $e) 
+        } catch (ModelNotFoundException $e)
         {
             return response()->json(['message' => 'Allocation not found', 'status' => 404]);
-        } catch (\Exception $e) 
+        } catch (\Exception $e)
         {
             return response()->json(['message' => 'An error occurred while updating the allocation'. $e->getMessage(), 'status' => 500]);
         }
@@ -106,7 +117,6 @@ class AllocationController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $allocation
      * @return \Illuminate\Http\Response
      */
     public function destroy(Allocation $allocation)

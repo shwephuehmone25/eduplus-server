@@ -84,21 +84,19 @@ class CourseController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+   public function store(Request $request)
     {
         try {
-            $todayDate = date('Y-m-d');
-
             $validator = Validator::make($request->all(), [
                 'course_name' => 'required|string|max:255',
                 'description' => 'required|string',
                 'period' => 'required|string',
                 'category_id' => 'required',
                 'level_id' => 'required',
+                'image' => 'image|mimes:jpeg,png,jpg,gif',
             ]);
 
-            if ($validator->fails())
-            {
+            if ($validator->fails()) {
                 return response()->json(['errors' => $validator->errors(), 'status' => 422]);
             }
 
@@ -114,13 +112,14 @@ class CourseController extends Controller
             $course->categories()->attach($request->input('category_id'));
             $course->levels()->attach($request->input('level_id'));
 
-            $course->save();
-
             if ($request->hasFile('image')) {
-                $s3Path = Storage::disk('s3')->put('courses', $request->file('image'));
+                $imageFile = $request->file('image');
+                $imageName = uniqid() . '.' . $imageFile->getClientOriginalExtension();
+                $s3Path = Storage::disk('s3')->put('courses', $imageFile, 'public');
 
                 $image = new Image();
                 $image->url = Storage::disk('s3')->url($s3Path);
+
                 $course->images()->save($image);
 
                 $course->load('images');
@@ -128,11 +127,10 @@ class CourseController extends Controller
 
             DB::commit();
 
-            return response()->json(['message' => 'Course created successfully', 'data' => $course,'status' => 201]);
+            return response()->json(['message' => 'Course created successfully', 'data' => $course, 'status' => 201]);
         } catch (\Exception $e) {
             DB::rollback();
-            dd($e);
-            return response()->json(['message' => 'Failed to create the course','status' =>  500 ]);
+            return response()->json(['message' => 'Failed to create the course', 'error' => $e->getMessage(), 'status' => 500]);
         }
     }
 

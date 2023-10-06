@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Rank;
+use App\Models\Course;
 use App\Models\Section;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -31,7 +32,8 @@ class SectionController extends Controller
     {
         $section = Section::with('courses', 'ranks')->find($id);
 
-        if (!$section) {
+        if (!$section)
+        {
 
             return response()->json(['error' => 'Section not found'], 404);
         }
@@ -61,6 +63,9 @@ class SectionController extends Controller
             $section = Section::create($data);
 
             $section->ranks()->sync($data['rank_id']);
+
+            $course = Course::findOrFail($data['course_id']);
+            $course->ranks()->attach($data['rank_id']);
 
             return response()->json([
                 'message' => 'Section created successfully',
