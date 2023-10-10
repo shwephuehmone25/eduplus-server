@@ -19,7 +19,7 @@ jobs:
     - name: Copy .env
       run: php -r "file_exists('.env') || copy('.env.example', '.env');"
     - name: php install
-      run: cd /var/www/html && git pull && composer install - no-dev && php artisan migrate - force && php artisan optimize
+      run: cd /var/www/html/actions-runner && git pull && composer install - no-dev && php artisan migrate - force && php artisan optimize
     - name: change permission
       run: sudo chmod -R 777 /var/www/html/
       
