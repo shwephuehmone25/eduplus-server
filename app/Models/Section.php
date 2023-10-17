@@ -5,6 +5,7 @@ namespace App\Models;
 use App\Models\Course;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Models\Allocation;
 use App\Models\Meeting;
 use App\Models\Teacher;
 use App\Models\Rank;
@@ -14,12 +15,12 @@ class Section extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'description', 'start_time', 'end_time', 'capacity', 'rank_id', 'course_id'];
+    protected $fillable = ['name', 'start_time', 'end_time', 'capacity'];
 
     public function courses()
     {
 
-        return $this->belongsTo(Course::class);
+        return $this->belongsToMany(Course::class, 'course_sections', 'section_id', 'course_id');
     }
 
     public function meetings()
@@ -43,5 +44,10 @@ class Section extends Model
     public function ranks()
     {
         return $this->belongsToMany(Rank::class, 'sections_ranks', 'section_id' , 'rank_id');
+    }
+
+    public function allocations()
+    {
+        return $this->hasMany(Allocation::class);
     }
 }

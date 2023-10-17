@@ -12,6 +12,18 @@ use Illuminate\Support\Facades\Auth;
 class TeacherController extends Controller
 {
     /**
+     * count total teachers
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function countTotalTeachers() 
+    {
+    $teachers = Teacher::count();
+
+    return response()->json(['data' => $teachers]);
+    }
+
+    /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
@@ -20,14 +32,25 @@ class TeacherController extends Controller
     {
         $teachers = [];
 
-        if($request->has('q')){
+        $teachers = Teacher::select("id", "email")->get();
+
+        if ($request->has('q'))
+         {
             $search = $request->q;
-            $teachers =Teacher::select("id", "email")
-            		->where('email', 'LIKE', "%$search%")
-            		->get();
+            $teachers = $teachers->filter(function ($teacher) use ($search) 
+            {
+                return str_contains(strtolower($teacher->email), strtolower($search));
+            });
         }
 
         return response()->json(['data' => $teachers]);
+    }
+
+    public function index()
+    {
+        $teachers = Teacher::all();
+
+        return response()->json(['data' => $teachers, 'status' => 200]);
     }
 
     /**

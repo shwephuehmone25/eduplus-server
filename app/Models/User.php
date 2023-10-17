@@ -177,4 +177,10 @@ class User extends Authenticatable
 
         return $this->belongsToMany(Rank::class, 'students_modules', 'user_id', 'rank_id');
     }
+
+    public function images()
+    {
+
+        return $this->morphMany(Image::class, 'imageable');
+    }
 }

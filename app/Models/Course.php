@@ -40,8 +40,7 @@ class Course extends Model implements Likeable
 
     public function sections()
     {
-
-        return $this->hasMany(Section::class);
+        return $this->belongsToMany(Section::class, 'course_sections', 'course_id', 'section_id');
     }
 
     public function students()
@@ -100,7 +99,7 @@ class Course extends Model implements Likeable
 
     public function ranks()
     {
-        
+
         return $this->belongsToMany(Rank::class, 'courses_ranks', 'course_id', 'rank_id');
     }
 

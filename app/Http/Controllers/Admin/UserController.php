@@ -15,6 +15,30 @@ use Illuminate\Support\Facades\Storage;
 class UserController extends Controller
 {
     /**
+     * count verified users
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function countVerifiedUsers() 
+    {
+    $users = User::where('isVerified', 1)->count();
+
+    return response()->json(['data' => $users]);
+    }
+
+     /**
+     * count total authors
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function countAuthors() 
+    {
+    $users = User::where('isVerified', 1)->count();
+
+    return response()->json(['data' => $users]);
+    }
+
+    /**
      * Get all users
      *
      * @return \Illuminate\Http\JsonResponse
