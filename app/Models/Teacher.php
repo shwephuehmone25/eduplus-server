@@ -55,8 +55,7 @@ class Teacher extends Model implements Authenticatable
     public function sections()
     {
 
-        return $this->belongsToMany(Section::class, 'teachers_sections', 'teacher_id','section_id')
-                    ->withPivot('course_id');
+        return $this->belongsToMany(Section::class, 'teachers_sections', 'teacher_id','section_id');
     }
 
     public function allocations()

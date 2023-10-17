@@ -5,7 +5,6 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Rank;
-use Illuminate\Support\Facades\Validator;
 
 class RankController extends Controller
 {
@@ -20,6 +19,7 @@ class RankController extends Controller
 
         return response()->json(['data' => $ranks]);
     }
+
 
     /**
      * Display the specified resource.
@@ -70,28 +70,13 @@ class RankController extends Controller
      */
     public function update(Request $request, Rank $rank)
     {
-         $rules = [
-        'name' => 'required|string|max:255|unique:ranks,name,' . $rank->id,
-        'price' => 'required'
-        ];
+        $data = $request->validate([
+            'name' => 'required|string|max:255|unique:ranks,name,' . $rank->id,
+        ]);
 
-        $validator = Validator::make($request->all(), $rules);
+        $rank->update($data);
 
-        if ($validator->fails()) 
-        {
-            return response()->json(['error' => $validator->errors(), 'status' => 422]);
-        }
-
-        try {
-            $rank->name = $request->input('name');
-            $rank->price = $request->input('price');
-            $rank->save();
-
-            return response()->json(['message' => 'Module is updated successfully', 'data' => $rank, 'status' => 200]);
-        } catch (\Exception $e) 
-        {
-            return response()->json(['error' => 'Module update failed', 'message' => $e->getMessage(), 'status' => 500]);
-        }
+        return response()->json(['message' => 'Module is updated successfully', 'data' => $rank, 'status' => 200]);
     }
 
     /**

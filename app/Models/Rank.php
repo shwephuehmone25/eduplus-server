@@ -24,7 +24,7 @@ class Rank extends Model
     public function courses()
     {
 
-        return $this->belongsToMany(Course::class, 'courses_ranks', 'rank_id', 'course_id');
+        return $this->belongsToMany(Course::class, 'courses_ranks', 'course_id', 'rank_id');
     }
 
     public function allocations()
