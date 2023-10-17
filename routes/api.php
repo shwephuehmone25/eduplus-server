@@ -39,11 +39,11 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::middleware(['auth:sanctum', 'IsTeacher'])->group(function () {
+// Route::middleware(['auth:sanctum', 'IsTeacher'])->group(function () {
     /*Teacher Routes*/
     Route::get('/teacher/getAssigncourses/{teacher}', [TeacherController::class, 'getAssignCourses']);
     Route::get('/teacher/show', [TeacherController::class, 'showProfile']);
-    });
+    // });
 
 /*User Routes*/
 Route::post('/phone/register', [AuthController::class, 'getStart']);
@@ -52,8 +52,17 @@ Route::post('/user/create/{userId}', [AuthController::class, 'createUser']);
 Route::post('/user/editProfile/{user}', [UserController::class, 'editProfile']);
 Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
 Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
-Route::get('/get/{userId}/purchasedcourseDetails/{courseId}', [CourseController::class, 'getPurchasedCoursesDetails']);
+Route::get('/get/{userId}/purchasedcourseDetails/{allocationId}', [CourseController::class, 'getPurchasedCoursesDetails']);
 Route::get('/courses/{id}', [CourseController::class, 'showCourseDetails']);
+Route::get('/modules', [RankController::class, 'index']);
+Route::get('/module/{id}', [RankController::class, 'showModuleDetails']);
+Route::get('/sections', [SectionController::class, 'index']);
+Route::get('/section/{id}', [SectionController::class, 'getSectionDetails']);
+Route::get('/levels', [LevelController::class, 'index']);
+Route::get('/level/{id}', [LevelController::class, 'showLevelDetails']);
+Route::get('/users/count', [UserController::class, 'countVerifiedUsers']);
+Route::get('/totalCourses/count', [CourseController::class, 'countCourses']);
+Route::get('/totalTeachers/count', [CourseController::class, 'countCourses']);
 
 /**Common Routes */
 Route::middleware('auth:sanctum')->group(function(){
@@ -89,7 +98,7 @@ Route::get('/videos', [ VideoController::class, 'index']);
 Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
 
     /**Users Routes */
-    Route::get('/allUsers', [UserController::class, 'getAllUsers']);
+    Route::get('/userlists/get', [UserController::class, 'getAllUsers']);
 
     /**Course Routes */
     Route::post('/courses', [CourseController::class, 'store']);
@@ -97,9 +106,10 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
     Route::get('/courses/restore/{id}', [CourseController::class, 'restore']);
     Route::get('restoreAll', [CourseController::class, 'restoreAll']);
+    Route::post('/courses/upload-image/{course}', [CourseController::class, 'uploadImage']);
 
     /**Allocation Routes */
-    Route::post('/allocations', [AllocationController::class, 'assignedToTeachers']);
+    Route::post('/teachers/assign', [AllocationController::class, 'assignedToTeachers']);
     Route::post('/allocation/{allocation}', [AllocationController::class, 'update']);
     Route::delete('/allocation/{allocation}', [AllocationController::class, 'destroy']);
     Route::get('/allocations/restore/{id}', [AllocationController::class, 'restore']);
@@ -117,11 +127,9 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 
     /**Rank Routes */
-    Route::get('/modules', [RankController::class, 'index']);
-    Route::get('/module/{id}', [RankController::class, 'showModuleDetails']);
     Route::post('/modules', [RankController::class, 'store']);
-    Route::post('/modules/{module}', [RankController::class, 'update']);
-    Route::delete('/modules/{module}', [RankController::class, 'destroy']);
+    Route::post('/modules/{rank}', [RankController::class, 'update']);
+    Route::delete('/modules/{rank}', [RankController::class, 'destroy']);
 
     /**Subcategory routes*/
     // Route::get('/subcategories', [SubcategoryController::class,'index']);
@@ -132,29 +140,18 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     // Route::get('/get/subcategories', [SubcategoryController::class, 'getSubcategoriesByCategory']);
 
     /**Class routes */
-    Route::get('/classes', [ClassController::class, 'index']);
-    Route::get('/class/{id}', [ClassController::class, 'getClassDetails']);
-    Route::post('/classes', [ClassController::class, 'store']);
-    Route::post('/classes/{class}', [ClassController::class, 'update']);
-    Route::delete('/classes/{class}', [ClassController::class, 'destroy']);
+    // Route::get('/classes', [ClassController::class, 'index']);
+    // Route::get('/class/{id}', [ClassController::class, 'getClassDetails']);
+    // Route::post('/classes', [ClassController::class, 'store']);
+    // Route::post('/classes/{class}', [ClassController::class, 'update']);
+    // Route::delete('/classes/{class}', [ClassController::class, 'destroy']);
 
     /**Level Routes */
-    Route::get('/levels', [LevelController::class, 'index']);
-    Route::get('/level/{id}', [LevelController::class, 'showLevelDetails']);
     Route::post('/levels', [LevelController::class, 'store']);
     Route::post('/levels/{level}', [LevelController::class, 'update']);
     Route::delete('/levels/{level}', [LevelController::class, 'destroy']);
 
-    /**Rank Routes */
-    Route::get('/ranks', [RankController::class, 'index']);
-    Route::get('/rank/{id}', [RankController::class, 'showRankDetails']);
-    Route::post('/ranks', [RankController::class, 'store']);
-    Route::post('/ranks/{rank}', [RankController::class, 'update']);
-    Route::delete('/ranks/{rank}', [RankController::class, 'destroy']);
-
     /**Section routes */
-    Route::get('/sections', [SectionController::class, 'index']);
-    Route::get('/section/{id}', [SectionController::class, 'getSectionDetails']);
     Route::post('/section/create', [SectionController::class, 'store']);
     Route::post('/section/edit/{section}', [SectionController::class, 'update']);
     Route::delete('/section/{section}', [SectionController::class, 'destroy']);
@@ -163,7 +160,8 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::post('/teachers', [TeacherController::class, 'store']);
     Route::post('/teachers/{teacher}', [TeacherController::class, 'update']);
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
-    Route::get('/teachers', [TeacherController::class, 'getAllTeachers']);
+    Route::get('/searchable/teachers', [TeacherController::class, 'getAllTeachers']);
+    Route::get('/teacherLists/get', [TeacherController::class, 'index']);
 
     /**News Variety route */
     Route::get('/varieties', [VarietyController::class, 'index']);

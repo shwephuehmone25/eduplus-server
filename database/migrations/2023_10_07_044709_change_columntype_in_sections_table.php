@@ -13,12 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('images', function (Blueprint $table) {
-            $table->id();
-            $table->string('url')->nullable();
-            $table->unsignedBigInteger('imageable_id');
-            $table->string('imageable_type');
-            $table->timestamps();
+        Schema::table('sections', function (Blueprint $table) {
+            $table->datetime('start_time')->default(null)->change();
+            $table->datetime('end_time')->default(null)->change();
         });
     }
 
@@ -29,6 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('images');
+        Schema::table('sections', function (Blueprint $table) {
+            //
+        });
     }
 };
