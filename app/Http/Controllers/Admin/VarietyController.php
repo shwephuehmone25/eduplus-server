@@ -53,6 +53,6 @@ class VarietyController extends Controller
     {
         $variety->delete();
 
-        return response()->json(['message' => 'Variety deleted successfully', 'status' => 200]);
+        return response()->json(['message' => 'Variety deleted successfully', 'status' => 204]);
     }
 }

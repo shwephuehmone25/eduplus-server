@@ -155,6 +155,6 @@ class AllocationController extends Controller
     {
         $allocation->delete();
 
-        return response()->json(['message' => 'Assigned courses is deleted successfully']);
+        return response()->json(['message' => 'Assigned courses is deleted successfully', 'status' => 204]);
     }
 }

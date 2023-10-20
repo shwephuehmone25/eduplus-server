@@ -134,6 +134,6 @@ class SectionController extends Controller
     {
         $section->delete();
 
-        return response()->json(['message' => 'Section deleted successfully', 'status' => 200]);
+        return response()->json(['message' => 'Section deleted successfully', 'status' => 204]);
     }
 }

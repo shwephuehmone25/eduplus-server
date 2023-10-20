@@ -104,6 +104,6 @@ class RankController extends Controller
     {
         $rank->delete();
 
-        return response()->json(['message' => 'Module is deleted successfully', 'status' => 200]);
+        return response()->json(['message' => 'Module is deleted successfully', 'status' => 204]);
     }
 }
