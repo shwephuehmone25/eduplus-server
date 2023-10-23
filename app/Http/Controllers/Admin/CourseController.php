@@ -290,13 +290,14 @@ class CourseController extends Controller
 
         $course = Course::findOrFail($id);
 
-        if(!$course){
+        if(!$course)
+        {
             return response()->json(['message' => 'Course not found!', 'status' => 404]);
         }
 
         $course->delete();
 
-        return response()->json(['message' => 'Course is deleted successfully', 'status' => 200]);
+        return response()->json(['message' => 'Course is deleted successfully', 'status' => 204]);
 
     }
 

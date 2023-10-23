@@ -114,7 +114,7 @@ class TeacherController extends Controller
     {
         $teacher->delete();
 
-        return response()->json(['message' => 'Teacher deleted successfully', 'status' => 200]);
+        return response()->json(['message' => 'Teacher deleted successfully', 'status' => 204]);
     }
 
     /**
