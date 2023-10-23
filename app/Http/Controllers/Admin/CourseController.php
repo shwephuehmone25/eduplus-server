@@ -137,6 +137,8 @@ class CourseController extends Controller
                 'course_name' => 'required|string|max:255',
                 'description' => 'required|string',
                 'period' => 'required|string',
+                'price' => 'required|integer',
+                'image_url' => 'required|string',
                 'category_id' => 'required',
                 'level_id' => 'required',
             ]);
@@ -152,6 +154,7 @@ class CourseController extends Controller
                 'course_name' => $request->input('course_name'),
                 'description' => $request->input('description'),
                 'price' => $request->input('price'),
+                'image_url' => $request->input('image_url'),
                 'period' => $request->input('period'),
             ]);
 
@@ -159,16 +162,6 @@ class CourseController extends Controller
             $course->levels()->attach($request->input('level_id'));
 
             $course->save();
-
-            if ($request->hasFile('image')) {
-                $s3Path = Storage::disk('s3')->put('courses', $request->file('image'));
-
-                $image = new Image();
-                $image->url = Storage::disk('s3')->url($s3Path);
-                $course->images()->save($image);
-
-                $course->load('images');
-            }
 
             DB::commit();
 
@@ -180,26 +173,35 @@ class CourseController extends Controller
         }
     }
 
-    public function uploadImage(Request $request, Course $course)
-    {
-        try{
-            if ($request->hasFile('image')) {
-                $s3Path = Storage::disk('s3')->put('courses', $request->file('image'));
+    public function imageUpload(Request $request)
+{
+    try{
+        $validator = Validator::make($request->all(), [
+            'image' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+        ]);
 
-                $image = new Image();
-                $image->url = Storage::disk('s3')->url($s3Path);
-                $course->images()->save($image);
-
-                $course->load('images');
-                return response()->json(['message' => 'Image file uploaded successfully!', 'data' => $image, 'status' => 201]);
-            }else{
-                return response()->json(['message' => 'No file uploaded!', 'status' => 400]);
-            }
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => 'Validation failed', 'errors' => $errors, 'status' => 422], 422);
         }
-        catch(\Exception $e){
-            return response()->json(['message' => 'Failed to upload image', 'error' => $e->getMessage(), 'status' => 500]);
+
+        if ($request->hasFile('image')) {
+            $s3Path = Storage::disk('s3')->put('courses', $request->file('image'));
+
+            $image = new Image();
+            $image->url = Storage::disk('s3')->url($s3Path);
+            $image->save();
+
+            return response()->json(['message' => 'Image file uploaded successfully!', 'data' => $image, 'status' => 201]);
+        }else{
+            return response()->json(['message' => 'No file uploaded!', 'status' => 400]);
         }
     }
+    catch(\Exception $e){
+        return response()->json(['message' => 'Failed to upload image', 'error' => $e->getMessage(), 'status' => 500]);
+    }
+}
+
 
     /**
      * Update the specified resource in storage.

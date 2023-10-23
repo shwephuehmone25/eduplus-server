@@ -118,6 +118,7 @@
         },
         {
             "name": "aws/aws-sdk-php",
+
             "version": "3.283.8",
             "source": {
                 "type": "git",
@@ -128,6 +129,7 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/aws/aws-sdk-php/zipball/0f73ec85852312a6e971cfe2eebfd7c8091cca34",
                 "reference": "0f73ec85852312a6e971cfe2eebfd7c8091cca34",
+              
                 "shasum": ""
             },
             "require": {
@@ -207,9 +209,11 @@
             "support": {
                 "forum": "https://forums.aws.amazon.com/forum.jspa?forumID=80",
                 "issues": "https://github.com/aws/aws-sdk-php/issues",
+
                 "source": "https://github.com/aws/aws-sdk-php/tree/3.283.8"
             },
             "time": "2023-10-19T19:26:52+00:00"
+
         },
         {
             "name": "barryvdh/laravel-cors",
@@ -1781,6 +1785,7 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/googleapis/google-auth-library-php/zipball/999e9ce8b9d17914f04e1718271a0a46da4de2f3",
                 "reference": "999e9ce8b9d17914f04e1718271a0a46da4de2f3",
+
                 "shasum": ""
             },
             "require": {
@@ -1823,9 +1828,11 @@
             "support": {
                 "docs": "https://googleapis.github.io/google-auth-library-php/main/",
                 "issues": "https://github.com/googleapis/google-auth-library-php/issues",
+
                 "source": "https://github.com/googleapis/google-auth-library-php/tree/v1.32.1"
             },
             "time": "2023-10-17T21:13:22+00:00"
+
         },
         {
             "name": "google/cloud-core",
