@@ -106,7 +106,7 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
     Route::get('/courses/restore/{id}', [CourseController::class, 'restore']);
     Route::get('restoreAll', [CourseController::class, 'restoreAll']);
-    Route::post('/courses/upload-image/{course}', [CourseController::class, 'uploadImage']);
+    Route::post('upload_image', [CourseController::class, 'imageUpload']);
 
     /**Allocation Routes */
     Route::post('/teachers/assign', [AllocationController::class, 'assignedToTeachers']);

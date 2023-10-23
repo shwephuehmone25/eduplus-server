@@ -24,7 +24,7 @@ class Course extends Model implements Likeable
 {
     use HasFactory, SoftDeletes, Likes;
 
-    protected $fillable = ['course_name', 'description', 'period'];
+    protected $fillable = ['course_name', 'description', 'period', 'price', 'image_url'];
 
     public function categories()
     {
