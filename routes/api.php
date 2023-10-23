@@ -49,7 +49,7 @@ Route::middleware(['auth:sanctum', 'IsTeacher'])->group(function () {
 Route::post('/phone/register', [AuthController::class, 'getStart']);
 Route::post('/otp/verify/{userId}', [AuthController::class, 'verify']);
 Route::post('/user/create/{userId}', [AuthController::class, 'createUser']);
-Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
+Route::post('/student/login', [LoginController::class, 'loginAsStudent'])->middleware('checkUserStatus');
 Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
 Route::get('/get/{userId}/purchasedcourseDetails/{courseId}', [CourseController::class, 'getPurchasedCoursesDetails']);
 
@@ -178,4 +178,9 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::get('/get/getNewsByVariety/{varietyName}', [NoticeController::class, 'getNewsByVariety']);
     Route::get('/news/restore/{id}', [NoticeController::class, 'restore']);
     Route::get('/news/restoreAll', [NoticeController::class, 'restoreAll']);
+
+
+    /**Users Manipulation Routes */
+    Route::post('/user/restrict/{userId}', [UserController::class, 'restrict']);
+    Route::delete('/user/{userId}', [UserController::class, 'deleteUser']);
 });
