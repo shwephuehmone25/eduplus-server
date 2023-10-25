@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Question;
-
+use App\Models\Option;
 class QuestionController extends Controller
 {
     /**
@@ -33,15 +33,27 @@ class QuestionController extends Controller
             'grade_id' => 'required|exists:grades,id',
             'type_id' => 'required|exists:types,id',
             'school_id' => 'required|exists:schools,id',
+            'options' => 'required|array',
+            'options.*.option_text' => 'required|string',
+            'options.*.points' => 'integer|nullable',
         ]);
 
         $question = Question::create($data);
+
+        foreach ($data['options'] as $optionData) {
+            $option = new Option([
+                'option_text' => $optionData['option_text'],
+                'points' => $optionData['points'] ?? null,
+            ]);
+
+            $question->options()->save($option);
+        }
 
         return response()->json([
             'message' => 'Question is created successfully',
             'data' => $question,
             'status' => 201
-            ]);
+        ]);
     }
 
     /**
@@ -58,11 +70,29 @@ class QuestionController extends Controller
             'grade_id' => 'required|exists:grades,id',
             'type_id' => 'required|exists:types,id',
             'school_id' => 'required|exists:schools,id',
+            'options' => 'required|array',
+            'options.*.option_text' => 'required|string',
+            'options.*.points' => 'integer|nullable',
         ]);
 
         $question->update($data);
 
-        return response()->json(['message' => 'Question is updated successfully', 'data' => $question, 'status' => 200]);
+        $question->options()->delete();
+
+        foreach ($data['options'] as $optionData) {
+            $option = new Option([
+                'option_text' => $optionData['option_text'],
+                'points' => $optionData['points'] ?? null,
+            ]);
+
+            $question->options()->save($option);
+        }
+
+        return response()->json([
+            'message' => 'Question is updated successfully',
+            'data' => $question,
+            'status' => 200
+        ]);
     }
 
     /**
