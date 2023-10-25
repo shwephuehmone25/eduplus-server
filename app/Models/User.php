@@ -14,7 +14,8 @@ use App\Models\Like;
 use App\Models\Section;
 use App\Models\Allocation;
 use App\Models\Rank;
-
+use App\Models\Grade;
+use App\Models\School;
 class User extends Authenticatable
 {
     use HasFactory, HasApiTokens, Notifiable;
@@ -94,6 +95,18 @@ class User extends Authenticatable
     {
 
         return $this->belongsToMany(Allocation::class, 'students_allocations', 'user_id' , 'allocation_id');
+    }
+
+    public function grade()
+    {
+
+        return $this->belongsTo(Grade::class);
+    }
+
+    public function school()
+    {
+
+        return $this->belongsTo(School::class);
     }
 
     public static function getGenderOptions(){
