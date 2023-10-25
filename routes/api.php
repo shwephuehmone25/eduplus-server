@@ -22,6 +22,11 @@ use App\Http\Controllers\Admin\VarietyController;
 use App\Http\Controllers\Admin\RankController;
 use App\Http\Controllers\Teacher\AccountController;
 use App\Http\Controllers\Admin\AllocationController;
+use App\Http\Controllers\Admin\SchoolController;
+use App\Http\Controllers\Admin\GradeController;
+use App\Http\Controllers\Admin\QuestionController;
+use App\Http\Controllers\Admin\TypeController;
+use App\Http\Controllers\Admin\OptionController;
 use Google\Service\Adsense\Row;
 
 /*
@@ -63,6 +68,11 @@ Route::get('/level/{id}', [LevelController::class, 'showLevelDetails']);
 Route::get('/users/count', [UserController::class, 'countVerifiedUsers']);
 Route::get('/totalCourses/count', [CourseController::class, 'countCourses']);
 Route::get('/totalTeachers/count', [CourseController::class, 'countCourses']);
+Route::get('/schools', [SchoolController::class, 'index']);
+Route::get('/grades', [GradeController::class, 'index']);
+Route::get('/questions', [QuestionController::class, 'index']);
+Route::get('/types', [TypeController::class, 'index']);
+Route::get('/options', [OptionController::class, 'index']);
 
 /**Common Routes */
 Route::middleware('auth:sanctum')->group(function(){
@@ -179,4 +189,29 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     Route::get('/get/getNewsByVariety/{varietyName}', [NoticeController::class, 'getNewsByVariety']);
     Route::get('/news/restore/{id}', [NoticeController::class, 'restore']);
     Route::get('/news/restoreAll', [NoticeController::class, 'restoreAll']);
+
+    /**School Routes */
+    Route::post('/schools', [SchoolController::class, 'store']);
+    Route::post('/schools/{school}', [SchoolController::class, 'update']);
+    Route::delete('/schools/{school}', [SchoolController::class, 'destroy']);
+
+    /**Type Routes */
+     Route::post('/types', [TypeController::class, 'store']);
+     Route::post('/types/{type}', [TypeController::class, 'update']);
+     Route::delete('/types/{type}', [TypeController::class, 'destroy']);
+
+    /**Grade Routes */
+    Route::post('/grades', [GradeController::class, 'store']);
+    Route::post('/grades/{grade}', [GradeController::class, 'update']);
+    Route::delete('/grades/{grade}', [GradeController::class, 'destroy']);
+
+    /**Options Routes */
+    Route::post('/options', [OptionController::class, 'store']);
+    Route::post('/options/{option}', [OptionController::class, 'update']);
+    Route::delete('/options/{option}', [OptionController::class, 'destroy']);
+
+    /**Question Routes */
+     Route::post('/questions', [QuestionController::class, 'store']);
+     Route::post('/questions/{question}', [QuestionController::class, 'update']);
+     Route::delete('/questions/{question}', [QuestionController::class, 'destroy']);
 });
