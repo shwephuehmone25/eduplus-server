@@ -95,6 +95,7 @@ class CourseController extends Controller
      */
     public function showCourseDetails($id)
     {
+
         $course = Course::with([
             'categories',
             'levels',
@@ -104,6 +105,8 @@ class CourseController extends Controller
             'allocations',
             'allocations.teacher'
         ])->find($id);
+
+        // dd($course);
 
         if (!$course) {
             return response()->json(['error' => 'Course not found', 'status' => 404]);
