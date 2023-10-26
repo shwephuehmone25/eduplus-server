@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\Otp;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -61,8 +60,7 @@ class UserController extends Controller
      */
     public function showUserDetails($id)
     {
-        $user = User::with('images','allocations')
-                ->find($id);
+        $user = User::find($id);
 
         if (!$user) {
 
@@ -101,8 +99,14 @@ class UserController extends Controller
         }
     }
 
-    public function editProfile(Request $request, User $user)
+    public function editProfile(Request $request, $userId)
     {
+        $user = User::find($userId);
+
+        if (!$user) {
+            return response()->json(['message' => 'User not found', 'status' => 404], 404);
+        }
+
         $request->validate([
             'name' => 'required|string',
             'phone_number' => 'required|string',

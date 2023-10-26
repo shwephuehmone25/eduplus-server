@@ -40,6 +40,7 @@ class User extends Authenticatable
         'gender',
         'region',
         'address',
+        'image_url'
     ];
 
     /**

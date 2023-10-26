@@ -43,6 +43,8 @@ class AuthController extends Controller
             'dob' => '2000-01-01',
             'password' => 11111111,
             'phone_number' => $request->input('phone_number'),
+            'address' => 'default',
+            'image_url' => 'https://eduplus-test.s3.ap-southeast-1.amazonaws.com/students/user_default.jpg'
         ]);
 
         $user_id = $user->id;
@@ -109,15 +111,17 @@ class AuthController extends Controller
                 'dob' => 'required|date_format:Y-m-d',
                 'password' => 'required|string|min:8|confirmed',
                 'gender' => 'required|in:male,female,other',
-                'region' => 'required'
+                'region' => 'required',
+                'address' => 'required'
             ]);
 
             $user->update([
                 'name' => $data['name'],
                 'password' => Hash::make($data['password']),
                 'dob' => $data['dob'],
+                'address' => $data['address'],
                 'gender' => $data['gender'],
-                'region' => $data['region']
+                'region' => $data['region'],
             ]);
 
             $token = $user->createToken('student-token')->plainTextToken;
