@@ -72,6 +72,35 @@ class UserController extends Controller
         return response()->json(['data' => $user]);
     }
 
+    public function uploadProfile(Request $request)
+    {
+        try{
+            $validator = Validator::make($request->all(), [
+                'image' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            ]);
+    
+            if ($validator->fails()) {
+                $errors = $validator->errors()->all();
+                return response()->json(['message' => 'Validation failed', 'errors' => $errors, 'status' => 422], 422);
+            }
+    
+            if ($request->hasFile('image')) {
+                $s3Path = Storage::disk('s3')->put('students', $request->file('image'));
+    
+                $image = new Image();
+                $image->url = Storage::disk('s3')->url($s3Path);
+                $image->save();
+    
+                return response()->json(['message' => 'Image file uploaded successfully!', 'data' => $image, 'status' => 201]);
+            }else{
+                return response()->json(['message' => 'No file uploaded!', 'status' => 400]);
+            }
+        }
+        catch(\Exception $e){
+            return response()->json(['message' => 'Failed to upload image', 'error' => $e->getMessage(), 'status' => 500]);
+        }
+    }
+
     public function editProfile(Request $request, User $user)
     {
         $request->validate([
@@ -81,7 +110,7 @@ class UserController extends Controller
             'address' => 'required|string',
             'region' => 'required|string',
             'address' => 'required|string',
-            'image' => 'image|mimes:jpeg,png,jpg,gif',
+            'image_url' => 'required|string',
         ]);
 
         $user->name = $request->input('name');
@@ -90,17 +119,8 @@ class UserController extends Controller
         $user->gender = $request->input('gender');
         $user->region = $request->input('region');
         $user->address = $request->input('address');
+        $user->image_url = $request->input('image_url');
         $user->save();
-
-        if ($request->hasFile('image')) {
-            $s3Path = Storage::disk('s3')->put('students', $request->file('image'));
-
-            $image = new Image();
-            $image->url = Storage::disk('s3')->url($s3Path);
-            $user->images()->save($image);
-
-            $user->load('images');
-        }
 
         return response()->json(['message' => 'User info updated successfully', 'data' => $user, 'status' => 200]);
     }
