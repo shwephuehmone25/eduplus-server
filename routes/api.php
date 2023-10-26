@@ -54,7 +54,9 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/phone/register', [AuthController::class, 'getStart']);
 Route::post('/otp/verify/{userId}', [AuthController::class, 'verify']);
 Route::post('/user/create/{userId}', [AuthController::class, 'createUser']);
-Route::post('/user/editProfile/{user}', [UserController::class, 'editProfile']);
+Route::post('/user/uploadProfile', [UserController::class, 'uploadProfile']);
+Route::get('/user/showProfile/{userId}', [UserController::class, 'showUserDetails']);
+Route::post('/user/editProfile/{userId}', [UserController::class, 'editProfile']);
 Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
 Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
 Route::get('/get/{userId}/purchasedcourseDetails/{allocationId}', [CourseController::class, 'getPurchasedCoursesDetails']);
