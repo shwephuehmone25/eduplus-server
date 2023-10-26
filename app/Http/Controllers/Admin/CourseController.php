@@ -23,9 +23,25 @@ use Google\Service\Classroom\Resource\Courses;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Image;
+use Illuminate\Support\Facades\Storage;
+use League\Flysystem\AwsS3V3\PortableVisibilityConverter;
 
 class CourseController extends Controller
 {
+
+    /**
+     * count total courses
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function countCourses()
+    {
+    $courses = Course::count();
+
+    return response()->json(['data' => $courses]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -33,28 +49,42 @@ class CourseController extends Controller
      */
     public function index()
     {
-        $courses = Course::with('categories', 'levels')->get();
+        // $courses = Course::whereHas('allocations')
+        // ->with('allocations')
+        // ->get();
 
-        if ($courses->isEmpty())
-        {
+        // return response()->json(['data' => $courses]);
 
-        return response()->json(['message' => 'No courses found.', 'status' => 404]);
-        }
+        $courses = Course::with('categories', 'levels', 'sections')->get();
 
         return response()->json(['data' => $courses]);
     }
 
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
     public function getCoursesbyCategory(Request $request, $categoryName)
     {
         $category = Category::where('name', $categoryName)->first();
 
         if (!$category) {
-            return response()->json(['error' => 'Category not found'], 404);
+            return response()->json(['error' => 'Category not found', 'staus' => 404]);
         }
 
-        $courses = $category->courses;
+        // $courses = $category->courses()
+        // ->whereHas('allocations')
+        // ->with('allocations')
+        // ->get();
 
-        return response()->json(['courses' => $courses]);
+        $courses = $category->courses()
+        ->whereHas('allocations')
+        ->with(['allocations.section', 'allocations.rank', 'allocations.teacher'])
+        ->get();
+
+        return response()->json(['data' => $courses]);
     }
 
     /**
@@ -65,17 +95,34 @@ class CourseController extends Controller
      */
     public function showCourseDetails($id)
     {
-        $course = Course::with('categories', 'levels', 'sections', 'sections.teachers')
-            ->find($id);
+
+        $course = Course::with([
+            'categories',
+            'levels',
+            'ranks',
+            'sections',
+            'images',
+            'allocations',
+            'allocations.teacher'
+        ])->find($id);
 
         // dd($course);
 
         if (!$course) {
-
-            return response()->json(['error' => 'Course not found'], 404);
+            return response()->json(['error' => 'Course not found', 'status' => 404]);
         }
 
+        $teachers = $this->teachersForCourse($id);
+        $course['teachers'] = $teachers;
+
         return response()->json(['data' => $course]);
+    }
+
+    protected function teachersForCourse($courseId)
+    {
+        return Teacher::whereHas('sections', function ($query) use ($courseId) {
+            $query->where('course_id', $courseId);
+        })->get();
     }
 
     /**
@@ -84,7 +131,7 @@ class CourseController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+   public function store(Request $request)
     {
         try {
             $todayDate = date('Y-m-d');
@@ -93,6 +140,8 @@ class CourseController extends Controller
                 'course_name' => 'required|string|max:255',
                 'description' => 'required|string',
                 'period' => 'required|string',
+                'price' => 'required|integer',
+                'image_url' => 'required|string',
                 'category_id' => 'required',
                 'level_id' => 'required',
             ]);
@@ -108,6 +157,7 @@ class CourseController extends Controller
                 'course_name' => $request->input('course_name'),
                 'description' => $request->input('description'),
                 'price' => $request->input('price'),
+                'image_url' => $request->input('image_url'),
                 'period' => $request->input('period'),
             ]);
 
@@ -121,10 +171,40 @@ class CourseController extends Controller
             return response()->json(['message' => 'Course created successfully', 'data' => $course,'status' => 201]);
         } catch (\Exception $e) {
             DB::rollback();
-            dd($e);
-            return response()->json(['message' => 'Failed to create the course','status' =>  500 ]);
+
+            return response()->json(['message' => 'Failed to create the course', 'error' => $e->getMessage(), 'status' =>  500 ]);
         }
     }
+
+    public function imageUpload(Request $request)
+{
+    try{
+        $validator = Validator::make($request->all(), [
+            'image' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+        ]);
+
+        if ($validator->fails()) {
+            $errors = $validator->errors()->all();
+            return response()->json(['message' => 'Validation failed', 'errors' => $errors, 'status' => 422], 422);
+        }
+
+        if ($request->hasFile('image')) {
+            $s3Path = Storage::disk('s3')->put('courses', $request->file('image'));
+
+            $image = new Image();
+            $image->url = Storage::disk('s3')->url($s3Path);
+            $image->save();
+
+            return response()->json(['message' => 'Image file uploaded successfully!', 'data' => $image, 'status' => 201]);
+        }else{
+            return response()->json(['message' => 'No file uploaded!', 'status' => 400]);
+        }
+    }
+    catch(\Exception $e){
+        return response()->json(['message' => 'Failed to upload image', 'error' => $e->getMessage(), 'status' => 500]);
+    }
+}
+
 
     /**
      * Update the specified resource in storage.
@@ -174,6 +254,24 @@ class CourseController extends Controller
                 }
             }
 
+            if ($request->hasFile('image')) {
+                $image =$course->images()->first();
+                if ($image) {
+                    $imageUrl = parse_url($image->url, PHP_URL_PATH);
+                    if (Storage::disk('s3')->exists($imageUrl)) {
+                        Storage::disk('s3')->delete($imageUrl);
+                    }
+                    $image->delete();
+                } else {
+                    $image = new Image();
+                }
+
+                $s3Path = Storage::disk('s3')->put('courses', $request->file('image'));
+
+                $image->url = $s3Path;
+                $course->images()->save($image);
+            }
+
             DB::commit();
 
             return response()->json(['message' => 'Course updated successfully', 'data' => $course, 'status' => 200]);
@@ -192,26 +290,18 @@ class CourseController extends Controller
      */
     public function destroy($id)
     {
-        try {
-        DB::beginTransaction();
 
         $course = Course::findOrFail($id);
 
-        // Detach all related relationships
-        $course->categories()->detach();
-        $course->levels()->detach();
+        if(!$course)
+        {
+            return response()->json(['message' => 'Course not found!', 'status' => 404]);
+        }
 
-        // Delete the course
         $course->delete();
 
-        DB::commit();
+        return response()->json(['message' => 'Course is deleted successfully', 'status' => 204]);
 
-        return response()->json(['message' => 'Course is deleted successfully', 'status' => 200]);
-    } catch (\Exception $e) {
-        DB::rollback();
-
-        return response()->json(['message' => 'Failed to delete the course', 'error' => $e->getMessage(), 'status' => 500]);
-        }
     }
 
     /**
@@ -246,7 +336,7 @@ class CourseController extends Controller
 
         if (!$allocation->users->contains($user->id)) {
 
-            if ($allocation->capacity === 1) {
+            if ($allocation->capacity > 0) {
                 $teacherId = $allocation->teacher_id;
                 $user->teachers()->attach($teacherId);
 
@@ -326,12 +416,10 @@ class CourseController extends Controller
 
         $studentId = auth()->user()->id;
 
-        $purchasedCourses = Allocation::join('students_allocations', 'allocations.id', '=', 'students_allocations.allocation_id')
-                                        ->join('courses_categories', 'allocations.course_id', '=', 'courses_categories.course_id')
-                                        ->join('categories', 'categories.id', '=', 'courses_categories.category_id')
-                                        ->where('categories.name', '=', $categoryName, 'and', 'students_allocations.user_id', '=', $studentId)
-                                        ->get('allocations.*');
-                                        
+        $purchasedCourses = StudentCourse::where('user_id', $studentId)
+            ->whereIn('course_id', $category->courses->pluck('id'))
+            ->get();
+
             $courseDetails = [];
 
             foreach ($purchasedCourses as $purchasedCourse) {
@@ -352,13 +440,13 @@ class CourseController extends Controller
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getPurchasedCoursesDetails($userId, $courseId)
+    public function getPurchasedCoursesDetails($userId, $allocation_id)
     {
         $user = User::findOrFail($userId);
 
-        $purchasedCourse = $user->courses()
+        $purchasedCourse = $user->allocations()
             ->with('meetings')
-            ->where('courses.id', $courseId)
+            ->where('allocations.id', $allocation_id)
             ->first();
 
         if (!$purchasedCourse)

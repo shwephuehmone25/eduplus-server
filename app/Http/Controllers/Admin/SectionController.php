@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Models\Rank;
+use App\Models\Course;
 use App\Models\Section;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 
 class SectionController extends Controller
@@ -16,7 +18,7 @@ class SectionController extends Controller
      */
     public function index()
     {
-        $sections = Section::with('courses', 'ranks')->get();
+        $sections = Section::all();
 
         return response()->json(['data' => $sections]);
     }
@@ -47,32 +49,40 @@ class SectionController extends Controller
      */
     public function store(Request $request)
     {
+        $data = $request->validate([
+        'name' => 'required|string|max:255',
+        'start_time' => 'required|date_format:Y-m-d H:i:s',
+        'end_time' => 'required|date_format:Y-m-d H:i:s',
+        // 'capacity' => 'required|integer',
+        // 'rank_id' => 'required|exists:ranks,id',
+        // 'course_id' => 'required|exists:courses,id',
+    ]);
 
-        try {
-            $data = $request->validate([
-                'name' => 'required|string|max:255',
-                'start_time' => 'required|date_format:H:i',
-                'end_time' => 'required|date_format:H:i',
-                'capacity' => 'required',
-                'rank_id' => 'required',
-                'course_id' => 'required|exists:courses,id',
-            ]);
+        $section = Section::create([
+            'name' => $data['name'],
+            'start_time' => $data['start_time'],
+            'end_time' => $data['end_time'],
+            'capacity' => 1,
+            // 'course_id' => $data['course_id'],
+            // 'rank_id' => $data['rank_id'],
+        ]);
 
-            $section = Section::create($data);
+        // $course = Course::find($data['course_id']);
 
-            $section->ranks()->sync($data['rank_id']);
+        // if (!$course) {
+        //     return response()->json([
+        //         'message' => 'Course not found',
+        //         'status' => 404
+        //     ]);
+        // }
 
-            return response()->json([
-                'message' => 'Section created successfully',
-                'data' => $section,
-                'status' => 201
-            ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'message' => 'Section creation failed: ' . $e->getMessage(),
-                'status' => 500
-            ]);
-        }
+        // $course->ranks()->attach($data['rank_id']);
+
+        return response()->json([
+            'message' => 'Section created successfully',
+            'data' => $section,
+            'status' => 201
+        ]);
     }
 
     /**
@@ -84,28 +94,28 @@ class SectionController extends Controller
      */
     public function update(Request $request, Section $section)
     {
-            try {
+        try {
             $data = $request->validate([
-                'name' => 'string|max:255',
-                'start_time' => 'date_format:H:i',
-                'end_time' => 'date_format:H:i',
-                'capacity' => 'integer',
-                'teacher_id' => 'exists:teachers,id',
-                'course_id' => 'exists:courses,id',
+                'name' => 'required|string|max:255',
+                'start_time' => 'required|date_format:Y-m-d H:i:s',
+                'end_time' => 'required|date_format:Y-m-d H:i:s',
+                'capacity' => 'required|integer',
+                // 'rank_id' => 'required|exists:ranks,id',
+                // 'course_id' => 'required|exists:courses,id',
             ]);
 
             $section->update($data);
+            // $course = Course::find($data['course_id']);
+            // $section->course()->associate($course);
+            // $section->ranks()->sync($data['rank_id']);
 
-            if (isset($data['teacher_id']))
-            {
-                $section->teachers()->sync([$data['teacher_id']]);
-            }
+            $section->save();
 
             return response()->json([
-                'message' => 'Section updated successfully',
-                'data' => $section,
-                'status' => 200
-            ]);
+            'message' => 'Section updated successfully',
+            'data' => $section,
+            'status' => 200
+        ]);
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'Section update failed: ' . $e->getMessage(),
@@ -124,6 +134,6 @@ class SectionController extends Controller
     {
         $section->delete();
 
-        return response()->json(['message' => 'Section deleted successfully', 'status' => 200]);
+        return response()->json(['message' => 'Section deleted successfully', 'status' => 204]);
     }
 }

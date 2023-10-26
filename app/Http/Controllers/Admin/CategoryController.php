@@ -22,7 +22,7 @@ class CategoryController extends Controller
         if ($categories->isEmpty()) 
         {
         
-        return response()->json(['message' => 'No categories found.', 'status' => 404]);
+        return response()->json(['message' => 'No categories found.', 'data' => $categories, 'status' => 200]);
         }
 
         return response()->json(['data' => $categories]);
@@ -125,6 +125,6 @@ class CategoryController extends Controller
     {
        $category->delete();
 
-        return response()->json(['message' => 'Category deleted successfully', 'status' => 200]);
+        return response()->json(['message' => 'Category deleted successfully', 'status' => 204]);
     }
 }

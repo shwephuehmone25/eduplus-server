@@ -17,7 +17,6 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('user_id');
             $table->string('otp');
-            $table->boolean('is_verified')->default(false);
             $table->timestamps();
 
             // Create a foreign key relationship to users table

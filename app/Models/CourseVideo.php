@@ -9,7 +9,5 @@ class CourseVideo extends Model
 {
     use HasFactory;
 
-    use HasFactory;
-
     protected $table = 'courses_videos';
 }

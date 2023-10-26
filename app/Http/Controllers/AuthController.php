@@ -27,7 +27,6 @@ class AuthController extends Controller
      */
     public function getStart(Request $request)
     {
-        // Validate the phone number
         $validator = Validator::make($request->all(), [
             'phone_number' => ['required', 'numeric', 'unique:users'],
         ]);
@@ -39,28 +38,24 @@ class AuthController extends Controller
             ]);
         }
 
-        // Create a new user record and store the phone number
         $user = User::create([
             'name' => 'your name',
-            'phone_number' => $request->input('phone_number'),
             'dob' => '2000-01-01',
-            'password' => '11111111',
+            'password' => 11111111,
+            'phone_number' => $request->input('phone_number'),
         ]);
 
-        // Get the user's ID
         $user_id = $user->id;
 
-        // Generate a random 6-digit OTP
         $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        // Store the OTP in the "otp" table with the user's ID
         Otp::create([
             'otp' => $otp,
             'user_id' => $user_id,
         ]);
 
-        // Send the OTP via SMS (assuming you have an SMS notification set up)
-        if ($user) {
+        if ($user)
+        {
             $user->notify(new AccountVerification($otp));
         }
 
@@ -69,7 +64,6 @@ class AuthController extends Controller
             'user_id' => $user_id,
             'status' => 200
         ]);
-
     }
 
     /**
@@ -107,7 +101,7 @@ class AuthController extends Controller
     public function createUser(Request $request, $userId)
     {
         $user = User::find($userId);
-        
+
         if($user->isVerified === 1)
         {
             $data = $request->validate([
@@ -117,7 +111,7 @@ class AuthController extends Controller
                 'gender' => 'required|in:male,female,other',
                 'region' => 'required'
             ]);
-           
+
             $user->update([
                 'name' => $data['name'],
                 'password' => Hash::make($data['password']),
@@ -139,7 +133,7 @@ class AuthController extends Controller
 
             return response()->json(['data' => $response , 'status' => 201]);
         }else{
-            
+
             return response()->json(['message' => 'Please verify first']);
         }
     }
@@ -165,7 +159,7 @@ class AuthController extends Controller
 
         // Create a new admin with the provided data
         $data = $validator->validated();
-        $data['password'] = bcrypt($data['password']); 
+        $data['password'] = bcrypt($data['password']);
         $admin = Admin::create($data);
 
         // Generate a new API token for the registered admin

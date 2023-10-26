@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Models\User;
+use App\Models\Image;
 use App\Models\Level;
 use App\Models\Rank;
 use App\Models\Like;
@@ -23,7 +24,7 @@ class Course extends Model implements Likeable
 {
     use HasFactory, SoftDeletes, Likes;
 
-    protected $fillable = ['course_name', 'description', 'period'];
+    protected $fillable = ['course_name', 'description', 'period', 'price', 'image_url'];
 
     public function categories()
     {
@@ -39,8 +40,7 @@ class Course extends Model implements Likeable
 
     public function sections()
     {
-
-        return $this->hasMany(Section::class);
+        return $this->belongsToMany(Section::class, 'course_sections', 'course_id', 'section_id');
     }
 
     public function students()
@@ -99,7 +99,7 @@ class Course extends Model implements Likeable
 
     public function ranks()
     {
-        
+
         return $this->belongsToMany(Rank::class, 'courses_ranks', 'course_id', 'rank_id');
     }
 
@@ -107,5 +107,11 @@ class Course extends Model implements Likeable
     {
 
         return $this->hasMany(Allocation::class);
+    }
+
+    public function images()
+    {
+
+        return $this->morphMany(Image::class, 'imageable');
     }
 }

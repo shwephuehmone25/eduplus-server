@@ -124,7 +124,7 @@ class NoticeController extends Controller
 
         $news->delete();
 
-        return response()->json(['message' => 'News deleted successfully!', 'status' => 200]);
+        return response()->json(['message' => 'News deleted successfully!', 'status' => 204]);
     }
 
     public function getNewsByVariety(Request $request, $variety)
