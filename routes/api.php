@@ -110,7 +110,7 @@ Route::post('/meeting/create', [MeetingController::class,'create']);
 Route::get('/videos', [ VideoController::class, 'index']);
 
 /**Admin Routes*/
-Route::middleware(['auth:sanctum', 'IsAdmin', 'cors'])->group(function() {
+Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
 
     /**Users Routes */
     Route::get('/userlists/get', [UserController::class, 'getAllUsers']);

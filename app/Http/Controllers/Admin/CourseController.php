@@ -176,35 +176,43 @@ class CourseController extends Controller
         }
     }
 
+    /**
+     * Upload a course's image.
+     *
+     * Upload and store course image to a storage service (e.g., Amazon S3) and
+     * save the image URL to the database.
+     *
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function imageUpload(Request $request)
-{
-    try{
-        $validator = Validator::make($request->all(), [
-            'image' => 'required|file|mimes:jpg,jpeg,png|max:5120',
-        ]);
+    {
+        try{
+            $validator = Validator::make($request->all(), [
+                'image' => 'required|file|mimes:jpg,jpeg,png|max:5120',
+            ]);
 
-        if ($validator->fails()) {
-            $errors = $validator->errors()->all();
-            return response()->json(['message' => 'Validation failed', 'errors' => $errors, 'status' => 422], 422);
+            if ($validator->fails()) {
+                $errors = $validator->errors()->all();
+                return response()->json(['message' => 'Validation failed', 'errors' => $errors, 'status' => 422], 422);
+            }
+
+            if ($request->hasFile('image')) {
+                $s3Path = Storage::disk('s3')->put('courses', $request->file('image'));
+
+                $image = new Image();
+                $image->url = Storage::disk('s3')->url($s3Path);
+                $image->save();
+
+                return response()->json(['message' => 'Image file uploaded successfully!', 'data' => $image, 'status' => 201]);
+            }else{
+                return response()->json(['message' => 'No file uploaded!', 'status' => 400]);
+            }
         }
-
-        if ($request->hasFile('image')) {
-            $s3Path = Storage::disk('s3')->put('courses', $request->file('image'));
-
-            $image = new Image();
-            $image->url = Storage::disk('s3')->url($s3Path);
-            $image->save();
-
-            return response()->json(['message' => 'Image file uploaded successfully!', 'data' => $image, 'status' => 201]);
-        }else{
-            return response()->json(['message' => 'No file uploaded!', 'status' => 400]);
+        catch(\Exception $e){
+            return response()->json(['message' => 'Failed to upload image', 'error' => $e->getMessage(), 'status' => 500]);
         }
     }
-    catch(\Exception $e){
-        return response()->json(['message' => 'Failed to upload image', 'error' => $e->getMessage(), 'status' => 500]);
-    }
-}
-
 
     /**
      * Update the specified resource in storage.

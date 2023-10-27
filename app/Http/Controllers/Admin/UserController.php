@@ -28,7 +28,7 @@ class UserController extends Controller
     return response()->json(['data' => $users]);
     }
 
-     /**
+    /**
      * count total authors
      *
      * @return \Illuminate\Http\JsonResponse
@@ -52,7 +52,7 @@ class UserController extends Controller
         return response()->json(['data' => $users, 'status' => 200]);
     }
 
-     /**
+    /**
      * Display the specified resource.
      *
      * @param  int  $id
@@ -70,6 +70,15 @@ class UserController extends Controller
         return response()->json(['data' => $user]);
     }
 
+    /**
+     * Upload a user's profile image.
+     *
+     * Upload and store a user's profile image to a storage service (e.g., Amazon S3) and
+     * save the image URL to the database.
+     *
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function uploadProfile(Request $request)
     {
         try{
@@ -99,6 +108,16 @@ class UserController extends Controller
         }
     }
 
+    /**
+     * Edit a user's profile information.
+     *
+     * Update the user's profile information, such as name, phone number, date of birth,
+     * gender, region, address, and image URL.
+     *
+     * @param  Request $request
+     * @param  int $userId The user's ID
+     * @return \Illuminate\Http\Response
+     */
     public function editProfile(Request $request, $userId)
     {
         $user = User::find($userId);
@@ -129,6 +148,16 @@ class UserController extends Controller
         return response()->json(['message' => 'User info updated successfully', 'data' => $user, 'status' => 200]);
     }
 
+    /**
+     * Change the password for a user.
+     *
+     * Update the user's password identified by their ID with a new password
+     * after verifying the old password.
+     *
+     * @param  Request $request
+     * @param  int $id The user's ID
+     * @return \Illuminate\Http\Response
+     */
     public function changePassword(Request $request, $id){
 
         $request->validate([
@@ -153,6 +182,14 @@ class UserController extends Controller
         return response()->json(['error' => 'User not found!', 'status' => 404]);
     }
 
+    /**
+     * Send a One-Time Password (OTP) for password reset to a user's phone number.
+     *
+     * Find a user by their phone number, generate and send an OTP for password reset.
+     *
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
     public function forgotPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -194,6 +231,15 @@ class UserController extends Controller
         ]);
     }
 
+    /**
+     * Reset the password for a user.
+     *
+     * Update the user's password identified by their ID with a new password.
+     *
+     * @param  Request $request
+     * @param  int $id The user's ID
+     * @return \Illuminate\Http\Response
+     */
     public function resetPassword(Request $request, $id)
     {
         $request->validate([
@@ -212,20 +258,38 @@ class UserController extends Controller
         return response()->json(['error' => 'User not found!', 'status' => 404]);
     }
 
+    /**
+     * Get users by category ID.
+     *
+     * Retrieve a list of users who are associated with a specific category ID.
+     *
+     * @param  Category $category
+     * @return \Illuminate\Http\Response
+     */
     public function getUsersByCategoryId(Category $category)
     {
         $categoryId = $category->id;
-        $users = User::join('students_allocations', 'users.id', '=', 'students_allocations.user_id')
-                        ->join('allocations', 'allocations.id', 'students_allocations.allocation_id')
-                        ->join('courses_categories', 'courses_categories.course_id', 'allocations.course_id')
-                        ->where('courses_categories.category_id', $categoryId)
-                        ->get();
+        $users = User::whereHas('allocations', function ($query) use ($categoryId) {
+            $query->whereHas('course.categories', function ($subQuery) use ($categoryId) {
+                $subQuery->where('category_id', $categoryId);
+            });
+        })->get();
 
-        $count = count($users);
+        $count = $users->count();
 
         return response()->json(['data' => $users, 'count' => $count, 'status' => 200]);
     }
 
+    /**
+     * Change the phone number for a user.
+     *
+     * Update the phone number for a user identified by their ID and send an OTP
+     * (One-Time Password) for verification.
+     *
+     * @param  Request $request
+     * @param  int $id The user's ID
+     * @return \Illuminate\Http\Response
+     */
     public function changePhoneNumber(Request $request, $id)
     {
         $user = User::find($id);

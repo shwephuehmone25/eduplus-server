@@ -43,7 +43,7 @@ class QuestionController extends Controller
         foreach ($data['options'] as $optionData) {
             $option = new Option([
                 'option_text' => $optionData['option_text'],
-                'points' => $optionData['points'] ?? null,
+                'points' => $optionData['points'] ?? 0,
             ]);
 
             $question->options()->save($option);
