@@ -27,7 +27,6 @@ use App\Http\Controllers\Admin\GradeController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\TypeController;
 use App\Http\Controllers\Admin\OptionController;
-use Google\Service\Adsense\Row;
 
 /*
 |--------------------------------------------------------------------------
@@ -90,7 +89,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/changePassword/{user}', [UserController::class, 'changePassword']);
     Route::post('/forgotPassword', [UserController::class, 'forgotPassword']);
     Route::post('/resetPassword/{user}', [UserController::class, 'resetPassword']);
-    Route::post('/newPhoneNumber', [UserController::class, 'changePhoneNumber']);
+    Route::post('/newPhoneNumber/{userId}', [UserController::class, 'changePhoneNumber']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);
@@ -111,11 +110,10 @@ Route::post('/meeting/create', [MeetingController::class,'create']);
 Route::get('/videos', [ VideoController::class, 'index']);
 
 /**Admin Routes*/
-Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
+Route::middleware(['auth:sanctum', 'IsAdmin', 'cors'])->group(function() {
 
     /**Users Routes */
     Route::get('/userlists/get', [UserController::class, 'getAllUsers']);
-
 
     /**Course Routes */
     Route::post('/courses', [CourseController::class, 'store']);
