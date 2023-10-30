@@ -6,11 +6,10 @@
     "license": "MIT",
     "require": {
         "php": "^8.0",
-        "barryvdh/laravel-cors": "^3.0",
         "bref/bref": "^2.1",
         "bref/laravel-bridge": "^2.1",
         "doctrine/dbal": "^3.7",
-        "fruitcake/laravel-cors": "^2.0.5",
+        "fruitcake/laravel-cors": "^3.0",
         "google/apiclient": "^2.15",
         "guzzlehttp/guzzle": "^7.2",
         "james-heinrich/getid3": "^1.9",
