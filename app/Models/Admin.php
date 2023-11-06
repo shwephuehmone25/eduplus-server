@@ -10,20 +10,16 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Admin extends Model
 {
     use HasFactory,HasApiTokens,Authenticatable;
-
+    
+    protected $guard = "admin";
     protected $fillable = [
+        'name',
         'email',
         'password',
-        'role'
     ];
 
     protected $hidden = [
         'password',
         'remember_token',
     ];
-
-    public function setRoleAttribute($value)
-    {
-        $this->attributes['role'] = strtolower($value);
-    }
 }

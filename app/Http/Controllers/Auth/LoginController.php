@@ -29,12 +29,13 @@ class LoginController extends Controller
     {
         // Validate the incoming login request
         $validator = Validator::make($request->all(), [
-            'email' => 'required|email',
+            'email' => 'required|email|ends_with:@ilbcedu.com',
             'password' => 'required',
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['error' => $validator->errors()], 422);
+
+            return response()->json(['error' => 'Invalid login credentials'], 422);
         }
 
         // Attempt to authenticate the admin using the given credentials
@@ -45,7 +46,7 @@ class LoginController extends Controller
             // Generate a new API token for the authenticated admin
             $token = $admin->createToken('admin-token')->plainTextToken;
 
-            // Return the token and admin data as a response
+            // Return the token and role as a response
             return response()->json(['token' => $token, 'data' => $admin, 'status' => 200]);
         }
 
