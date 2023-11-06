@@ -44,6 +44,7 @@ class AuthController extends Controller
             'password' => 11111111,
             'phone_number' => $request->input('phone_number'),
             'address' => 'default',
+            'region' => 'default',
             'image_url' => 'https://eduplus-test.s3.ap-southeast-1.amazonaws.com/students/user_default.jpg'
         ]);
 
