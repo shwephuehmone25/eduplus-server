@@ -18,7 +18,7 @@ class CheckRole
     {
         if (!in_array($request->user()->role, $roles)) {
             return response()->json([
-                'message' => 'Unauthorized',
+                'message' => 'You do not have permissions for this route.',
                 'status' => 403]);
         }
 

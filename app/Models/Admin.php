@@ -10,12 +10,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Admin extends Model
 {
     use HasFactory,HasApiTokens,Authenticatable;
-    
-    protected $guard = "admin";
+
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role'
     ];
 
     protected $hidden = [

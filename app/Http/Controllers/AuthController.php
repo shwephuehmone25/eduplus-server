@@ -152,9 +152,9 @@ class AuthController extends Controller
     {
         // Validate the incoming registration request
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:admins',
             'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:super_admin,normal_admin', // Validate the role
         ]);
 
         if ($validator->fails()) {
@@ -164,12 +164,17 @@ class AuthController extends Controller
         // Create a new admin with the provided data
         $data = $validator->validated();
         $data['password'] = bcrypt($data['password']);
-        $admin = Admin::create($data);
+
+        $admin = Admin::create([
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'role' => $data['role'],
+        ]);
 
         // Generate a new API token for the registered admin
         $token = $admin->createToken('admin-token')->plainTextToken;
 
         // Return the token as a response
-        return response()->json(['token' => $token, 'data' => $data, 'status' => 201]);
+        return response()->json(['token' => $token, 'data' => $admin, 'status' => 201]);
     }
 }
