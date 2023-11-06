@@ -3,6 +3,8 @@
 use Illuminate\Http\Request;
 use App\Http\Middleware\IsAdmin;
 use App\Http\Middleware\IsTeacher;
+use App\Http\Middleware\IsSuperAdmin;
+use App\Http\Middleware\CheckRole;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\LikeController;
@@ -109,8 +111,8 @@ Route::post('/meeting/create', [MeetingController::class,'create']);
 
 Route::get('/videos', [ VideoController::class, 'index']);
 
-/**Admin Routes*/
-Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
+/**common Admin Routes */
+Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->group(function () {
 
     /**Users Routes */
     Route::get('/userlists/get', [UserController::class, 'getAllUsers']);
@@ -118,32 +120,88 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     /**Course Routes */
     Route::post('/courses', [CourseController::class, 'store']);
     Route::post('/courses/{id}', [CourseController::class, 'update']);
-    Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
     Route::get('/courses/restore/{id}', [CourseController::class, 'restore']);
-    Route::get('restoreAll', [CourseController::class, 'restoreAll']);
     Route::post('upload_image', [CourseController::class, 'imageUpload']);
 
     /**Allocation Routes */
     Route::post('/teachers/assign', [AllocationController::class, 'assignedToTeachers']);
     Route::post('/allocation/{allocation}', [AllocationController::class, 'update']);
-    Route::delete('/allocation/{allocation}', [AllocationController::class, 'destroy']);
-    Route::get('/allocations/restore/{id}', [AllocationController::class, 'restore']);
-    Route::get('restoreAll', [AllocationController::class, 'restoreAll']);
-
-    /**Video Routes */
-    Route::post('/video/create', [ VideoController::class, 'store']);
-    Route::delete('/videos/{id}', [VideoController::class, 'destroy']);
 
     /**Category Routes */
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/category/{id}', [CategoryController::class, 'getCategoryDetails']);
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::post('/categories/{id}', [CategoryController::class, 'update']);
-    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 
     /**Rank Routes */
     Route::post('/modules', [RankController::class, 'store']);
     Route::post('/modules/{rank}', [RankController::class, 'update']);
+
+    /**Level Routes */
+    Route::post('/levels', [LevelController::class, 'store']);
+    Route::post('/levels/{level}', [LevelController::class, 'update']);
+
+    /**Section routes */
+    Route::post('/section/create', [SectionController::class, 'store']);
+    Route::post('/section/edit/{section}', [SectionController::class, 'update']);
+
+    /**Teacher routes */
+    Route::post('/teachers', [TeacherController::class, 'store']);
+    Route::post('/teachers/{teacher}', [TeacherController::class, 'update']);
+    Route::get('/searchable/teachers', [TeacherController::class, 'getAllTeachers']);
+    Route::get('/teacherLists/get', [TeacherController::class, 'index']);
+
+    /**News Variety route */
+    Route::get('/varieties', [VarietyController::class, 'index']);
+    Route::post('/varieties', [VarietyController::class, 'store']);
+    Route::get('/varieties/{variety}', [VarietyController::class, 'getVarietyDetails']);
+    Route::post('/varieties/{variety}', [VarietyController::class, 'update']);
+
+    /**News Routes */
+    Route::get('/news', [NoticeController::class, 'index']);
+    Route::get('/news/{news}', [NoticeController::class, 'getNoticeDetails']);
+    Route::post('/news', [NoticeController::class, 'store']);
+    Route::post('/news/{news}', [NoticeController::class, 'update']);
+    Route::get('/get/getNewsByVariety/{varietyName}', [NoticeController::class, 'getNewsByVariety']);
+
+    /**School Routes */
+    Route::post('/schools', [SchoolController::class, 'store']);
+    Route::post('/schools/{school}', [SchoolController::class, 'update']);
+
+    /**Type Routes */
+     Route::post('/types', [TypeController::class, 'store']);
+     Route::post('/types/{type}', [TypeController::class, 'update']);
+
+    /**Grade Routes */
+    Route::post('/grades', [GradeController::class, 'store']);
+    Route::post('/grades/{grade}', [GradeController::class, 'update']);
+
+    /**Options Routes */
+    Route::post('/options', [OptionController::class, 'store']);
+    Route::post('/options/{option}', [OptionController::class, 'update']);
+
+    /**Question Routes */
+     Route::post('/questions', [QuestionController::class, 'store']);
+     Route::post('/questions/{question}', [QuestionController::class, 'update']);
+});
+
+/**super_admin Routes*/
+Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() {
+
+    /**Course Routes */
+    Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
+    Route::get('/courses/restore/{id}', [CourseController::class, 'restore']);
+    Route::get('restoreAll', [CourseController::class, 'restoreAll']);
+
+    /**Allocation Routes */
+    Route::delete('/allocation/{allocation}', [AllocationController::class, 'destroy']);
+    Route::get('/allocations/restore/{id}', [AllocationController::class, 'restore']);
+    Route::get('restoreAll', [AllocationController::class, 'restoreAll']);
+
+    /**Category Routes */
+    Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
+
+    /**Rank Routes */
     Route::delete('/modules/{rank}', [RankController::class, 'destroy']);
 
     /**Subcategory routes*/
@@ -162,61 +220,34 @@ Route::middleware(['auth:sanctum', 'IsAdmin'])->group(function() {
     // Route::delete('/classes/{class}', [ClassController::class, 'destroy']);
 
     /**Level Routes */
-    Route::post('/levels', [LevelController::class, 'store']);
-    Route::post('/levels/{level}', [LevelController::class, 'update']);
     Route::delete('/levels/{level}', [LevelController::class, 'destroy']);
 
     /**Section routes */
-    Route::post('/section/create', [SectionController::class, 'store']);
-    Route::post('/section/edit/{section}', [SectionController::class, 'update']);
     Route::delete('/section/{section}', [SectionController::class, 'destroy']);
 
     /**Teacher routes */
-    Route::post('/teachers', [TeacherController::class, 'store']);
-    Route::post('/teachers/{teacher}', [TeacherController::class, 'update']);
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
-    Route::get('/searchable/teachers', [TeacherController::class, 'getAllTeachers']);
-    Route::get('/teacherLists/get', [TeacherController::class, 'index']);
 
     /**News Variety route */
-    Route::get('/varieties', [VarietyController::class, 'index']);
-    Route::post('/varieties', [VarietyController::class, 'store']);
-    Route::get('/varieties/{variety}', [VarietyController::class, 'getVarietyDetails']);
-    Route::post('/varieties/{variety}', [VarietyController::class, 'update']);
     Route::delete('/varieties/{variety}', [VarietyController::class, 'destroy']);
 
     /**News Routes */
-    Route::get('/news', [NoticeController::class, 'index']);
-    Route::get('/news/{news}', [NoticeController::class, 'getNoticeDetails']);
-    Route::post('/news', [NoticeController::class, 'store']);
-    Route::post('/news/{news}', [NoticeController::class, 'update']);
     Route::delete('/news/{news}', [NoticeController::class, 'destroy']);
-    Route::get('/get/getNewsByVariety/{varietyName}', [NoticeController::class, 'getNewsByVariety']);
     Route::get('/news/restore/{id}', [NoticeController::class, 'restore']);
     Route::get('/news/restoreAll', [NoticeController::class, 'restoreAll']);
 
     /**School Routes */
-    Route::post('/schools', [SchoolController::class, 'store']);
-    Route::post('/schools/{school}', [SchoolController::class, 'update']);
     Route::delete('/schools/{school}', [SchoolController::class, 'destroy']);
 
     /**Type Routes */
-     Route::post('/types', [TypeController::class, 'store']);
-     Route::post('/types/{type}', [TypeController::class, 'update']);
      Route::delete('/types/{type}', [TypeController::class, 'destroy']);
 
     /**Grade Routes */
-    Route::post('/grades', [GradeController::class, 'store']);
-    Route::post('/grades/{grade}', [GradeController::class, 'update']);
     Route::delete('/grades/{grade}', [GradeController::class, 'destroy']);
 
     /**Options Routes */
-    Route::post('/options', [OptionController::class, 'store']);
-    Route::post('/options/{option}', [OptionController::class, 'update']);
     Route::delete('/options/{option}', [OptionController::class, 'destroy']);
 
     /**Question Routes */
-     Route::post('/questions', [QuestionController::class, 'store']);
-     Route::post('/questions/{question}', [QuestionController::class, 'update']);
      Route::delete('/questions/{question}', [QuestionController::class, 'destroy']);
 });

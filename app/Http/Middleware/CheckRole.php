@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 
-class IsAdmin
+class CheckRole
 {
     /**
      * Handle an incoming request.
@@ -14,16 +14,14 @@ class IsAdmin
      * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
      * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next, ...$roles)
     {
-        if (auth()->check() && auth()->user()->role === 'admin') {
-
-            return $next($request);
+        if (!in_array($request->user()->role, $roles)) {
+            return response()->json([
+                'message' => 'Unauthorized',
+                'status' => 403]);
         }
-        
-        return response()->json([
-            "result" => 0,
-            "message" => "You have no permission for this route."
-        ]);
+
+        return $next($request);
     }
 }
