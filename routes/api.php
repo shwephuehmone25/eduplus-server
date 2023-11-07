@@ -123,10 +123,6 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->grou
     Route::get('/courses/restore/{id}', [CourseController::class, 'restore']);
     Route::post('upload_image', [CourseController::class, 'imageUpload']);
 
-    /**Allocation Routes */
-    Route::post('/teachers/assign', [AllocationController::class, 'assignedToTeachers']);
-    Route::post('/allocation/{allocation}', [AllocationController::class, 'update']);
-
     /**Category Routes */
     Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/category/{id}', [CategoryController::class, 'getCategoryDetails']);
@@ -194,6 +190,8 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() 
     Route::get('restoreAll', [CourseController::class, 'restoreAll']);
 
     /**Allocation Routes */
+    Route::post('/teachers/assign', [AllocationController::class, 'assignedToTeachers']);
+    Route::post('/allocation/{allocation}', [AllocationController::class, 'update']);
     Route::delete('/allocation/{allocation}', [AllocationController::class, 'destroy']);
     Route::get('/allocations/restore/{id}', [AllocationController::class, 'restore']);
     Route::get('restoreAll', [AllocationController::class, 'restoreAll']);

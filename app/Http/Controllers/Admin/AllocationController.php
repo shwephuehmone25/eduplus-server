@@ -47,8 +47,6 @@ class AllocationController extends Controller
         ]);
 
         $allocation = Allocation::create($request->all());
-
-
         $teacherId = $request->input('teacher_id');
         $sectionId = $request->input('section_id');
         $courseId  = $request->input('course_id');
@@ -56,7 +54,6 @@ class AllocationController extends Controller
 
         $teacher = Teacher::find($teacherId);
         $course = Course::find($courseId);
-
 
         if ($teacher && $course) {
             if (!$teacher->sections()->where('section_id', $sectionId)->exists()) {
@@ -72,13 +69,11 @@ class AllocationController extends Controller
             }
         }
 
-
             if ($teacher && $teacher->meeting)
             {
                 $meetingId = $teacher->meeting->id;
                 // $allocation->meeting_id = $meetingId;
                 $allocation->meetings()->attach($meetingId);
-
             }
 
         return response()->json(['data' => $allocation, 'message' => 'Assigned to teachers successfully', 'status' => 201]);
