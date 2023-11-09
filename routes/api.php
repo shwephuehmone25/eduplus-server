@@ -111,6 +111,8 @@ Route::post('/meeting/create', [MeetingController::class,'create']);
 
 Route::get('/videos', [ VideoController::class, 'index']);
 
+Route::get('/questions/getAll', [QuestionController::class, 'index']);
+
 /**common Admin Routes */
 Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->group(function () {
 

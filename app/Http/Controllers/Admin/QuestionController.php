@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Question;
 use App\Models\Option;
+use App\Models\Type;
 class QuestionController extends Controller
 {
     /**
@@ -15,9 +16,14 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        $questions = Question::all();
-
-        return response()->json(['data' => $questions]);
+        $randomTypes = Type::inRandomOrder(2)->pluck('id');
+        
+        $questions = Question::whereIn('type_id', $randomTypes)
+            ->inRandomOrder()
+            ->take(20)
+            ->get();
+        
+        return response()->json($questions);
     }
 
     /**
