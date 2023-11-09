@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\GradeController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\TypeController;
 use App\Http\Controllers\Admin\OptionController;
+use App\Http\Controllers\Admin\ResultController;
 
 /*
 |--------------------------------------------------------------------------
@@ -179,8 +180,13 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->grou
     Route::post('/options/{option}', [OptionController::class, 'update']);
 
     /**Question Routes */
-     Route::post('/questions', [QuestionController::class, 'store']);
-     Route::post('/questions/{question}', [QuestionController::class, 'update']);
+    Route::post('/questions', [QuestionController::class, 'store']);
+    Route::post('/questions/{question}', [QuestionController::class, 'update']);
+
+    /**Result Routes*/
+    Route::post('/results', [ResultController::class, 'store']);
+    Route::post('/result/{result}', [ResultController::class, 'update']);
+    Route::get('/results', [ResultController::class, 'index']);
 });
 
 /**super_admin Routes*/
@@ -248,6 +254,9 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() 
     /**Options Routes */
     Route::delete('/options/{option}', [OptionController::class, 'destroy']);
 
-    /**Question Routes */
-     Route::delete('/questions/{question}', [QuestionController::class, 'destroy']);
+    /**Question Routes*/
+    Route::delete('/questions/{question}', [QuestionController::class, 'destroy']);
+
+     /**Result Routes*/
+     Route::delete('/result/{id}', [ResultController::class, 'destroy']);
 });
