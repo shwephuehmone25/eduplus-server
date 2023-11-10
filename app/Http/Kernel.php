@@ -16,9 +16,9 @@ class Kernel extends HttpKernel
      * @var array<int, class-string|string>
      */
     protected $middleware = [
+        \Fruitcake\Cors\HandleCors::class,
         \App\Http\Middleware\TrustHosts::class,
         \App\Http\Middleware\TrustProxies::class,
-        \Fruitcake\Cors\HandleCors::class,
         \App\Http\Middleware\PreventRequestsDuringMaintenance::class,
         \Illuminate\Foundation\Http\Middleware\ValidatePostSize::class,
         \App\Http\Middleware\TrimStrings::class,
@@ -68,5 +68,6 @@ class Kernel extends HttpKernel
         'IsAdmin' => \App\Http\Middleware\IsAdmin::class,
         'IsTeacher' => \App\Http\Middleware\IsTeacher::class,
         'checkUserStatus' => \App\Http\Middleware\CheckUserStatus::class
+
     ];
 }

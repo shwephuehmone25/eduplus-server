@@ -27,7 +27,6 @@ class AuthController extends Controller
      */
     public function getStart(Request $request)
     {
-        // Validate the phone number
         $validator = Validator::make($request->all(), [
             'phone_number' => ['required', 'numeric', 'unique:users'],
         ]);
@@ -39,28 +38,27 @@ class AuthController extends Controller
             ]);
         }
 
-        // Create a new user record and store the phone number
         $user = User::create([
             'name' => 'your name',
-            'phone_number' => $request->input('phone_number'),
             'dob' => '2000-01-01',
-            'password' => '11111111',
+            'password' => 11111111,
+            'phone_number' => $request->input('phone_number'),
+            'address' => 'default',
+            'region' => 'default',
+            'image_url' => 'https://eduplus-test.s3.ap-southeast-1.amazonaws.com/students/user_default.jpg'
         ]);
 
-        // Get the user's ID
         $user_id = $user->id;
 
-        // Generate a random 6-digit OTP
         $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        // Store the OTP in the "otp" table with the user's ID
         Otp::create([
             'otp' => $otp,
             'user_id' => $user_id,
         ]);
 
-        // Send the OTP via SMS (assuming you have an SMS notification set up)
-        if ($user) {
+        if ($user)
+        {
             $user->notify(new AccountVerification($otp));
         }
 
@@ -69,7 +67,6 @@ class AuthController extends Controller
             'user_id' => $user_id,
             'status' => 200
         ]);
-
     }
 
     /**
@@ -107,7 +104,7 @@ class AuthController extends Controller
     public function createUser(Request $request, $userId)
     {
         $user = User::find($userId);
-        
+
         if($user->isVerified === 1)
         {
             $data = $request->validate([
@@ -115,15 +112,17 @@ class AuthController extends Controller
                 'dob' => 'required|date_format:Y-m-d',
                 'password' => 'required|string|min:8|confirmed',
                 'gender' => 'required|in:male,female,other',
-                'region' => 'required'
+                'region' => 'required',
+                'address' => 'required'
             ]);
-           
+
             $user->update([
                 'name' => $data['name'],
                 'password' => Hash::make($data['password']),
                 'dob' => $data['dob'],
+                'address' => $data['address'],
                 'gender' => $data['gender'],
-                'region' => $data['region']
+                'region' => $data['region'],
             ]);
 
             $token = $user->createToken('student-token')->plainTextToken;
@@ -139,7 +138,7 @@ class AuthController extends Controller
 
             return response()->json(['data' => $response , 'status' => 201]);
         }else{
-            
+
             return response()->json(['message' => 'Please verify first']);
         }
     }
@@ -154,9 +153,9 @@ class AuthController extends Controller
     {
         // Validate the incoming registration request
         $validator = Validator::make($request->all(), [
-            'name' => 'required|string|max:255',
             'email' => 'required|email|unique:admins',
             'password' => 'required|string|min:8|confirmed',
+            'role' => 'required|in:super_admin,normal_admin', // Validate the role
         ]);
 
         if ($validator->fails()) {
@@ -165,13 +164,18 @@ class AuthController extends Controller
 
         // Create a new admin with the provided data
         $data = $validator->validated();
-        $data['password'] = bcrypt($data['password']); 
-        $admin = Admin::create($data);
+        $data['password'] = bcrypt($data['password']);
+
+        $admin = Admin::create([
+            'email' => $data['email'],
+            'password' => $data['password'],
+            'role' => $data['role'],
+        ]);
 
         // Generate a new API token for the registered admin
         $token = $admin->createToken('admin-token')->plainTextToken;
 
         // Return the token as a response
-        return response()->json(['token' => $token, 'data' => $data, 'status' => 201]);
+        return response()->json(['token' => $token, 'data' => $admin, 'status' => 201]);
     }
 }

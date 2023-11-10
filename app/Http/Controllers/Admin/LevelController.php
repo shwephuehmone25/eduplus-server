@@ -88,6 +88,6 @@ class LevelController extends Controller
     {
         $level->delete();
 
-        return response()->json(['message' => 'Level deleted successfully', 'status' => 200]);
+        return response()->json(['message' => 'Level deleted successfully', 'status' => 204]);
     }
 }

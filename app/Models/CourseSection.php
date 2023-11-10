@@ -9,5 +9,5 @@ class CourseSection extends Model
 {
     use HasFactory;
 
-    protected $table = 'courses_sections';
+    protected $table = 'course_sections';
 }

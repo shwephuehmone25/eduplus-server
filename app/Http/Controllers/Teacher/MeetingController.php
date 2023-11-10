@@ -127,6 +127,9 @@ class MeetingController extends Controller
             //$meeting->allocations()->attach($allocations);
 
             return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link created Successfully", 'status' => 200]);
+            //$meeting->allocations()->attach($allocations);
+
+            return response()->json(['meetLink' => $meetLink, 'message' => "Meet Link created Successfully", 'status' => 200]);
     }
 
     public function test(Request $request)

@@ -52,15 +52,22 @@ class Teacher extends Model implements Authenticatable
         return $this->belongsToMany(User::class, 'teachers_students', 'teacher_id','user_id');
     }
 
+    public function sections()
+    {
+
+        return $this->belongsToMany(Section::class, 'teachers_sections', 'teacher_id','section_id')
+                    ->withPivot('course_id');
+    }
+
     public function allocations()
     {
 
         return $this->hasMany(Allocation::class);
     }
 
-    public function sections()
-    {
+    // public function sections()
+    // {
 
-        return $this->belongsToMany(Section::class, 'teachers_sections', 'teacher_id', 'section_id');
-    }
+    //     return $this->belongsToMany(Section::class, 'teachers_sections', 'teacher_id', 'section_id');
+    // }
 }
