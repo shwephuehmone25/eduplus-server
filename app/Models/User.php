@@ -16,6 +16,8 @@ use App\Models\Allocation;
 use App\Models\Rank;
 use App\Models\Grade;
 use App\Models\School;
+use App\Models\Result;
+
 class User extends Authenticatable
 {
     use HasFactory, HasApiTokens, Notifiable;
@@ -196,5 +198,10 @@ class User extends Authenticatable
     {
 
         return $this->morphMany(Image::class, 'imageable');
+    }
+
+    public function results()
+    {
+        return $this->hasMany(Result::class);
     }
 }

@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\TypeController;
 use App\Http\Controllers\Admin\OptionController;
 use App\Http\Controllers\Admin\ResultController;
+use App\Http\Controllers\User\TestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -92,9 +93,10 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/like', [LikeController::class, 'like']);
     Route::post('/unlike', [LikeController::class,'unlike']);
     Route::post('/changePassword/{user}', [UserController::class, 'changePassword']);
-    Route::post('/forgotPassword', [UserController::class, 'forgotPassword']);
-    Route::post('/resetPassword/{user}', [UserController::class, 'resetPassword']);
     Route::post('/newPhoneNumber/{userId}', [UserController::class, 'changePhoneNumber']);
+    Route::get('test',[TestController::class, 'index']);
+    Route::post('test',[TestController::class, 'store']);
+    Route::get('/myresult/get/{resultId}', [ResultController::class, 'show']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);
@@ -111,6 +113,9 @@ Route::get('auth/google', [AccountController::class, 'redirectToGoogle']);
 Route::get('/auth/google/callback', [AccountController::class, 'handleGoogleCallback']);
 Route::post('/google/login', [AccountController::class, 'googleLogin']);
 Route::post('/meeting/create', [MeetingController::class,'create']);
+
+Route::post('/forgotPassword', [UserController::class, 'forgotPassword']);
+Route::post('/resetPassword/{user}', [UserController::class, 'resetPassword']);
 
 Route::get('/videos', [ VideoController::class, 'index']);
 

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
+use App\Models\Result;
 
 class ResultController extends Controller
 {
@@ -18,6 +19,15 @@ class ResultController extends Controller
         $results = Result::all();
 
         return response()->json(['data' => $results]);
+    }
+
+    public function show($result_id)
+    {
+        $result = Result::whereHas('user', function ($query) {
+            $query->whereId(auth()->id());
+        })->findOrFail($result_id);
+    
+        return response()->json(['data' => $result]);
     }
 
     /**
