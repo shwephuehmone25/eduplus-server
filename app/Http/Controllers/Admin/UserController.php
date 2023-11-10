@@ -324,4 +324,26 @@ class UserController extends Controller
             'status' => 200
         ]);
     }
+
+    public function restrict(Request $request, $id){
+        $user = User::findOrFail($id);
+
+        if(!$user){
+            return response()->json(['warning' =>  'User not found', 'status' => 404]);
+        }
+
+        $user->status = $request->status;
+        $user->save();
+        return response()->json(['message' => 'User status updated successfully!', 'status' => 200]);
+    }
+
+    public function deleteUser($id){
+        $user = User::findOrFail($id);
+
+        if(!$user){
+            return response()->json(['error' => 'User not found!', 'status' => 404]);
+        }
+
+        $user->delete();
+    }
 }

@@ -115,6 +115,11 @@ class LoginController extends Controller
             return response()->json(['error' => 'User not found', 'status' => 404]);
         }
 
+        if ($user->status === 0) {
+            Auth::logout();
+            return response()->json(['message' => 'Your account is restricted, please contact the administrator']);
+        }
+
         if (password_verify($credentials['password'], $user->password)) {
             // Generate a new API token for the authenticated user
             $token = $user->createToken('user-token')->plainTextToken;

@@ -56,10 +56,12 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::post('/phone/register', [AuthController::class, 'getStart']);
 Route::post('/otp/verify/{userId}', [AuthController::class, 'verify']);
 Route::post('/user/create/{userId}', [AuthController::class, 'createUser']);
+
+Route::post('/student/login', [LoginController::class, 'loginAsStudent'])->middleware('checkUserStatus');
 Route::post('/user/uploadProfile', [UserController::class, 'uploadProfile']);
 Route::get('/user/showProfile/{userId}', [UserController::class, 'showUserDetails']);
 Route::post('/user/editProfile/{userId}', [UserController::class, 'editProfile']);
-Route::post('/student/login', [LoginController::class, 'loginAsStudent']);
+
 Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
 Route::get('/get/{userId}/purchasedcourseDetails/{allocationId}', [CourseController::class, 'getPurchasedCoursesDetails']);
 Route::get('/courses/{id}', [CourseController::class, 'showCourseDetails']);
@@ -242,6 +244,10 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() 
     Route::get('/news/restore/{id}', [NoticeController::class, 'restore']);
     Route::get('/news/restoreAll', [NoticeController::class, 'restoreAll']);
 
+    /**Users Manipulation Routes */
+    Route::post('/user/restrict/{userId}', [UserController::class, 'restrict']);
+    Route::delete('/user/{userId}', [UserController::class, 'deleteUser']);
+  
     /**School Routes */
     Route::delete('/schools/{school}', [SchoolController::class, 'destroy']);
 
@@ -259,4 +265,5 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() 
 
      /**Result Routes*/
      Route::delete('/result/{id}', [ResultController::class, 'destroy']);
+
 });
