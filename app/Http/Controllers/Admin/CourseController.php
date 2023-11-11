@@ -23,6 +23,7 @@ use Google\Service\Classroom\Resource\Courses;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Middleware\CheckRole;
 use App\Models\Image;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\AwsS3V3\PortableVisibilityConverter;
@@ -140,7 +141,8 @@ class CourseController extends Controller
                 'course_name' => 'required|string|max:255',
                 'description' => 'required|string',
                 'period' => 'required|string',
-                'price' => 'required|integer',
+                'price_for_local' => 'required|string',
+                'price_for_expat' => 'required|string',
                 'image_url' => 'required|string',
                 'category_id' => 'required',
                 'level_id' => 'required',
@@ -159,6 +161,8 @@ class CourseController extends Controller
                 'price' => $request->input('price'),
                 'image_url' => $request->input('image_url'),
                 'period' => $request->input('period'),
+                'price_for_local' => $request->input('price_for_local'),
+                'price_for_expat' => $request->input('price_for_expat'),
             ]);
 
             $course->categories()->attach($request->input('category_id'));
@@ -231,6 +235,8 @@ class CourseController extends Controller
                 'description' => 'required|string',
                 'period' => 'required|string',
                 // 'announce_date' => 'required|date_format:Y-m-d|after_or_equal:' . $todayDate,
+                'price_for_local' => 'required|string',
+                'price_for_expat' => 'required|string',
                 'category_id' => 'nullable|exists:categories,id',
                 'level_id' => 'nullable|exists:levels,id',
             ]);
@@ -247,6 +253,8 @@ class CourseController extends Controller
                 'description' => $request->input('description'),
                 'price' => $request->input('price'),
                 'period' => $request->input('period'),
+                'price_for_local' => $request->input('price_for_local'),
+                'price_for_expat' => $request->input('price_for_expat'),
             ]);
 
             $relatedData = [
