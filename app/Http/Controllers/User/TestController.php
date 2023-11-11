@@ -17,7 +17,7 @@ class Testcontroller extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function getQuestionsByGrades($grade_id)
     {
         $maxQuestions = 20;
         $randomTypes = Type::inRandomOrder()->get();
@@ -29,6 +29,7 @@ class Testcontroller extends Controller
             }
 
             $typeQuestions = Question::where('type_id', $randomType->id)
+                ->where('grade_id', $grade_id)
                 ->inRandomOrder()
                 ->with(['options' => function ($query) {
                     $query->inRandomOrder();

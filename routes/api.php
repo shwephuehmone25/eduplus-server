@@ -94,7 +94,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/unlike', [LikeController::class,'unlike']);
     Route::post('/changePassword/{user}', [UserController::class, 'changePassword']);
     Route::post('/newPhoneNumber/{userId}', [UserController::class, 'changePhoneNumber']);
-    Route::get('test',[TestController::class, 'index']);
+    Route::get('/test/{grade_id}',[TestController::class, 'getQuestionsByGrades']);
     Route::post('test',[TestController::class, 'store']);
     Route::get('/myresult/get/{resultId}', [ResultController::class, 'show']);
 });
