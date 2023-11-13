@@ -115,8 +115,8 @@ class CourseController extends Controller
         $modules = Rank::all();
 
         $prices = $modules->map(function ($module) use ($course) {
-            $localPrice = intval($course->price_for_local) / 2; 
-            $expatPrice = intval($course->price_for_expat) / 2;
+            $localPrice = is_numeric($course->price_for_local) ? number_format(intval($course->price_for_local) / 2) : null;
+            $expatPrice = is_numeric($course->price_for_expat) ? number_format(intval($course->price_for_expat) / 2) : null;
             $module->price = [
                 'local_price' => $localPrice,
                 'expat_price' => $expatPrice,
