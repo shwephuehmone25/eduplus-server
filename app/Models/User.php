@@ -42,7 +42,12 @@ class User extends Authenticatable
         'gender',
         'region',
         'address',
-        'image_url'
+        'image_url',
+        'expired_at',
+    ];
+
+    protected $dates = [
+        'expired_at',
     ];
 
     /**

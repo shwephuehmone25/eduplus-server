@@ -25,6 +25,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Validator;
 use App\Http\Middleware\CheckRole;
 use App\Models\Image;
+use App\Models\Rank;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\AwsS3V3\PortableVisibilityConverter;
 
@@ -100,21 +101,30 @@ class CourseController extends Controller
         $course = Course::with([
             'categories',
             'levels',
-            'ranks',
             'sections',
-            'images',
             'allocations',
             'allocations.teacher'
         ])->find($id);
-
-        // dd($course);
 
         if (!$course) {
             return response()->json(['error' => 'Course not found', 'status' => 404]);
         }
 
+        $modules = Rank::all();
+
+        $prices = $modules->map(function ($module) use ($course) {
+            $localPrice = $course->price_for_local / 2; 
+            $expatPrice = $course->price_for_expat / 2; 
+            $module->price = [
+                'local' => $localPrice,
+                'expat' => $expatPrice,
+            ];
+            return $module;
+        });
+
         $teachers = $this->teachersForCourse($id);
         $course['teachers'] = $teachers;
+        $course['modules'] = $modules;
 
         return response()->json(['data' => $course]);
     }
@@ -135,8 +145,6 @@ class CourseController extends Controller
    public function store(Request $request)
     {
         try {
-            $todayDate = date('Y-m-d');
-
             $validator = Validator::make($request->all(), [
                 'course_name' => 'required|string|max:255',
                 'description' => 'required|string',
@@ -158,7 +166,6 @@ class CourseController extends Controller
             $course = Course::create([
                 'course_name' => $request->input('course_name'),
                 'description' => $request->input('description'),
-                'price' => $request->input('price'),
                 'image_url' => $request->input('image_url'),
                 'period' => $request->input('period'),
                 'price_for_local' => $request->input('price_for_local'),
@@ -228,13 +235,11 @@ class CourseController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $todayDate = date('Y-m-d');
 
             $validator = Validator::make($request->all(), [
                 'course_name' => 'required|string|max:255',
                 'description' => 'required|string',
                 'period' => 'required|string',
-                // 'announce_date' => 'required|date_format:Y-m-d|after_or_equal:' . $todayDate,
                 'price_for_local' => 'required|string',
                 'price_for_expat' => 'required|string',
                 'category_id' => 'nullable|exists:categories,id',
@@ -251,7 +256,6 @@ class CourseController extends Controller
             $course->update([
                 'course_name' => $request->input('course_name'),
                 'description' => $request->input('description'),
-                'price' => $request->input('price'),
                 'period' => $request->input('period'),
                 'price_for_local' => $request->input('price_for_local'),
                 'price_for_expat' => $request->input('price_for_expat'),

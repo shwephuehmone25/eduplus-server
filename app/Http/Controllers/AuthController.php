@@ -55,6 +55,7 @@ class AuthController extends Controller
         Otp::create([
             'otp' => $otp,
             'user_id' => $user_id,
+            'expired_at' => Carbon::now()->addSeconds(60),
         ]);
 
         if ($user)
