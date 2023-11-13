@@ -30,7 +30,7 @@ use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\TypeController;
 use App\Http\Controllers\Admin\OptionController;
 use App\Http\Controllers\Admin\ResultController;
-use App\Http\Controllers\User\TestController;
+use App\Http\Controllers\User\PlacementTestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -94,8 +94,8 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/unlike', [LikeController::class,'unlike']);
     Route::post('/changePassword/{user}', [UserController::class, 'changePassword']);
     Route::post('/newPhoneNumber/{userId}', [UserController::class, 'changePhoneNumber']);
-    Route::get('/test/{grade_id}',[TestController::class, 'getQuestionsByGrades']);
-    Route::post('test',[TestController::class, 'store']);
+    Route::get('/test/{grade_id}',[PlacementTestController::class, 'getQuestionsByGrades']);
+    Route::post('test',[PlacementTestController::class, 'store']);
     Route::get('/myresult/get/{resultId}', [ResultController::class, 'show']);
 });
 
