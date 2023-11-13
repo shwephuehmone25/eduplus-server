@@ -16,6 +16,7 @@ use App\Notifications\AccountVerification;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\ServiceAccount;
 use Kreait\Firebase\Auth;
+use Carbon\Carbon;
 
 class AuthController extends Controller
 {

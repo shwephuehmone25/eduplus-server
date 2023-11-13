@@ -110,31 +110,37 @@ class CourseController extends Controller
             return response()->json(['error' => 'Course not found', 'status' => 404]);
         }
 
+        $course['teachers'] = [];
+
         $modules = Rank::all();
 
         $prices = $modules->map(function ($module) use ($course) {
-            $localPrice = $course->price_for_local / 2; 
-            $expatPrice = $course->price_for_expat / 2; 
+            $localPrice = intval($course->price_for_local) / 2; 
+            $expatPrice = intval($course->price_for_expat) / 2;
             $module->price = [
-                'local' => $localPrice,
-                'expat' => $expatPrice,
+                'local_price' => $localPrice,
+                'expat_price' => $expatPrice,
             ];
             return $module;
         });
 
-        $teachers = $this->teachersForCourse($id);
-        $course['teachers'] = $teachers;
+        foreach ($course->allocations as $allocation) {
+            if ($allocation->teacher) {
+                $course['teachers'] = $allocation->teacher;
+            }
+        }
+
         $course['modules'] = $modules;
 
         return response()->json(['data' => $course]);
     }
 
-    protected function teachersForCourse($courseId)
-    {
-        return Teacher::whereHas('sections', function ($query) use ($courseId) {
-            $query->where('course_id', $courseId);
-        })->get();
-    }
+    // protected function teachersForCourse($courseId)
+    // {
+    //     return Teacher::whereHas('sections', function ($query) use ($courseId) {
+    //         $query->where('course_id', $courseId);
+    //     })->get();
+    // }
 
     /**
      * Store a newly created resource in storage.
