@@ -226,11 +226,11 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() 
     // Route::get('/get/subcategories', [SubcategoryController::class, 'getSubcategoriesByCategory']);
 
     /**Class routes */
-    // Route::get('/classes', [ClassController::class, 'index']);
-    // Route::get('/class/{id}', [ClassController::class, 'getClassDetails']);
-    // Route::post('/classes', [ClassController::class, 'store']);
-    // Route::post('/classes/{class}', [ClassController::class, 'update']);
-    // Route::delete('/classes/{class}', [ClassController::class, 'destroy']);
+    Route::get('/classes', [ClassController::class, 'index']);
+    Route::get('/class/{id}', [ClassController::class, 'getClassDetails']);
+    Route::post('/classes', [ClassController::class, 'store']);
+    Route::post('/classes/{class}', [ClassController::class, 'update']);
+    Route::delete('/classes/{class}', [ClassController::class, 'destroy']);
 
     /**Level Routes */
     Route::delete('/levels/{level}', [LevelController::class, 'destroy']);

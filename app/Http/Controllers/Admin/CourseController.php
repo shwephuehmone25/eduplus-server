@@ -160,6 +160,7 @@ class CourseController extends Controller
                 'image_url' => 'required|string',
                 'category_id' => 'required',
                 'level_id' => 'required',
+                'classroom_id' => 'required',
             ]);
 
             if ($validator->fails())
@@ -180,6 +181,7 @@ class CourseController extends Controller
 
             $course->categories()->attach($request->input('category_id'));
             $course->levels()->attach($request->input('level_id'));
+            $course->classrooms()->attach($request->input('classroom_id'));
 
             $course->save();
 
@@ -250,6 +252,7 @@ class CourseController extends Controller
                 'price_for_expat' => 'required|string',
                 'category_id' => 'nullable|exists:categories,id',
                 'level_id' => 'nullable|exists:levels,id',
+                'classroom_id' => 'nullable|exists:classrooms,id',
             ]);
 
             if ($validator->fails()) {
@@ -270,6 +273,7 @@ class CourseController extends Controller
             $relatedData = [
                 'categories' => $request->input('category_id'),
                 'levels' => $request->input('level_id'),
+                'classrooms' => $request->input('classroom_id'),
             ];
 
             foreach ($relatedData as $relation => $ids) {

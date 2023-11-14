@@ -48,10 +48,6 @@ class ClassController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'capacity' => 'required|integer|min:0',
         ]);
 
         $class = Classroom::create($data);
@@ -70,10 +66,6 @@ class ClassController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'start_date' => 'required|date',
-            'end_date' => 'required|date|after_or_equal:start_date',
-            'capacity' => 'required|integer|min:0',
         ]);
 
         $class->update($data);
