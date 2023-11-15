@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Type;
 use App\Models\Question;
+use App\Models\TestLevel;
 use App\Models\Option;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
@@ -19,7 +20,7 @@ class PlacementTestController extends Controller
      */
     public function getQuestionsByGrades($grade_id)
     {
-        $maxQuestions = 20;
+        $maxQuestions = 10;
         $randomTypes = Type::inRandomOrder()->get();
         $questions = collect();
 
@@ -34,7 +35,7 @@ class PlacementTestController extends Controller
                 ->with(['options' => function ($query) {
                     $query->inRandomOrder();
                 }])
-                ->take(4)
+                ->take(2)
                 ->get();
 
             $remainingSpace = $maxQuestions - $questions->count();
@@ -59,7 +60,7 @@ class PlacementTestController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-        {
+    {
             if (!auth()->check())
             {
                 return response()->json(['error' => 'Unauthenticated.', 'status' => 401]);
@@ -92,23 +93,33 @@ class PlacementTestController extends Controller
                 ]);
             }
 
-        $testLevelName = $testLevel->firstWhere('is_greater', $isGreater)->name;
+            $testLevelName = $testLevel->firstWhere('is_greater', $isGreater);
 
-            $questions = $options->mapWithKeys(function ($option) {
-                return [
-                    $option->question_id => [
-                        'option_id' => $option->id,
-                        'points' => $option->points,
-                    ],
-                ];
-            })->toArray();
+            if (!$testLevelName) {
+                return response()->json([
+                    'error' => 'Test level not found.',
+                    'status' => 404,
+                ]);
+            }
+            
+            $testLevelName = $testLevelName->name;
+
+                $questions = $options->mapWithKeys(function ($option) {
+                    return [
+                        $option->question_id => [
+                            'option_id' => $option->id,
+                            'points' => $option->points,
+                        ],
+                    ];
+                })->toArray();
+
             $result->questions()->sync($questions);
             return response()->json([
-                'message' => "Your Level is {$testLevel->name}",
+                'message' => "Your Level is {$testLevelName}",
                 'result_id' => $result->id,
                 'is_greater' => $isGreater,
                 'total_points' => $result->total_points,
                 'status' =>201,
             ]);
-        }
+    }
 }
