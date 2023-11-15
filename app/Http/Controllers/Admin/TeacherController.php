@@ -204,4 +204,41 @@ class TeacherController extends Controller
             return response()->json(['error' => 'An error occurred while updating roles'], 500);
         }
     }
+
+    /**
+     * Change the roles of selected teachers.
+     *
+     * @param  Request  $request
+     * @param  int  $teacherId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function changeSelectedRoles(Request $request, $teacherId)
+    {
+        try {
+            $teacher = Teacher::find($teacherId);
+
+            if (!$teacher) {
+                return response()->json(['error' => 'Teacher not found'], 404);
+            }
+
+            // Check if 'expat_teacher' role already exists
+            if ($teacher->role !== 'expat_teacher') {
+                // Get the teacher IDs from the request
+                $teacherIds = $request->input('teacher_ids');
+
+                // Add 'expat_teacher' role to the current teacher
+                $teacher->update(['role' => ['local_teacher', 'expat_teacher']]);
+
+                // Update roles for selected teachers
+                Teacher::whereIn('id', $teacherIds)->update(['role' => ['local_teacher', 'expat_teacher']]);
+
+                return response()->json(['message' => 'Roles updated successfully']);
+            } else {
+                return response()->json(['message' => 'Teacher already has expat_teacher role']);
+            }
+
+        } catch (\Exception $e) {
+            return response()->json(['error' => 'An error occurred while updating roles'], 500);
+        }
+    }
 }
