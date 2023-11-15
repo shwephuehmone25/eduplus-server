@@ -4,6 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\Question;
+use App\Models\User;
+use App\Models\TestLevel;
 
 class Result extends Model
 {
@@ -11,7 +14,8 @@ class Result extends Model
 
     protected $guarded = ['id', 'created_at', 'updated_at'];
 
-    public function user(){
+    public function user()
+    {
         return $this->belongsTo(User::class);
     }
 
@@ -19,4 +23,10 @@ class Result extends Model
     {
         return $this->belongsToMany(Question::class)->withPivot(['option_id', 'points']);
     }
+
+    public function testLevels()
+    {
+        return $this->belongsTo(TestLevel::class);
+    }
+
 }

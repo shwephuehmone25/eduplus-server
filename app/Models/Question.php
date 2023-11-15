@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Option;
 use App\Models\Type;
 use App\Models\School;
+use App\Models\TestLevel;
 
 class Question extends Model
 {
@@ -33,5 +34,10 @@ class Question extends Model
     public function options()
     {
         return $this->hasMany(Option::class);
+    }
+
+    public function testLevel()
+    {
+        return $this->belongsTo(TestLevel::class);
     }
 }
