@@ -89,7 +89,7 @@ class CourseController extends Controller
                 'description' => $request->input('description'),
                 'price' => $request->input('price'),
                 'period' => $request->input('period'),
-                'announce_date' => $request->input('announce_date')
+                'start_date' => $request->input('start_date')
             ]);
 
             $course->categories()->attach($request->input('category_id'));
@@ -135,7 +135,7 @@ class CourseController extends Controller
                 'description' => 'required|string',
                 'price' => 'required|numeric',
                 'period' => 'required|string',
-                'announce_date' => 'required|date_format:Y-m-d|after_or_equal:' . $todayDate,
+                'start_date' => 'required|date_format:Y-m-d|after_or_equal:' . $todayDate,
                 'category_id' => 'nullable|exists:categories,id',
                 'level_id' => 'nullable|exists:levels,id',
                 'classroom_id' => 'nullable|exists:classrooms,id',
@@ -155,7 +155,7 @@ class CourseController extends Controller
                 'description' => $request->input('description'),
                 'price' => $request->input('price'),
                 'period' => $request->input('period'),
-                'announce_date' => $request->input('announce_date'),
+                'start_date' => $request->input('start_date'),
             ]);
 
             $relatedData = [

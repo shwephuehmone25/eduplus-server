@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('courses', function (Blueprint $table) {
-            $table->integer('price')->after('announce_date');
+            $table->integer('price')->after('start_date');
             $table->string('image_url')->after('price');
         });
     }
