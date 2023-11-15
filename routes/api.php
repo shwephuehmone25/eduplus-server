@@ -239,6 +239,7 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() 
     Route::delete('/section/{section}', [SectionController::class, 'destroy']);
 
     /**Teacher routes */
+    Route::put('/teachers/{teacherId}/change-role', [TeacherController::class, 'changeRole']);
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
 
     /**News Variety route */

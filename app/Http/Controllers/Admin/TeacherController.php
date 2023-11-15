@@ -172,4 +172,35 @@ class TeacherController extends Controller
 
         return response()->json(['teacher' => $teacher]);
     }
+
+    /**
+     * Change the roles of a teacher.
+     *
+     * @param  int  $teacherId
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function changeRole(Request $request, $teacherId)
+    {
+        try {
+            $teacher = Teacher::find($teacherId);
+
+            if (!$teacher) 
+            {
+                return response()->json(['error' => 'Teacher not found'], 404);
+            }
+
+            if ($teacher->role !== 'expat_teacher') 
+            { 
+                $teacher->update(['role' => ['local_teacher', 'expat_teacher']]);
+            } else {
+                return response()->json(['message' => 'Teacher already has expat_teacher role']);
+            }
+
+            return response()->json(['message' => 'Role is updated successfully']);
+
+        } catch (\Exception $e)
+         {
+            return response()->json(['error' => 'An error occurred while updating roles'], 500);
+        }
+    }
 }
