@@ -20,7 +20,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->string('google_id')->nullable();
-            $table->string('role')->default('teacher');
+            $table->enum('role', ['local_teacher', 'expat_teacher'])->default('local_teacher');
             $table->string('avatar')->nullable();
             $table->rememberToken();
             $table->timestamps();
