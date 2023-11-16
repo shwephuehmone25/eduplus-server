@@ -13,7 +13,7 @@ class Rank extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['name', 'price'];
+    protected $fillable = ['name'];
 
     public function sections()
     {

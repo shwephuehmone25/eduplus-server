@@ -49,7 +49,6 @@ class RankController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255|unique:ranks,name',
-            'price' => 'required'
         ]);
 
         $rank = Rank::create($data);
@@ -72,7 +71,6 @@ class RankController extends Controller
     {
          $rules = [
         'name' => 'required|string|max:255|unique:ranks,name,' . $rank->id,
-        'price' => 'required'
         ];
 
         $validator = Validator::make($request->all(), $rules);
@@ -84,7 +82,6 @@ class RankController extends Controller
 
         try {
             $rank->name = $request->input('name');
-            $rank->price = $request->input('price');
             $rank->save();
 
             return response()->json(['message' => 'Module is updated successfully', 'data' => $rank, 'status' => 200]);

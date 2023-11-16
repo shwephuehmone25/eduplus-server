@@ -13,8 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('courses', function (Blueprint $table) {
-            $table->string('image_url')->after('description');
+        Schema::table('allocations', function (Blueprint $table) {
+            $table->enum('course_type', ['local', 'expat']);
+            $table->foreignId('classroom_id')->constrained()->onDelete('cascade');
         });
     }
 
@@ -25,9 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('courses', function (Blueprint $table) {
-            $table->dropColumn('price');
-            $table->string('image_url');
+        Schema::table('allocations', function (Blueprint $table) {
+            //
         });
     }
 };

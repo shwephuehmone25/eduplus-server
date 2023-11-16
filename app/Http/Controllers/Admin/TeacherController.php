@@ -217,19 +217,17 @@ class TeacherController extends Controller
         try {
             $teacher = Teacher::find($teacherId);
 
-            if (!$teacher) {
+            if (!$teacher) 
+            {
                 return response()->json(['error' => 'Teacher not found'], 404);
             }
 
-            // Check if 'expat_teacher' role already exists
-            if ($teacher->role !== 'expat_teacher') {
-                // Get the teacher IDs from the request
+            if ($teacher->role !== 'expat_teacher') 
+            {
                 $teacherIds = $request->input('teacher_ids');
 
-                // Add 'expat_teacher' role to the current teacher
                 $teacher->update(['role' => ['local_teacher', 'expat_teacher']]);
 
-                // Update roles for selected teachers
                 Teacher::whereIn('id', $teacherIds)->update(['role' => ['local_teacher', 'expat_teacher']]);
 
                 return response()->json(['message' => 'Roles updated successfully']);

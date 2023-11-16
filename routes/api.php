@@ -240,7 +240,7 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() 
 
     /**Teacher routes */
     Route::put('/teachers/{teacherId}/change/role', [TeacherController::class, 'changeRole']);
-    Route::put('/teachers/{teacherId}/change/roles', [TeacherController::class, 'changeSelectedRoles']);
+    Route::put('/teachers/change/roles', [TeacherController::class, 'changeSelectedRoles']);
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
 
     /**News Variety route */
@@ -259,7 +259,7 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() 
     Route::delete('/schools/{school}', [SchoolController::class, 'destroy']);
 
     /**Type Routes */
-     Route::delete('/types/{type}', [TypeController::class, 'destroy']);
+    Route::delete('/types/{type}', [TypeController::class, 'destroy']);
 
     /**Grade Routes */
     Route::delete('/grades/{grade}', [GradeController::class, 'destroy']);
@@ -270,7 +270,6 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() 
     /**Question Routes*/
     Route::delete('/questions/{question}', [QuestionController::class, 'destroy']);
 
-     /**Result Routes*/
-     Route::delete('/result/{id}', [ResultController::class, 'destroy']);
-
+    /**Result Routes*/
+    Route::delete('/result/{id}', [ResultController::class, 'destroy']);
 });

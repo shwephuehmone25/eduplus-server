@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Meeting;
+use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\Teacher;
 use App\Models\Rank;
@@ -15,7 +16,7 @@ class Allocation extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['course_id', 'rank_id', 'section_id', 'teacher_id', 'meeting_id'];
+    protected $fillable = ['course_id', 'rank_id', 'section_id', 'teacher_id', 'classroom_id', 'course_type'];
 
     public function meetings()
     {
@@ -51,5 +52,11 @@ class Allocation extends Model
     {
 
         return $this->belongsTo(Section::class);
+    }
+
+    public function classroom()
+    {
+
+        return $this->belongsTo(Classroom::class);
     }
 }

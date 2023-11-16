@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use App\Models\Course;
+use App\Models\Meeting;
+use App\Models\Allocation;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
@@ -16,5 +17,11 @@ class Classroom extends Model
     {
 
         return $this->belongsToMany(Course::class ,'courses_classrooms','classroom_id', 'course_id');
+    }
+
+    public function allocations()
+    {
+
+        return $this->hasMany(Allocation::class);
     }
 }

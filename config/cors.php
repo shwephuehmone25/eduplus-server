@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 
-    'allowed_origins' => ['http://localhost:5173', 'http://localhost:3000', 'https://uat.saungpokki.ilbc.edu.mm', 'https://saungpokki-bk.ilbc.edu.mm', 'https://spk.ilbc.edu.mm', 'https://saungpokki.ilbc.edu.mm', 'https://spk-1187224705.ap-southeast-1.elb.amazonaws.com', 'https://10.10.0.118'],
+    'allowed_origins' => ['http://localhost:5173', 'http://localhost:3000', 'https://uat.saungpokki.ilbc.edu.mm', 'https://saungpokki-bk.ilbc.edu.mm', 'https://spk.ilbc.edu.mm', 'https://saungpokki.ilbc.edu.mm', 'https://spk-1187224705.ap-southeast-1.elb.amazonaws.com', 'https://18.138.3.38'],
 
     'allowed_origins_patterns' => [],
 

@@ -44,6 +44,8 @@ class AllocationController extends Controller
             'rank_id' => 'required',
             'section_id' => 'required',
             'teacher_id' => 'required',
+            'classroom_id' => 'required|exists:classrooms,id',
+            'course_type'   => 'required'
         ]);
 
         $allocation = Allocation::create($request->all());
@@ -51,6 +53,8 @@ class AllocationController extends Controller
         $sectionId = $request->input('section_id');
         $courseId  = $request->input('course_id');
         $rankId    = $request->input('rank_id');
+        $classId   = $request->input('classroom_id');
+        $course_type = $request->input('course_type');
 
         $teacher = Teacher::find($teacherId);
         $course = Course::find($courseId);
