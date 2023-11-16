@@ -40,10 +40,10 @@ class AllocationController extends Controller
     public function assignedToTeachers(Request $request)
     {
         $request->validate([
-            'course_id' => 'required',
-            'rank_id' => 'required',
-            'section_id' => 'required',
-            'teacher_id' => 'required',
+            'course_id' => 'required|exists:courses,id',
+            'rank_id' => 'required|exists:ranks,id',
+            'section_id' => 'required|exists:sections,id',
+            'teacher_id' => 'required|exists:teachers,id',
             'classroom_id' => 'required|exists:classrooms,id',
             'course_type'   => 'required'
         ]);
@@ -58,6 +58,10 @@ class AllocationController extends Controller
 
         $teacher = Teacher::find($teacherId);
         $course = Course::find($courseId);
+
+        if(!$course || $course->trashed()){
+            return response()->json(['error' => 'Course not found!', 'status' => 404]);
+        }
 
         if ($teacher && $course) {
             if (!$teacher->sections()->where('section_id', $sectionId)->exists()) {
