@@ -40,23 +40,17 @@ class AuthController extends Controller
         }
 
         $user = User::create([
-            'name' => 'your name',
-            'dob' => '2000-01-01',
-            'password' => 11111111,
             'phone_number' => $request->input('phone_number'),
-            'address' => 'default',
-            'region' => 'default',
-            'image_url' => 'https://eduplus-test.s3.ap-southeast-1.amazonaws.com/students/user_default.jpg'
         ]);
 
         $user_id = $user->id;
 
         $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        Otp::create([
+        $data = Otp::create([
             'otp' => $otp,
             'user_id' => $user_id,
-            'expired_at' => Carbon::now()->addSeconds(60),
+            'expired_at' => Carbon::now('Asia/Yangon')->addSeconds(60),
         ]);
 
         if ($user)
@@ -67,7 +61,8 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'OTP sent successfully!',
             'user_id' => $user_id,
-            'status' => 200
+            'status' => 200,
+            'expired_at' => $data->expired_at
         ]);
     }
 
@@ -85,7 +80,10 @@ class AuthController extends Controller
 
         $user = User::find($userId);
 
-        $verificationCode   = Otp::where('user_id', $user->id)->where('otp', $data['verification_code'])->first();
+        $verificationCode   = Otp::where('user_id', $user->id)
+                                ->where('otp', $data['verification_code'])
+                                ->where('expired_at', '>', Carbon::now('Asia/Yangon'))
+                                ->first();
 
         if($verificationCode){
             $user->isVerified = true;
@@ -94,7 +92,7 @@ class AuthController extends Controller
             return response()->json(['message' => 'Verification successful!', 'user_id' => $user->id, 'status' => 200]);
         }
 
-        return response()->json(['error' => 'Invalid verification code entered!', 'status' => 400]);
+        return response()->json(['error' => 'Invalid or expired verification code entered!', 'status' => 400]);
     }
 
     /**

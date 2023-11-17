@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('password')->nullable();
             $table->enum('gender', ['male', 'female', 'other']);
             //$table->enum('region', ['Kachin State', 'Kayah State', 'Karen State', 'Chin State', 'Mon State', 'Rakhine State', 'Shan State', 'Ayeyarwady Division', 'Bago Division', 'Magway Division', 'Mandalay Division', 'Yangon Division', 'Tanintharyi Division', 'Sagaing Division']);
-            $table->string('region');
+            $table->string('region')->nullable();
             $table->string('address')->nullable();
             $table->string('role')->default('student');
             $table->timestamps();

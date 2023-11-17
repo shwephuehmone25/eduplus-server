@@ -10,11 +10,15 @@ class Otp extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'otp', 'is_verified'];
+    protected $fillable = ['user_id', 'otp', 'expired_at'];
 
     public function user()
     {
         
         return $this->belongsTo(User::class);
     }
+
+    protected $casts = [
+        'expired_at' => 'datetime',
+    ];
 }
