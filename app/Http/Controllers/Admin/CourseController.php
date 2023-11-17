@@ -96,7 +96,54 @@ class CourseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function showCourseDetails($id, $course_type)
+    public function showCourseDetails($id)
+    {
+
+        $course = Course::with([
+            'categories',
+            'levels',
+            'allocations',
+            'allocations.teacher',
+            'classrooms'
+        ])->find($id);
+
+        if (!$course) {
+            return response()->json(['error' => 'Course not found', 'status' => 404]);
+        }
+
+        $course['teachers'] = [];
+
+        $modules = Rank::all();
+        $course['sections'] = Section::all();
+
+        $prices = $modules->map(function ($module) use ($course) {
+            $localPrice = is_numeric($course->price_for_local) ? number_format(intval($course->price_for_local) / 2) : null;
+            $expatPrice = is_numeric($course->price_for_expat) ? number_format(intval($course->price_for_expat) / 2) : null;
+            $module->price = [
+                'local_price' => $localPrice,
+                'expat_price' => $expatPrice,
+            ];
+            return $module;
+        });
+
+        foreach ($course->allocations as $allocation) {
+            if ($allocation->teacher) {
+                $course['teachers'] = $allocation->teacher;
+            }
+        }
+
+        $course['modules'] = $modules;
+
+        return response()->json(['data' => $course]);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showCourseDetailsWithType($id, $course_type)
     {
 
         $course = Course::with([
@@ -166,8 +213,8 @@ class CourseController extends Controller
                 'period' => 'required|string',
                 'start_date' => 'required|date|date_format:Y-m-d',
                 'end_date' => 'required|date|after_or_equal:start_date',
-                'price_for_local' => 'required|string',
-                'price_for_expat' => 'required|string',
+                'price_for_local' => 'required|integer',
+                'price_for_expat' => 'required|integer',
                 'image_url' => 'required|string',
                 'category_id' => 'required',
                 'level_id' => 'required',
