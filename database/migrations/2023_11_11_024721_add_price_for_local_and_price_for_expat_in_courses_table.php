@@ -14,8 +14,8 @@ return new class extends Migration
     public function up()
     {
         Schema::table('courses', function (Blueprint $table) {
-            $table->string('price_for_local')->after('period');
-            $table->string('price_for_expat')->after('period');
+            $table->integer('price_for_local')->after('period');
+            $table->integer('price_for_expat')->after('period');
         });
     }
 

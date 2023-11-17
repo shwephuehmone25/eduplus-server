@@ -8,6 +8,7 @@ use App\Models\Allocation;
 use Illuminate\Http\Request;
 use App\Models\TeacherSection;
 use App\Http\Controllers\Controller;
+use App\Models\Classroom;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AllocationController extends Controller
@@ -75,12 +76,15 @@ class AllocationController extends Controller
             if(!$course->ranks()->where('rank_id', $rankId)->exists()){
                 $course->ranks()->attach($rankId);
             }
+
+            if(!$course->classrooms()->where('classroom_id', $classId)->exists()){
+                $course->classrooms()->attach($classId);
+            }
         }
 
             if ($teacher && $teacher->meeting)
             {
                 $meetingId = $teacher->meeting->id;
-                // $allocation->meeting_id = $meetingId;
                 $allocation->meetings()->attach($meetingId);
             }
 
@@ -107,14 +111,16 @@ class AllocationController extends Controller
      */
     public function update(Request $request, $id)
     {
-            $request->validate([
-                'course_id' => 'required',
-                'rank_id' => 'required',
-                'section_id' => 'required',
-                'teacher_id' => 'required',
-            ]);
+        $request->validate([
+            'course_id' => 'required|exists:courses,id',
+            'rank_id' => 'required|exists:ranks,id',
+            'section_id' => 'required|exists:sections,id',
+            'teacher_id' => 'required|exists:teachers,id',
+            'classroom_id' => 'required|exists:classrooms,id',
+            'course_type'   => 'required'
+        ]);
 
-            $allocation = Allocation::find($id);
+        $allocation = Allocation::find($id);
 
         if (!$allocation) {
             return response()->json(['error' => 'Allocation not found', 'status' => 404]);
@@ -124,6 +130,8 @@ class AllocationController extends Controller
         $sectionId = $request->input('section_id');
         $courseId = $request->input('course_id');
         $rankId = $request->input('rank_id');
+        $classId   = $request->input('classroom_id');
+        $course_type = $request->input('course_type');
 
         $teacher = Teacher::find($teacherId);
         $course = Course::find($courseId);
@@ -137,6 +145,10 @@ class AllocationController extends Controller
             $course->sections()->sync($sectionId);
 
             $course->ranks()->sync($rankId);
+        }
+
+        if(!$course->classrooms()->where('classroom_id', $classId)->exists()){
+            $course->classrooms()->attach($classId);
         }
 
         if ($teacher && $teacher->meeting) {

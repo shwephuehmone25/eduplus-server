@@ -26,6 +26,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Http\Middleware\CheckRole;
 use App\Models\Image;
 use App\Models\Rank;
+use App\Models\Section;
 use Illuminate\Support\Facades\Storage;
 use League\Flysystem\AwsS3V3\PortableVisibilityConverter;
 
@@ -95,22 +96,21 @@ class CourseController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function showCourseDetails($id)
+    public function showCourseDetails($id, $course_type)
     {
 
         $course = Course::with([
             'categories',
             'levels',
-            'sections',
-            'allocations',
-            'allocations.teacher'
+            'classrooms',
+            'allocations.meetings'
         ])->find($id);
 
         if (!$course) {
             return response()->json(['error' => 'Course not found', 'status' => 404]);
         }
 
-        $course['teachers'] = [];
+        // $course['teachers'] = [];
 
         $modules = Rank::all();
 
@@ -124,13 +124,22 @@ class CourseController extends Controller
             return $module;
         });
 
-        foreach ($course->allocations as $allocation) {
-            if ($allocation->teacher) {
-                $course['teachers'] = $allocation->teacher;
+        $filteredAllocations = $course->allocations
+        ->where('course_id', $id)
+        ->where('course_type', $course_type)
+        ->values();
+
+        foreach ($filteredAllocations as $filteredAllocation) {
+            if ($filteredAllocation->teacher) {
+                $filteredAllocation->teacher;
+                $filteredAllocation->meeting;
+                $filteredAllocation->classroom;
             }
         }
 
+        $course['sections'] = Section::all();
         $course['modules'] = $modules;
+        $course['filteredAllocations'] = $filteredAllocations;
 
         return response()->json(['data' => $course]);
     }
