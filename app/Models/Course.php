@@ -6,7 +6,6 @@ use App\Models\User;
 use App\Models\Image;
 use App\Models\Level;
 use App\Models\Rank;
-use App\Models\Like;
 use App\Models\Policy;
 use App\Models\Meeting;
 use App\Models\Teacher;
@@ -17,12 +16,10 @@ use App\Models\Subcategory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use App\Contracts\Likeable;
-use App\Models\Concerns\Likes;
 
-class Course extends Model implements Likeable
+class Course extends Model 
 {
-    use HasFactory, SoftDeletes, Likes;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = ['course_name', 'description', 'period', 'image_url', 'price_for_local', 'price_for_expat', 'start_date', 'end_date'];
 
@@ -89,12 +86,6 @@ class Course extends Model implements Likeable
     {
 
         return $this->hasOne(Policy::class);
-    }
-
-    public function likedCourses(): MorphMany
-    {
-
-        return $this->morphMany(Like::class, 'likeable');
     }
 
     public function ranks()

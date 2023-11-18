@@ -36,8 +36,8 @@ class LikeRequest extends FormRequest
         $likeableId = $this->input('likeable_id');
 
         switch ($likeableType) {
-            case 'App\Models\Course':
-                return \App\Models\Course::find($likeableId);
+            case 'App\Models\Allocation':
+                return \App\Models\Allocation::find($likeableId);
                 break;
             default:
                 break;

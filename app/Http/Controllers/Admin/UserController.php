@@ -325,7 +325,8 @@ class UserController extends Controller
         ]);
     }
 
-    public function restrict(Request $request, $id){
+    public function restrict(Request $request, $id)
+    {
         $user = User::findOrFail($id);
 
         if(!$user){
@@ -337,7 +338,8 @@ class UserController extends Controller
         return response()->json(['message' => 'User status updated successfully!', 'status' => 200]);
     }
 
-    public function deleteUser($id){
+    public function deleteUser($id)
+    {
         $user = User::findOrFail($id);
 
         if(!$user){

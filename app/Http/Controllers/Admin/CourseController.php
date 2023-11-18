@@ -596,22 +596,23 @@ class CourseController extends Controller
     {
         $user = User::find($userId);
 
-    if (!$user) {
+        if (!$user) 
+        {
 
-        return response()->json(['message' => 'User not found', 'status' => 404]);
-    }
+            return response()->json(['message' => 'User not found', 'status' => 404]);
+        }
 
-    $likedCourses = $user->likes()
-        ->where('likeable_type', 'App\Models\Course')
-        ->with('likeable')
-        ->get()
-        ->pluck('likeable');
+        $likedCourses = $user->likes()
+            ->where('likeable_type', 'App\Models\Allocation')
+            ->with('likeable')
+            ->get()
+            ->pluck('likeable');
 
-        if ($likedCourses->isEmpty()) {
+            if ($likedCourses->isEmpty()) {
 
-        return response()->json(['message' => 'No liked courses found', 'status' => 204]);
-    }
+            return response()->json(['message' => 'No liked courses found', 'status' => 204]);
+        }
 
-    return response()->json(['liked_courses' => $likedCourses, 'status' => 200]);
+        return response()->json(['liked_courses' => $likedCourses, 'status' => 200]);
     }
 }

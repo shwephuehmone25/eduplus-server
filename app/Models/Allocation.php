@@ -10,11 +10,14 @@ use App\Models\Classroom;
 use App\Models\Course;
 use App\Models\Teacher;
 use App\Models\Rank;
+use App\Models\Like;
 use App\Models\Section;
+use App\Contracts\Likeable;
+use App\Models\Concerns\Likes;
 
-class Allocation extends Model
+class Allocation extends Model implements Likeable
 {
-    use HasFactory;
+    use HasFactory, Likes;
 
     protected $fillable = ['course_id', 'rank_id', 'section_id', 'teacher_id', 'classroom_id', 'course_type'];
 
@@ -59,4 +62,11 @@ class Allocation extends Model
 
         return $this->belongsTo(Classroom::class);
     }
+
+    public function likedCourses(): MorphMany
+    {
+
+        return $this->morphMany(Like::class, 'likeable');
+    }
+
 }
