@@ -7,7 +7,7 @@ use App\Http\Middleware\IsSuperAdmin;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\LikeController;
+use App\Http\Controllers\User\LikeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\ClassController;
 use App\Http\Controllers\Admin\LevelController;
@@ -91,13 +91,13 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/courses/enroll/{courseId}', [CourseController::class, 'enroll']);
     Route::get('/get/purchasedCourses/{categoryName}', [CourseController::class, 'getPurchasedCoursesByCategory']);
     Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
-    Route::post('/like', [LikeController::class, 'like']);
-    Route::post('/unlike', [LikeController::class,'unlike']);
     Route::post('/changePassword/{user}', [UserController::class, 'changePassword']);
     Route::post('/newPhoneNumber/{userId}', [UserController::class, 'changePhoneNumber']);
     Route::get('/test/{grade_id}',[PlacementTestController::class, 'getQuestionsByGrades']);
     Route::post('test',[PlacementTestController::class, 'store']);
     Route::get('/myresult/get/{resultId}', [ResultController::class, 'show']);
+    Route::post('like', [LikeController::class,'like']);
+    Route::delete('like', [LikeController::class,'unlike']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);

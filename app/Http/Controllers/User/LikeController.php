@@ -1,19 +1,28 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\User;
 
 use App\Http\Requests\LikeRequest;
 use App\Http\Requests\UnlikeRequest;
 
 class LikeController extends Controller
 {
-    public function like(LikeRequest $request)
+    public function like(LikeRequest $request): JsonResponse
     {
-        $request->user()->like($request->likeable());
+        $userId = $request->input('user_id');
+        $courseId = $request->input('course_id');
+
+        auth()->loginUsingId($userId); 
+
+        $course = $request->likeable();
+
+        auth()->user()->like($course);
 
         return response()->json([
-            'likes' => $request->likeable()->likes()->count(),
-            'message' => 'Add to wishlists successfully',
+            'user_id' => $userId,
+            'course_id' => $courseId,
+            'likes' => $course->likes()->count(),
+            'message' => 'Liked course successfully',
             'status' => 200
         ]);
     }
