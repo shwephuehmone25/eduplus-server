@@ -55,8 +55,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 /*User Routes*/
 Route::post('/phone/register', [AuthController::class, 'getStart']);
-Route::post('/otp/verify/{userId}', [AuthController::class, 'verify']);
-Route::post('/user/create/{userId}', [AuthController::class, 'createUser']);
+Route::post('/otp/verify/{phoneId}', [AuthController::class, 'verify']);
+Route::post('/user/create/{phoneId}', [AuthController::class, 'createUser']);
 
 Route::post('/student/login', [LoginController::class, 'loginAsStudent'])->middleware('checkUserStatus');
 Route::post('/user/uploadProfile', [UserController::class, 'uploadProfile']);

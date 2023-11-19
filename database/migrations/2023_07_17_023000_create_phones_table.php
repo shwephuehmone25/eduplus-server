@@ -13,8 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->boolean('status')->default(1)->after('password')->comment('0 for restricted, 1 for active');
+        Schema::create('phones', function (Blueprint $table) {
+            $table->id();
+            $table->string('phone_number');
+            $table->enum('phone_status', ['invalidate', 'verified'])->default('invalidate');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('users', function (Blueprint $table) {
-            $table->dropColumn('status');
-        });
+        Schema::dropIfExists('phones');
     }
 };
