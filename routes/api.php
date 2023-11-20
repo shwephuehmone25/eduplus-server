@@ -31,7 +31,7 @@ use App\Http\Controllers\Admin\TypeController;
 use App\Http\Controllers\Admin\OptionController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\User\PlacementTestController;
-use App\Http\Controllers\User\WhislistController;
+use App\Http\Controllers\User\WishlistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -91,7 +91,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
     Route::post('/courses/enroll/{courseId}', [CourseController::class, 'enroll']);
     Route::get('/get/purchasedCourses/{categoryName}', [CourseController::class, 'getPurchasedCoursesByCategory']);
-    Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
+    // Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
     Route::post('/changePassword/{user}', [UserController::class, 'changePassword']);
     Route::post('/newPhoneNumber/{userId}', [UserController::class, 'changePhoneNumber']);
     Route::get('/test/{grade_id}',[PlacementTestController::class, 'getQuestionsByGrades']);
@@ -100,6 +100,9 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('like', [LikeController::class,'like']);
     Route::delete('unlike', [LikeController::class,'unlike']);
     Route::post('course/addToWishlist', [WishlistController::class, 'addToWishlist']);
+    Route::post('course/removeFromWishlist', [WishlistController::class, 'removeFromWishlist']);
+    Route::get('/getAllWishlists/{userId}',[WishlistController::class,'getAllWishlists']);
+    Route::get('/get/wishlist/{userId}',[WishlistController::class,'getWishlist']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);

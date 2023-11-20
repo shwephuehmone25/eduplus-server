@@ -12,6 +12,7 @@ use App\Models\Category;
 use App\Models\Teacher;
 use App\Models\Rank;
 use App\Models\Like;
+use App\Models\Wishlist;
 use App\Models\Section;
 use App\Contracts\Likeable;
 use App\Models\Concerns\Likes;
@@ -76,5 +77,10 @@ class Allocation extends Model implements Likeable
     public function categories()
     {
         return $this->belongsToMany(Category::class, 'courses_categories', 'course_id', 'category_id');
+    }
+
+    public function wishlist()
+    {
+        return $this->belongsToMany(User::class, 'wishlists', 'allocation_id', 'user_id');
     }
 }
