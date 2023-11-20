@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Meeting;
 use App\Models\Classroom;
 use App\Models\Course;
+use App\Models\Category;
 use App\Models\Teacher;
 use App\Models\Rank;
 use App\Models\Like;
@@ -18,6 +19,9 @@ use App\Models\Concerns\Likes;
 class Allocation extends Model implements Likeable
 {
     use HasFactory, Likes;
+
+    protected $table = 'allocations';
+    protected $primaryKey = 'id';
 
     protected $fillable = ['course_id', 'rank_id', 'section_id', 'teacher_id', 'classroom_id', 'course_type'];
 
@@ -69,4 +73,8 @@ class Allocation extends Model implements Likeable
         return $this->morphMany(Like::class, 'likeable');
     }
 
+    public function categories()
+    {
+        return $this->belongsToMany(Category::class, 'courses_categories', 'course_id', 'category_id');
+    }
 }

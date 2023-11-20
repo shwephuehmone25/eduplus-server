@@ -85,7 +85,7 @@ Route::get('/options', [OptionController::class, 'index']);
 /**Common Routes*/
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('/courses', [CourseController::class, 'index']);
-    Route::get('/courses/purchase/{allocationId}', [CourseController::class, 'buyCourses']);
+    Route::get('/purchase/course/{allocationId}', [CourseController::class, 'buyCourses']);
     Route::get('/mycourses/show/{id}', [CourseController::class, 'getMyCourse']);
     Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
     Route::post('/courses/enroll/{courseId}', [CourseController::class, 'enroll']);
@@ -97,7 +97,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('test',[PlacementTestController::class, 'store']);
     Route::get('/myresult/get/{resultId}', [ResultController::class, 'show']);
     Route::post('like', [LikeController::class,'like']);
-    Route::delete('like', [LikeController::class,'unlike']);
+    Route::delete('unlike', [LikeController::class,'unlike']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);

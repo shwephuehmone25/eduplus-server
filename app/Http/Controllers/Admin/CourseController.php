@@ -604,14 +604,20 @@ class CourseController extends Controller
 
         $likedCourses = $user->likes()
             ->where('likeable_type', 'App\Models\Allocation')
-            ->with('likeable')
+            ->with('likeable.course', 'likeable.categories:id,name')
             ->get()
             ->pluck('likeable');
 
-            if ($likedCourses->isEmpty()) {
+            if ($likedCourses->isEmpty()) 
+            {
 
             return response()->json(['message' => 'No liked courses found', 'status' => 204]);
-        }
+            }
+
+            $categoryIds = $likedCourses->flatMap(function ($course) 
+            {
+                return $course->categories->pluck('name');
+            });
 
         return response()->json(['liked_courses' => $likedCourses, 'status' => 200]);
     }

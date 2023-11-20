@@ -28,12 +28,24 @@ class LikeController extends Controller
 
     public function unlike(UnlikeRequest $like)
     {
-        $like->user()->unlike($like->likeable());
+        $allocation_id = $request->input('allocation_id');
 
-        return response()->json([
-            'likes' => $like->likeable()->likes()->count(),
-            'message' => 'Remove from wishlists successfully',
-        ]);
+   
+        $like = Like::where('allocation_id', $allocation_id)->first();
+
+        if ($like) 
+        {
+            $like->user()->unlike($like->likeable());
+
+            return response()->json([
+                'likes' => $like->likeable()->likes()->count(),
+                'message' => 'Remove from wishlists successfully',
+            ]);
+        } else {
+            return response()->json([
+                'message' => 'Like not found.', 
+                'status' => 404]);
+        }
     }
 }
 
