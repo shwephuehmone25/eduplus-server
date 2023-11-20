@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\TypeController;
 use App\Http\Controllers\Admin\OptionController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\User\PlacementTestController;
+use App\Http\Controllers\User\WhislistController;
 
 /*
 |--------------------------------------------------------------------------
@@ -98,6 +99,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/myresult/get/{resultId}', [ResultController::class, 'show']);
     Route::post('like', [LikeController::class,'like']);
     Route::delete('unlike', [LikeController::class,'unlike']);
+    Route::post('course/addToWishlist', [WishlistController::class, 'addToWishlist']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);
