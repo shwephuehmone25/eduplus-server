@@ -18,6 +18,11 @@ return new class extends Migration
             $table->string('course_name');
             $table->text('description');
             $table->string('period');
+            $table->date('start_date')->nullable();
+            $table->date('end_date')->nullable();
+            $table->integer('price_for_local');
+            $table->integer('price_for_expat');
+            $table->string('image_url');
             $table->timestamps();
             $table->softDeletes();
         });

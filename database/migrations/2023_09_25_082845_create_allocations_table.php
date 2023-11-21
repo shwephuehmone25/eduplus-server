@@ -19,6 +19,9 @@ return new class extends Migration
             $table->foreignId('rank_id')->constrained()->onDelete('cascade');
             $table->foreignId('section_id')->constrained()->onDelete('cascade');
             $table->foreignId('teacher_id')->constrained()->onDelete('cascade');
+            $table->integer('capacity')->default(1);
+            $table->enum('course_type', ['local', 'expat']);
+            $table->foreignId('classroom_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });
     }
