@@ -9,7 +9,7 @@ class Wishlist extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'allocation_id'];
+    protected $fillable = ['user_id', 'course_id'];
 
     public function user()
     {
@@ -19,5 +19,10 @@ class Wishlist extends Model
     public function allocation()
     {
         return $this->belongsTo(Allocation::class);
+    }
+
+    public function course()
+    {
+        return $this->belongsTo(Course::class);
     }
 }

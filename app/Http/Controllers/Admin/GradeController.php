@@ -15,7 +15,7 @@ class GradeController extends Controller
      */
     public function index()
     {
-        $grades = Grade::all();
+        $grades = Grade::with('schools')->get();
 
         return response()->json(['data' => $grades]);
     }

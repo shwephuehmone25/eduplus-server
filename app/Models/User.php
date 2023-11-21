@@ -213,6 +213,6 @@ class User extends Authenticatable
 
     public function wishlist()
     {
-        return $this->belongsToMany(Allocation::class, 'wishlists', 'user_id', 'allocation_id');
+        return $this->hasMany(Wishlist::class);
     }
 }

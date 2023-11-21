@@ -12,6 +12,7 @@ use App\Models\Teacher;
 use App\Models\Category;
 use App\Models\Classroom;
 use App\Models\Enrollment;
+use App\Models\Wishlist;
 use App\Models\Subcategory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
@@ -104,5 +105,10 @@ class Course extends Model
     {
 
         return $this->morphMany(Image::class, 'imageable');
+    }
+
+    public function wishlists()
+    {
+        return $this->hasMany(Wishlist::class);
     }
 }

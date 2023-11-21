@@ -10,18 +10,18 @@ class WishlistController extends Controller
     public function addToWishlist(Request $request)
     {
         $request->validate([
-            'allocation_id' => 'required|exists:allocations,id',
+            'course_id' => 'required|exists:courses,id',
         ]);
     
         $user = auth()->user();
-        $allocationId = $request->input('allocation_id');
+        $courseId = $request->input('course_id');
     
-        if ($user->wishlist()->where('allocation_id', $allocationId)->exists()) 
+        if ($user->wishlist()->where('course_id', $courseId)->exists()) 
         {
             return response()->json(['message' => 'Item is already in the wishlist']);
         }
     
-        $user->wishlist()->attach($allocationId);
+        $user->wishlist()->create(['course_id' => $courseId]);
     
         return response()->json(['message' => 'Item added to wishlist']);
     }
@@ -29,18 +29,18 @@ class WishlistController extends Controller
     public function removeFromWishlist(Request $request)
     {
         $request->validate([
-            'allocation_id' => 'required|exists:allocations,id',
+            'course_id' => 'required|exists:courses,id',
         ]);
-
+    
         $user = auth()->user();
-        $allocationId = $request->input('allocation_id');
-
-        $wishlistItem = $user->wishlist()->where('allocation_id', $allocationId)->first();
-
+        $courseId = $request->input('course_id');
+    
+        $wishlistItem = $user->wishlist()->where('course_id', $courseId)->first();
+    
         if ($wishlistItem)
-         {
-            $user->wishlist()->detach($allocationId);
-
+        {
+            $wishlistItem->delete(); 
+    
             return response()->json(['message' => 'Item removed from wishlist']);
         } else {
             return response()->json(['message' => 'Item not found in the wishlist']);
@@ -67,7 +67,7 @@ class WishlistController extends Controller
     {
         $user = auth()->user();
 
-        $wishlistItems = $user->wishlist()->with('course.categories')->get();
+        $wishlistItems = $user->wishlist()->with('course.allocations', 'course.categories')->get();
 
         return response()->json(['wishlists' => $wishlistItems]);
     }
