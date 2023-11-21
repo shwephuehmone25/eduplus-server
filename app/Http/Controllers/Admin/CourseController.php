@@ -74,7 +74,7 @@ class CourseController extends Controller
         $category = Category::where('name', $categoryName)->first();
 
         if (!$category) {
-            return response()->json(['error' => 'Category not found', 'staus' => 404]);
+            return response()->json(['error' => 'Category not found', 'status' => 404]);
         }
 
         // $courses = $category->courses()

@@ -23,8 +23,11 @@ class WishlistController extends Controller
     
         $user->wishlist()->create(['course_id' => $courseId]);
     
-        return response()->json(['message' => 'Item added to wishlist']);
-    }
+        return response()->json([
+            'message' => 'Item added to wishlist',
+            'status' => 200
+    ]);
+}
 
     public function removeFromWishlist(Request $request)
     {
@@ -41,9 +44,15 @@ class WishlistController extends Controller
         {
             $wishlistItem->delete(); 
     
-            return response()->json(['message' => 'Item removed from wishlist']);
+            return response()->json([
+                'message' => 'Item removed from wishlist',
+                'status' => 200
+            ]);
         } else {
-            return response()->json(['message' => 'Item not found in the wishlist']);
+            return response()->json([
+                'message' => 'Item not found in the wishlist',
+                'status' => 404
+            ]);
         }
     }
 
