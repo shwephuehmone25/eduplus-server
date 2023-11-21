@@ -116,6 +116,8 @@ class CourseController extends Controller
         $modules = Rank::all();
         $course['sections'] = Section::all();
 
+        $course->period = is_numeric($course->period) ? $course->period / 2 : null;
+        
         $prices = $modules->map(function ($module) use ($course) {
             $localPrice = is_numeric($course->price_for_local) ? number_format(intval($course->price_for_local) / 2) : null;
             $expatPrice = is_numeric($course->price_for_expat) ? number_format(intval($course->price_for_expat) / 2) : null;
@@ -123,6 +125,7 @@ class CourseController extends Controller
                 'local_price' => $localPrice,
                 'expat_price' => $expatPrice,
             ];
+            
             return $module;
         });
 
