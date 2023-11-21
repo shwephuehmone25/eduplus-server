@@ -93,8 +93,9 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
     Route::post('/like', [LikeController::class, 'like']);
     Route::post('/unlike', [LikeController::class,'unlike']);
-    Route::post('/changePassword/{user}', [UserController::class, 'changePassword']);
-    Route::post('/newPhoneNumber/{userId}', [UserController::class, 'changePhoneNumber']);
+    Route::post('/changePassword/{userId}', [UserController::class, 'changePassword']);
+    Route::post('/verifyCurrentPhone/{userId}', [UserController::class, 'verifyCurrentPhone']);
+    Route::post('/updatePhone/{userId}', [UserController::class, 'updatePhone']);
     Route::get('/test/{grade_id}',[PlacementTestController::class, 'getQuestionsByGrades']);
     Route::post('test',[PlacementTestController::class, 'store']);
     Route::get('/myresult/get/{resultId}', [ResultController::class, 'show']);

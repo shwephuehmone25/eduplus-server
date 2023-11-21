@@ -2,17 +2,19 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use Carbon\Carbon;
 use App\Models\Otp;
 use App\Models\User;
-use Illuminate\Http\Request;
+use App\Models\Image;
+use App\Models\Phone;
 use App\Models\Category;
+use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\AccountVerification;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Image;
-use Illuminate\Support\Facades\Storage;
 
 class UserController extends Controller
 {
@@ -47,7 +49,7 @@ class UserController extends Controller
      */
     public function getAllUsers()
     {
-        $users = User::where('isVerified', 1)->with('images')->get();
+        $users = User::all();
 
         return response()->json(['data' => $users, 'status' => 200]);
     }
@@ -203,30 +205,39 @@ class UserController extends Controller
             ]);
         }
 
-        $user = User::where('phone_number', $request->input('phone_number'))->first();
+        $phone = Phone::where('phone_number', $request->input('phone_number'))->first();
 
-        if(!$user)
+        if(!$phone)
         {
-            return response()->json(['message' => 'User not found!', 'status' => 404]);
+            return response()->json(['message' => 'Phone number is incorrect!', 'status' => 404]);
         }
 
-        $user_id = $user->id;
+        if ($phone->user && $phone->phone_status === 'verified') {
+            $phone->update([
+                'phone_number' => $request->input('phone_number'),
+                'phone_status' => 'invalidate'
+            ]);
+        } 
+
+        $phone_id = $phone->id;
 
         $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
         Otp::create([
             'otp' => $otp,
-            'user_id' => $user_id,
+            'phone_id' => $phone_id,
+            'expired_at' => Carbon::now()->addSeconds(600)
         ]);
 
-        if ($user)
+        if ($phone)
         {
-            $user->notify(new AccountVerification($otp));
+            $phone->notify(new AccountVerification($otp));
         }
 
         return response()->json([
             'message' => 'OTP sent successfully!',
-            'user_id' => $user_id,
+            'phone_id' => $phone_id,
+            'user_id'  => $phone->user->id,
             'status' => 200
         ]);
     }
@@ -290,12 +301,11 @@ class UserController extends Controller
      * @param  int $id The user's ID
      * @return \Illuminate\Http\Response
      */
-    public function changePhoneNumber(Request $request, $id)
-    {
+    public function verifyCurrentPhone(Request $request, $id){
         $user = User::find($id);
 
         $validator = Validator::make($request->all(), [
-            'new_phone_number' => ['required', 'numeric', 'unique:users,phone_number'],
+            'current_phone' => ['required', 'numeric'],
         ]);
 
         if ($validator->fails()) {
@@ -305,25 +315,78 @@ class UserController extends Controller
             ]);
         }
 
-        $user->update(['phone_number' => $request->input('new_phone_number')]);
+        $current_phone = Phone::where('phone_number', $request->input('current_phone'))->first();
 
-        $user_id = $user->id;
+        if(!$current_phone)
+        {
+            return response()->json(['message' => 'Current Phone number is incorrect!', 'status' => 404]);
+        }
+
+        if ($current_phone->id == $user->phone_id) {
+            $current_phone->update([
+                'phone_number' => $current_phone,
+                'phone_status' => 'invalidate'
+            ]);
+        } 
+
+        $phone_id = $current_phone->id;
+
         $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
+
         Otp::create([
             'otp' => $otp,
-            'user_id' => $user_id,
+            'phone_id' => $phone_id,
+            'expired_at' => Carbon::now()->addSeconds(600)
         ]);
 
-        if ($user) {
-            $user->notify(new AccountVerification($otp));
+        if ($current_phone)
+        {
+            $current_phone->notify(new AccountVerification($otp));
         }
 
         return response()->json([
             'message' => 'OTP sent successfully!',
-            'user_id' => $user_id,
+            'phone_id' => $phone_id,
             'status' => 200
         ]);
     }
+
+    public function updatePhone(Request $request, $id) {
+        $phoneId = $request->input('phone_id');
+        
+        $user = User::find($id);
+        $phone = Phone::find($phoneId);
+    
+        if (!$phone) {
+            return response()->json([
+                'message' => 'Phone number not found',
+                'status'  => 404
+            ]);
+        }
+    
+        $validator = Validator::make($request->all(), [
+            'phone_number' => ['required', 'numeric'],
+        ]);
+    
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => $validator->errors(),
+                'status' => 422
+            ]);
+        }
+    
+        if ($phone->phone_status === 'verified') {
+            $user->phone_id = $phone->id;
+            $user->save();
+    
+            return response()->json([
+                'message' => 'Phone number updated successfully!',
+                'user'    => $user,
+                'status'  => 200
+            ]);
+        }
+    }    
+    
 
     public function restrict(Request $request, $id){
         $user = User::findOrFail($id);
