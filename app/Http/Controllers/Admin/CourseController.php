@@ -472,37 +472,43 @@ class CourseController extends Controller
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getMyCourse($courseId)
+    public function getMyCourses($userId)
     {
-        $user = auth()->user();
+        $user = User::find($userId);
 
-        $purchasedCourse = StudentModule::where('user_id', $user->id)
-            ->where('course_id', $courseId)
-            ->first();
-
-        if (!$purchasedCourse) {
+        if (!$user) {
             return response()->json([
-                'message' => 'Purchased course not found for the authenticated user and course',
+                'message' => 'User not found',
                 'status' => 404,
             ]);
         }
 
-        $course = Course::find($purchasedCourse->course_id);
-        $allocation = Allocation::where('course_id', $course->id)->first();
+        $purchasedCourses = StudentModule::where('user_id', $user->id)->get();
 
-        if (!$course || !$allocation) {
+        if ($purchasedCourses->isEmpty()) {
             return response()->json([
-                'message' => 'Course details or allocation not found',
+                'message' => 'No purchased courses found for the authenticated user',
                 'status' => 404,
             ]);
+        }
+
+        $courseDetails = [];
+
+        foreach ($purchasedCourses as $purchasedCourse) {
+            $course = Course::find($purchasedCourse->course_id);
+            $allocation = Allocation::where('course_id', $course->id)->first();
+
+            if ($course && $allocation) {
+                $courseDetails[] = [
+                    'course' => $course,
+                    'allocation' => $allocation,
+                ];
+            }
         }
 
         return response()->json([
             'message' => 'My Course Details',
-            'data' => [
-                'course' => $course,
-                'allocation' => $allocation,
-            ],
+            'data' => $courseDetails,
             'status' => 200,
         ]);
     }

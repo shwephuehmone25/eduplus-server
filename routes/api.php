@@ -88,7 +88,7 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('/courses', [CourseController::class, 'index']);
     Route::get('/purchase/course/{allocationId}', [CourseController::class, 'buyCourses']);
-    Route::get('/mycourses/show/{courseId}', [CourseController::class, 'getMyCourse']);
+    Route::get('/mycourses/show/{courseId}', [CourseController::class, 'getMyCourses']);
     Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
     Route::post('/courses/enroll/{courseId}', [CourseController::class, 'enroll']);
     Route::get('/get/purchasedCourses/{categoryName}', [CourseController::class, 'getPurchasedCoursesByCategory']);
