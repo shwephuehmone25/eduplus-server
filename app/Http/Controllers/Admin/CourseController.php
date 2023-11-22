@@ -476,7 +476,7 @@ class CourseController extends Controller
     {
         $user = User::findOrFail($userId);
 
-        $myCourses = $user->allocations()->with('section', 'course', 'rank', 'teacher', 'meetings', 'classroom')->get();
+        $myCourses = $user->allocations()->with('section', 'course', 'rank', 'teacher', 'meetings', 'classroom', 'categories')->get();
 
         if (!$myCourses) {
             return response()->json([
