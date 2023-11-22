@@ -474,42 +474,21 @@ class CourseController extends Controller
      */
     public function getMyCourses($userId)
     {
-        $user = User::find($userId);
+        $user = User::findOrFail($userId);
 
-        if (!$user) {
+        $myCourses = $user->allocations()->with('section', 'course', 'rank', 'teacher', 'meetings', 'classroom')->get();
+
+        if (!$myCourses) {
             return response()->json([
-                'message' => 'User not found',
+                'message' => 'Course not found',
                 'status' => 404,
-            ]);
-        }
-
-        $purchasedCourses = StudentModule::where('user_id', $user->id)->get();
-
-        if ($purchasedCourses->isEmpty()) {
-            return response()->json([
-                'message' => 'No purchased courses found for the authenticated user',
-                'status' => 404,
-            ]);
-        }
-
-        $courseDetails = [];
-
-        foreach ($purchasedCourses as $purchasedCourse) {
-            $course = Course::find($purchasedCourse->course_id);
-            $allocation = Allocation::where('course_id', $course->id)->first();
-
-            if ($course && $allocation) {
-                $courseDetails[] = [
-                    'course' => $course,
-                    'allocation' => $allocation,
-                ];
-            }
+            ] );
         }
 
         return response()->json([
-            'message' => 'My Course Details',
-            'data' => $courseDetails,
-            'status' => 200,
+            'message' => 'Your Purchased Courses are',
+            'data' => $myCourses,
+            'status' => 200
         ]);
     }
 
