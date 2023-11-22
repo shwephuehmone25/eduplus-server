@@ -472,23 +472,38 @@ class CourseController extends Controller
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getMyCourse($userId)
+    public function getMyCourse($courseId)
     {
-        $user = User::findOrFail($userId);
+        $user = auth()->user();
 
-        $myCourse = $user->allocations()->with('section', 'course', 'rank', 'teacher', 'meetings')->get();
+        $purchasedCourse = StudentModule::where('user_id', $user->id)
+            ->where('course_id', $courseId)
+            ->first();
 
-        if (!$myCourse) {
+        if (!$purchasedCourse) {
             return response()->json([
-                'message' => 'Course not found',
+                'message' => 'Purchased course not found for the authenticated user and course',
                 'status' => 404,
-            ] );
+            ]);
+        }
+
+        $course = Course::find($purchasedCourse->course_id);
+        $allocation = Allocation::where('course_id', $course->id)->first();
+
+        if (!$course || !$allocation) {
+            return response()->json([
+                'message' => 'Course details or allocation not found',
+                'status' => 404,
+            ]);
         }
 
         return response()->json([
-            'message' => 'Your Purchased Courses are',
-            'data' => $myCourse,
-            'status' => 200
+            'message' => 'My Course Details',
+            'data' => [
+                'course' => $course,
+                'allocation' => $allocation,
+            ],
+            'status' => 200,
         ]);
     }
 
@@ -509,16 +524,20 @@ class CourseController extends Controller
 
         $studentId = auth()->user()->id;
 
-        $purchasedCourses = StudentCourse::where('user_id', $studentId)
+        $purchasedCourses = StudentModule::where('user_id', $studentId)
             ->whereIn('course_id', $category->courses->pluck('id'))
             ->get();
 
-            $courseDetails = [];
+        $courseDetails = [];
 
             foreach ($purchasedCourses as $purchasedCourse) {
                 $course = Course::find($purchasedCourse->course_id);
                 if ($course) {
-                    $courseDetails[] = $course;
+                    $allocation = Allocation::where('course_id', $course->id)->first();
+                    $courseDetails[] = [
+                        'course' => $course,
+                        'allocation' => $allocation,
+                    ];
                 }
             }
 
@@ -533,30 +552,43 @@ class CourseController extends Controller
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getPurchasedCoursesDetails($userId, $allocation_id)
+    public function getPurchasedCoursesDetails($userId, $categoryId)
     {
         $user = User::findOrFail($userId);
+        
+        $category = Category::findOrFail($categoryId);
 
-        $purchasedCourse = $user->allocations()
-            ->with('meetings')
-            ->where('allocations.id', $allocation_id)
-            ->first();
+        $purchasedCourses = StudentModule::where('user_id', $user->id)
+            ->whereIn('course_id', $category->courses->pluck('id'))
+            ->get();
 
-        if (!$purchasedCourse)
-        {
+        $courseDetails = [];
+
+        foreach ($purchasedCourses as $purchasedCourse) {
+            $course = Course::find($purchasedCourse->course_id);
+            $allocation = Allocation::where('course_id', $course->id)->first();
+
+            if ($course && $allocation) {
+                $courseDetails[] = [
+                    'course' => $course,
+                    'allocation' => $allocation,
+                ];
+            }
+        }
+
+        if (empty($courseDetails)) {
             return response()->json([
-                'message' => 'Course not found in your purchased courses',
+                'message' => 'No purchased courses found for the specified user',
                 'status' => 404,
             ]);
         }
 
         return response()->json([
             'message' => 'Purchased Course Details',
-            'data' => $purchasedCourse,
+            'data' => $courseDetails,
             'status' => 200,
         ]);
     }
-
     /**
      * Restore a single deleted course by ID.
      *

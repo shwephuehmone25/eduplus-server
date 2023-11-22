@@ -65,7 +65,7 @@ Route::get('/user/showProfile/{userId}', [UserController::class, 'showUserDetail
 Route::post('/user/editProfile/{userId}', [UserController::class, 'editProfile']);
 
 Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
-Route::get('/get/{userId}/purchasedcourseDetails/{allocationId}', [CourseController::class, 'getPurchasedCoursesDetails']);
+Route::get('/get/{userId}/purchasedcourseDetails/{categoryId}', [CourseController::class, 'getPurchasedCoursesDetails']);
 Route::get('/courses/{id}/{teacher_type}', [CourseController::class, 'showCourseDetailsWithType']);
 Route::get('/courses/{id}', [CourseController::class, 'showCourseDetails']);
 Route::get('/modules', [RankController::class, 'index']);
@@ -82,12 +82,13 @@ Route::get('/grades', [GradeController::class, 'index']);
 Route::get('/questions', [QuestionController::class, 'index']);
 Route::get('/types', [TypeController::class, 'index']);
 Route::get('/options', [OptionController::class, 'index']);
+Route::get('/categories', [CategoryController::class, 'index']);
 
 /**Common Routes*/
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('/courses', [CourseController::class, 'index']);
     Route::get('/purchase/course/{allocationId}', [CourseController::class, 'buyCourses']);
-    Route::get('/mycourses/show/{id}', [CourseController::class, 'getMyCourse']);
+    Route::get('/mycourses/show/{courseId}', [CourseController::class, 'getMyCourse']);
     Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
     Route::post('/courses/enroll/{courseId}', [CourseController::class, 'enroll']);
     Route::get('/get/purchasedCourses/{categoryName}', [CourseController::class, 'getPurchasedCoursesByCategory']);
@@ -140,7 +141,6 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->grou
     Route::post('upload_image', [CourseController::class, 'imageUpload']);
 
     /**Category Routes*/
-    Route::get('/categories', [CategoryController::class, 'index']);
     Route::get('/category/{id}', [CategoryController::class, 'getCategoryDetails']);
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::post('/categories/{id}', [CategoryController::class, 'update']);
