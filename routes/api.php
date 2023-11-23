@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\OptionController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\User\PlacementTestController;
 use App\Http\Controllers\User\WishlistController;
+use Google\Service\Adsense\Row;
 
 /*
 |--------------------------------------------------------------------------
@@ -80,6 +81,7 @@ Route::get('/totalCourses/count', [CourseController::class, 'countCourses']);
 Route::get('/totalTeachers/count', [CourseController::class, 'countCourses']);
 Route::get('/schools', [SchoolController::class, 'index']);
 Route::get('/grades', [GradeController::class, 'index']);
+Route::get('/school/grades/{schoolId}', [GradeController::class, 'gradeBySchool']);
 Route::get('/questions', [QuestionController::class, 'index']);
 Route::get('/types', [TypeController::class, 'index']);
 Route::get('/options', [OptionController::class, 'index']);

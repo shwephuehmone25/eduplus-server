@@ -17,16 +17,10 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        $randomTypes = Type::inRandomOrder(2)->pluck('id');
+        $data = Question::with('school:id,name', 'grade:id,name', 'type:id,name', 'options')->get();
         
-        $questions = Question::whereIn('type_id', $randomTypes)
-            ->inRandomOrder()
-            ->take(20)
-            ->get();
-        
-        return response()->json([
-            'data' => $questions
-        ]);
+
+        return response()->json(['data' => $data]);
     }
 
     /**
