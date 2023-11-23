@@ -13,12 +13,12 @@ class School extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['grade_id', 'name'];
+    protected $fillable = ['name'];
 
-    public function grades()
+    public function grade()
     {
 
-        return $this->belongsToMany(Grade::class, 'grades_schools', 'school_id', 'grade_id');
+        return $this->hasOne(Grade::class);
     }
 
     public function users()

@@ -16,14 +16,9 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        $randomTypes = Type::inRandomOrder(2)->pluck('id');
+        $data = Question::with('school', 'grade', 'type', 'options')->get();
         
-        $questions = Question::whereIn('type_id', $randomTypes)
-            ->inRandomOrder()
-            ->take(20)
-            ->get();
-        
-        return response()->json($questions);
+        return response()->json(['data' => $data]);
     }
 
     /**

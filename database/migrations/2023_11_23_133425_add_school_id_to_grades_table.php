@@ -13,11 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('grades_schools', function (Blueprint $table) {
-            $table->unsignedBigInteger('school_id');
+        Schema::table('grades', function (Blueprint $table) {
+            $table->unsignedBigInteger('school_id')->after('id');
             $table->foreign('school_id')->references('id')->on('schools')->onDelete('cascade');
-            $table->unsignedBigInteger('grade_id');
-            $table->foreign('grade_id')->references('id')->on('grades')->onDelete('cascade');
         });
     }
 
@@ -28,6 +26,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('gradeschools');
+        Schema::table('grades', function (Blueprint $table) {
+            //
+        });
     }
 };
