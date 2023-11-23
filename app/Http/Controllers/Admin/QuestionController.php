@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Question;
 use App\Models\Option;
+use App\Models\Grade;
 use App\Models\Type;
 class QuestionController extends Controller
 {
@@ -23,7 +24,39 @@ class QuestionController extends Controller
             ->take(20)
             ->get();
         
-        return response()->json($questions);
+        return response()->json([
+            'data' => $questions
+        ]);
+    }
+
+    /**
+     * Display a listing of the question by grade id.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function getQuestionsByGrade(Request $request, $gradeName)
+    {
+        try {
+            $grade = Grade::where('name', $gradeName)->select('id')->firstOrFail();
+
+            $questions = Question::where('grade_id', $grade->id)
+                ->with('options', 'school:id,name', 'type:id,name')
+                ->get();
+
+            $questions = $questions->map(function ($question) use ($grade) {
+                $question['school_id'] = $question->school->id;
+                $question['type_id'] = $question->type->id;
+                $question['options'] = $question->options;
+                return $question;
+            });
+            return response()->json(['data' => $questions]);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) 
+        {
+            return response()->json([
+                'message' => 'Grade not found', 
+                'status' => 404
+            ]);
+        }
     }
 
     /**

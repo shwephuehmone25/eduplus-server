@@ -52,6 +52,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     /*Teacher Routes*/
     Route::get('/teacher/getAssigncourses/{teacher}', [TeacherController::class, 'getAssignCourses']);
     Route::get('/teacher/show', [TeacherController::class, 'showProfile']);
+    Route::put('/ranks/toggle/{teacherId}', [RankController::class, 'toggleIsActive']);
     // });
 
 /*User Routes*/
@@ -130,6 +131,9 @@ Route::get('/questions/getAll', [QuestionController::class, 'index']);
 
 /**common Admin Routes*/
 Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->group(function () {
+
+    /**Question routes*/
+    Route::get('/get/questionsbyGrade/{gradeName}', [QuestionController::class, 'getQuestionsByGrade']);
 
     /**Users Routes*/
     Route::get('/userlists/get', [UserController::class, 'getAllUsers']);
