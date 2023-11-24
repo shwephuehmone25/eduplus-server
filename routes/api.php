@@ -139,6 +139,7 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->grou
 
     /**Users Routes*/
     Route::get('/userlists/get', [UserController::class, 'getAllUsers']);
+    Route::get('/get/userByChart', [UserController::class, 'registrationsChart']);
 
     /**Course Routes*/
     Route::post('/courses', [CourseController::class, 'store']);

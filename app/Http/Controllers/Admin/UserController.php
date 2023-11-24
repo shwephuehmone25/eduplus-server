@@ -13,6 +13,8 @@ use App\Notifications\AccountVerification;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Image;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
 
 class UserController extends Controller
 {
@@ -347,5 +349,15 @@ class UserController extends Controller
         }
 
         $user->delete();
+    }
+
+    public function registrationsChart(): JsonResponse
+    {
+        $users = User::selectRaw('DATE_FORMAT(created_at, "%M") as month, COUNT(*) as count')
+            ->groupBy('month')
+            ->orderByRaw('MIN(MONTH(created_at))') 
+            ->get();
+
+        return response()->json(['data' => $users]);
     }
 }
