@@ -83,10 +83,10 @@ Route::get('/totalTeachers/count', [CourseController::class, 'countCourses']);
 Route::get('/schools', [SchoolController::class, 'index']);
 Route::get('/grades', [GradeController::class, 'index']);
 Route::get('/school/grades/{schoolId}', [GradeController::class, 'gradeBySchool']);
-Route::get('/questions', [QuestionController::class, 'index']);
 Route::get('/types', [TypeController::class, 'index']);
 Route::get('/options', [OptionController::class, 'index']);
 Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/get/questionsbyGrade/{gradeName}', [QuestionController::class, 'getQuestionsByGrade']);
 
 /**Common Routes*/
 Route::middleware('auth:sanctum')->group(function(){
@@ -130,18 +130,15 @@ Route::post('/resetPassword/{user}', [UserController::class, 'resetPassword']);
 
 Route::get('/videos', [ VideoController::class, 'index']);
 
-Route::get('/questions/getAll', [QuestionController::class, 'index']);
-
 /**common Admin Routes*/
 Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->group(function () {
+    /**Question routes*/
+    Route::get('/questions/getAll', [QuestionController::class, 'index']);
 
     /**Admin routes */
     Route::get('/admins', [AdminController::class, 'index']);
     Route::get('/admins/count', [AdminController::class, 'countTotalAdmins']);
     Route::post('/admins/editProfile/{adminId}', [AdminController::class, 'updateProfile']);
-
-    /**Question routes*/
-    Route::get('/get/questionsbyGrade/{gradeName}', [QuestionController::class, 'getQuestionsByGrade']);
 
     /**Users Routes*/
     Route::get('/userlists/get', [UserController::class, 'getAllUsers']);
