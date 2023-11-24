@@ -152,6 +152,7 @@ class AuthController extends Controller
     public function registerAsAdmin(Request $request)
     {
         $validator = Validator::make($request->all(), [
+            'name' => 'required',
             'email' => 'required|email|unique:admins',
             'password' => 'required|string|min:8|confirmed',
             'role' => 'required|in:super_admin,normal_admin',
@@ -165,6 +166,7 @@ class AuthController extends Controller
         $data['password'] = bcrypt($data['password']);
 
         $admin = Admin::create([
+            'name' => $data['name'],
             'email' => $data['email'],
             'password' => $data['password'],
             'role' => $data['role'],

@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\OptionController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\User\PlacementTestController;
 use App\Http\Controllers\User\WishlistController;
+use App\Http\Controllers\Admin\AdminController;
 use Google\Service\Adsense\Row;
 
 /*
@@ -133,6 +134,11 @@ Route::get('/questions/getAll', [QuestionController::class, 'index']);
 
 /**common Admin Routes*/
 Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->group(function () {
+
+    /**Admin routes */
+    Route::get('/admins', [AdminController::class, 'index']);
+    Route::get('/admins/count', [AdminController::class, 'countTotalAdmins']);
+    Route::post('/admins/editProfile/{adminId}', [AdminController::class, 'updateProfile']);
 
     /**Question routes*/
     Route::get('/get/questionsbyGrade/{gradeName}', [QuestionController::class, 'getQuestionsByGrade']);
