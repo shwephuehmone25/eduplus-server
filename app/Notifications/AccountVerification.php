@@ -38,7 +38,7 @@ class AccountVerification extends Notification
 
     public function toSmspoh($notifiable)
     {
-        return (new SmspohMessage)->content("Your Saungpokki verification code is {$this->otp}");
+        return (new SmspohMessage)->content("Your ILBC-Saungpokki verification code is {$this->otp}");
     }
     /**
      * Send text message.

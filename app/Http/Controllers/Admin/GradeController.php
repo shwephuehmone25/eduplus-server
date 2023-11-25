@@ -15,7 +15,14 @@ class GradeController extends Controller
      */
     public function index()
     {
-        $grades = Grade::all();
+        $grades = Grade::with('school')->get();
+
+        return response()->json(['data' => $grades]);
+    }
+
+    public function gradeBySchool($schoolId)
+    {
+        $grades = Grade::where('school_id', $schoolId)->get();
 
         return response()->json(['data' => $grades]);
     }
@@ -36,11 +43,11 @@ class GradeController extends Controller
         // Create a new grade instance
         $grade = new Grade([
             'name' => $data['name'],
+            'school_id' => $data['school_id']
         ]);
 
         $grade->save();
 
-        $grade->schools()->attach($data['school_id']);
 
         return response()->json([
             'message' => 'Grade is created successfully',

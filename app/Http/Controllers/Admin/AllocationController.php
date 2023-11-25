@@ -65,19 +65,29 @@ class AllocationController extends Controller
         }
 
         if ($teacher && $course) {
-            if (!$teacher->sections()->where('section_id', $sectionId)->exists()) {
+
+            if ($teacher->sections()->where('section_id', $sectionId)->exists()) 
+            {
+                return response()->json(['error' => 'Teacher is already assigned to this section! Please choose another section to assign', 'status' => 400]);
+            }
+
+            if (!$teacher->sections()->where('section_id', $sectionId)->exists())
+             {
                 $teacher->sections()->attach($sectionId, ['course_id' => $courseId]);
             }
 
-            if (!$course->sections()->where('section_id', $sectionId)->exists()) {
+            if (!$course->sections()->where('section_id', $sectionId)->exists()) 
+            {
                 $course->sections()->attach($sectionId);
             }
 
-            if(!$course->ranks()->where('rank_id', $rankId)->exists()){
+            if(!$course->ranks()->where('rank_id', $rankId)->exists())
+            {
                 $course->ranks()->attach($rankId);
             }
 
-            if(!$course->classrooms()->where('classroom_id', $classId)->exists()){
+            if(!$course->classrooms()->where('classroom_id', $classId)->exists())
+            {
                 $course->classrooms()->attach($classId);
             }
         }

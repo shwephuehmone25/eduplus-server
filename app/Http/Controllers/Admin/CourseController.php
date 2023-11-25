@@ -74,7 +74,7 @@ class CourseController extends Controller
         $category = Category::where('name', $categoryName)->first();
 
         if (!$category) {
-            return response()->json(['error' => 'Category not found', 'staus' => 404]);
+            return response()->json(['error' => 'Category not found', 'status' => 404]);
         }
 
         // $courses = $category->courses()
@@ -116,6 +116,8 @@ class CourseController extends Controller
         $modules = Rank::all();
         $course['sections'] = Section::all();
 
+        $course->period = is_numeric($course->period) ? $course->period / 2 : null;
+        
         $prices = $modules->map(function ($module) use ($course) {
             $localPrice = is_numeric($course->price_for_local) ? number_format(intval($course->price_for_local) / 2) : null;
             $expatPrice = is_numeric($course->price_for_expat) ? number_format(intval($course->price_for_expat) / 2) : null;
@@ -123,6 +125,7 @@ class CourseController extends Controller
                 'local_price' => $localPrice,
                 'expat_price' => $expatPrice,
             ];
+            
             return $module;
         });
 
@@ -469,13 +472,13 @@ class CourseController extends Controller
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getMyCourse($userId)
+    public function getMyCourses($userId)
     {
         $user = User::findOrFail($userId);
 
-        $myCourse = $user->allocations()->with('section', 'course', 'rank', 'teacher', 'meetings')->get();
+        $myCourses = $user->allocations()->with('section', 'course', 'rank', 'teacher', 'meetings', 'classroom', 'categories')->get();
 
-        if (!$myCourse) {
+        if (!$myCourses) {
             return response()->json([
                 'message' => 'Course not found',
                 'status' => 404,
@@ -484,7 +487,7 @@ class CourseController extends Controller
 
         return response()->json([
             'message' => 'Your Purchased Courses are',
-            'data' => $myCourse,
+            'data' => $myCourses,
             'status' => 200
         ]);
     }
@@ -506,16 +509,20 @@ class CourseController extends Controller
 
         $studentId = auth()->user()->id;
 
-        $purchasedCourses = StudentCourse::where('user_id', $studentId)
+        $purchasedCourses = StudentModule::where('user_id', $studentId)
             ->whereIn('course_id', $category->courses->pluck('id'))
             ->get();
 
-            $courseDetails = [];
+        $courseDetails = [];
 
             foreach ($purchasedCourses as $purchasedCourse) {
                 $course = Course::find($purchasedCourse->course_id);
                 if ($course) {
-                    $courseDetails[] = $course;
+                    $allocation = Allocation::where('course_id', $course->id)->first();
+                    $courseDetails[] = [
+                        'course' => $course,
+                        'allocation' => $allocation,
+                    ];
                 }
             }
 
@@ -530,30 +537,43 @@ class CourseController extends Controller
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getPurchasedCoursesDetails($userId, $allocation_id)
+    public function getPurchasedCoursesDetails($userId, $categoryId)
     {
         $user = User::findOrFail($userId);
+        
+        $category = Category::findOrFail($categoryId);
 
-        $purchasedCourse = $user->allocations()
-            ->with('meetings')
-            ->where('allocations.id', $allocation_id)
-            ->first();
+        $purchasedCourses = StudentModule::where('user_id', $user->id)
+            ->whereIn('course_id', $category->courses->pluck('id'))
+            ->get();
 
-        if (!$purchasedCourse)
-        {
+        $courseDetails = [];
+
+        foreach ($purchasedCourses as $purchasedCourse) {
+            $course = Course::find($purchasedCourse->course_id);
+            $allocation = Allocation::where('course_id', $course->id)->first();
+
+            if ($course && $allocation) {
+                $courseDetails[] = [
+                    'course' => $course,
+                    'allocation' => $allocation,
+                ];
+            }
+        }
+
+        if (empty($courseDetails)) {
             return response()->json([
-                'message' => 'Course not found in your purchased courses',
+                'message' => 'No purchased courses found for the specified user',
                 'status' => 404,
             ]);
         }
 
         return response()->json([
             'message' => 'Purchased Course Details',
-            'data' => $purchasedCourse,
+            'data' => $courseDetails,
             'status' => 200,
         ]);
     }
-
     /**
      * Restore a single deleted course by ID.
      *
@@ -596,22 +616,29 @@ class CourseController extends Controller
     {
         $user = User::find($userId);
 
-    if (!$user) {
+        if (!$user) 
+        {
 
-        return response()->json(['message' => 'User not found', 'status' => 404]);
-    }
+            return response()->json(['message' => 'User not found', 'status' => 404]);
+        }
 
-    $likedCourses = $user->likes()
-        ->where('likeable_type', 'App\Models\Course')
-        ->with('likeable')
-        ->get()
-        ->pluck('likeable');
+        $likedCourses = $user->likes()
+            ->where('likeable_type', 'App\Models\Allocation')
+            ->with('likeable.course', 'likeable.categories:id,name')
+            ->get()
+            ->pluck('likeable');
 
-        if ($likedCourses->isEmpty()) {
+            if ($likedCourses->isEmpty()) 
+            {
 
-        return response()->json(['message' => 'No liked courses found', 'status' => 204]);
-    }
+            return response()->json(['message' => 'No liked courses found', 'status' => 204]);
+            }
 
-    return response()->json(['liked_courses' => $likedCourses, 'status' => 200]);
+            $categoryIds = $likedCourses->flatMap(function ($course) 
+            {
+                return $course->categories->pluck('name');
+            });
+
+        return response()->json(['liked_courses' => $likedCourses, 'status' => 200]);
     }
 }

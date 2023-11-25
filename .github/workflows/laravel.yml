@@ -35,3 +35,5 @@ jobs:
       run: vendor/bin/phpunit
     - name: Copy env file to directory
       run: sudo cp /var/www/html/.env /var/www/html/actions-runner/_work/Saungpokki-Backend/Saungpokki-Backend/
+    - name: Change project permission
+      run: sudo chmod -R 777 /var/www/html/actions-runner/_work/Saungpokki-Backend/Saungpokki-Backend/

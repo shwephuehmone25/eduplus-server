@@ -12,6 +12,7 @@ use App\Contracts\Likeable;
 use App\Models\Like;
 use App\Models\Section;
 use App\Models\Allocation;
+use App\Models\Wishlist;
 use App\Models\Rank;
 use App\Models\Grade;
 use App\Models\School;
@@ -200,5 +201,10 @@ class User extends Authenticatable
     public function results()
     {
         return $this->hasMany(Result::class);
+    }
+
+    public function wishlist()
+    {
+        return $this->hasMany(Wishlist::class);
     }
 }

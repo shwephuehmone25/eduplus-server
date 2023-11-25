@@ -15,6 +15,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\AccountVerification;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Image;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\DB;
+
 
 class UserController extends Controller
 {
@@ -351,6 +357,7 @@ class UserController extends Controller
         ]);
     }
 
+
     public function updatePhone(Request $request, $id) {
         $phoneId = $request->input('phone_id');
         
@@ -388,7 +395,10 @@ class UserController extends Controller
     }    
     
 
-    public function restrict(Request $request, $id){
+    
+    public function restrict(Request $request, $id)
+    {
+
         $user = User::findOrFail($id);
 
         if(!$user){
@@ -400,7 +410,8 @@ class UserController extends Controller
         return response()->json(['message' => 'User status updated successfully!', 'status' => 200]);
     }
 
-    public function deleteUser($id){
+    public function deleteUser($id)
+    {
         $user = User::findOrFail($id);
 
         if(!$user){
@@ -408,5 +419,15 @@ class UserController extends Controller
         }
 
         $user->delete();
+    }
+
+    public function registrationsChart(): JsonResponse
+    {
+        $users = User::selectRaw('DATE_FORMAT(created_at, "%M") as month, COUNT(*) as count')
+            ->groupBy('month')
+            ->orderByRaw('MIN(MONTH(created_at))') 
+            ->get();
+
+        return response()->json(['data' => $users]);
     }
 }

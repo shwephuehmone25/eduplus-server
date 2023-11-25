@@ -28,7 +28,6 @@ class LoginController extends Controller
      */
     public function loginAsAdmin(Request $request)
     {
-        // Validate the incoming login request
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|ends_with:@ilbcedu.com',
             'password' => 'required',
@@ -39,15 +38,13 @@ class LoginController extends Controller
             return response()->json(['error' => 'Invalid login credentials'], 422);
         }
 
-        // Attempt to authenticate the admin using the given credentials
         $credentials = $validator->validated();
         $admin = Admin::where('email', $credentials['email'])->first();
 
         if ($admin && password_verify($credentials['password'], $admin->password)) {
-            // Generate a new API token for the authenticated admin
+    
             $token = $admin->createToken('admin-token')->plainTextToken;
 
-            // Return the token and role as a response
             return response()->json(['token' => $token, 'data' => $admin, 'status' => 200]);
         }
 
@@ -62,7 +59,6 @@ class LoginController extends Controller
      */
     public function loginAsTeacher(Request $request)
     {
-        // Validate the incoming login request
         $validator = Validator::make($request->all(), [
             'email' => 'required|email|ends_with:@ilbcedu.com|exists:teachers,email',
             'password' => 'required',
@@ -73,15 +69,13 @@ class LoginController extends Controller
             return response()->json(['error' => 'Invalid login credentials'], 422);
         }
 
-        // Attempt to authenticate the teacher using the given credentials
         $credentials = $validator->validated();
         $teacher = Teacher::where('email', $credentials['email'])->first();
 
-        if ($teacher && password_verify($credentials['password'], $teacher->password)) {
-            // Generate a new API token for the authenticated teacher
+        if ($teacher && password_verify($credentials['password'], $teacher->password)) 
+        {
             $token = $teacher->createToken('teacher-token')->plainTextToken;
 
-            // Return the token and role as a response
             return response()->json(['token' => $token, 'data' => $teacher, 'status' => 200]);
         }
 
@@ -122,18 +116,16 @@ class LoginController extends Controller
             return response()->json(['message' => 'Your account is restricted, please contact the administrator']);
         }
 
-        if (password_verify($credentials['password'], $user->password)) {
-            // Generate a new API token for the authenticated user
+        if (password_verify($credentials['password'], $user->password)) 
+        {
             $token = $user->createToken('user-token')->plainTextToken;
 
-            // Create the response data with token and user information
             $responseData = [
                 'token' => $token,
                 'user' => $user,
                 'status' => 200
             ];
 
-            // Return the response data as JSON
             return response()->json(['data' => $responseData]);
         }
 

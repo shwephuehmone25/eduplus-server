@@ -7,7 +7,7 @@ use App\Http\Middleware\IsSuperAdmin;
 use App\Http\Middleware\CheckRole;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\LikeController;
+use App\Http\Controllers\User\LikeController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\ClassController;
 use App\Http\Controllers\Admin\LevelController;
@@ -31,6 +31,9 @@ use App\Http\Controllers\Admin\TypeController;
 use App\Http\Controllers\Admin\OptionController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\User\PlacementTestController;
+use App\Http\Controllers\User\WishlistController;
+use App\Http\Controllers\Admin\AdminController;
+use Google\Service\Adsense\Row;
 
 /*
 |--------------------------------------------------------------------------
@@ -51,6 +54,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     /*Teacher Routes*/
     Route::get('/teacher/getAssigncourses/{teacher}', [TeacherController::class, 'getAssignCourses']);
     Route::get('/teacher/show', [TeacherController::class, 'showProfile']);
+    Route::put('/ranks/toggle/{teacherId}', [RankController::class, 'toggleIsActive']);
     // });
 
 /*User Routes*/
@@ -64,7 +68,7 @@ Route::get('/user/showProfile/{userId}', [UserController::class, 'showUserDetail
 Route::post('/user/editProfile/{userId}', [UserController::class, 'editProfile']);
 
 Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
-Route::get('/get/{userId}/purchasedcourseDetails/{allocationId}', [CourseController::class, 'getPurchasedCoursesDetails']);
+Route::get('/get/{userId}/purchasedcourseDetails/{categoryId}', [CourseController::class, 'getPurchasedCoursesDetails']);
 Route::get('/courses/{id}/{teacher_type}', [CourseController::class, 'showCourseDetailsWithType']);
 Route::get('/courses/{id}', [CourseController::class, 'showCourseDetails']);
 Route::get('/modules', [RankController::class, 'index']);
@@ -78,15 +82,17 @@ Route::get('/totalCourses/count', [CourseController::class, 'countCourses']);
 Route::get('/totalTeachers/count', [CourseController::class, 'countCourses']);
 Route::get('/schools', [SchoolController::class, 'index']);
 Route::get('/grades', [GradeController::class, 'index']);
-Route::get('/questions', [QuestionController::class, 'index']);
+Route::get('/school/grades/{schoolId}', [GradeController::class, 'gradeBySchool']);
 Route::get('/types', [TypeController::class, 'index']);
 Route::get('/options', [OptionController::class, 'index']);
+Route::get('/categories', [CategoryController::class, 'index']);
+Route::get('/get/questionsbyGrade/{gradeName}', [QuestionController::class, 'getQuestionsByGrade']);
 
-/**Common Routes */
+/**Common Routes*/
 Route::middleware('auth:sanctum')->group(function(){
     Route::get('/courses', [CourseController::class, 'index']);
-    Route::get('/courses/purchase/{allocationId}', [CourseController::class, 'buyCourses']);
-    Route::get('/mycourses/show/{id}', [CourseController::class, 'getMyCourse']);
+    Route::get('/purchase/course/{allocationId}', [CourseController::class, 'buyCourses']);
+    Route::get('/mycourses/show/{userId}', [CourseController::class, 'getMyCourses']);
     Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
     Route::post('/courses/enroll/{courseId}', [CourseController::class, 'enroll']);
     Route::get('/get/purchasedCourses/{categoryName}', [CourseController::class, 'getPurchasedCoursesByCategory']);
@@ -96,14 +102,22 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/changePassword/{userId}', [UserController::class, 'changePassword']);
     Route::post('/verifyCurrentPhone/{userId}', [UserController::class, 'verifyCurrentPhone']);
     Route::post('/updatePhone/{userId}', [UserController::class, 'updatePhone']);
+    // Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
+
     Route::get('/test/{grade_id}',[PlacementTestController::class, 'getQuestionsByGrades']);
     Route::post('test',[PlacementTestController::class, 'store']);
     Route::get('/myresult/get/{resultId}', [ResultController::class, 'show']);
+    Route::post('like', [LikeController::class,'like']);
+    Route::delete('unlike', [LikeController::class,'unlike']);
+    Route::post('course/addToWishlist', [WishlistController::class, 'addToWishlist']);
+    Route::post('course/removeFromWishlist', [WishlistController::class, 'removeFromWishlist']);
+    Route::get('/getAllWishlists/{userId}',[WishlistController::class,'getAllWishlists']);
+    Route::get('/get/wishlist/{userId}',[WishlistController::class,'getWishlist']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);
 
-/**Test Routes */
+/**Test Routes*/
 Route::post('/send-message', [AuthController::class, 'sendMessage']);
 
 /* Guard routes*/
@@ -121,74 +135,79 @@ Route::post('/resetPassword/{user}', [UserController::class, 'resetPassword']);
 
 Route::get('/videos', [ VideoController::class, 'index']);
 
-Route::get('/questions/getAll', [QuestionController::class, 'index']);
-
-/**common Admin Routes */
+/**common Admin Routes*/
 Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->group(function () {
+    /**Question routes*/
+    Route::get('/questions/getAll', [QuestionController::class, 'index']);
 
-    /**Users Routes */
+    /**Admin routes */
+    Route::get('/admins', [AdminController::class, 'index']);
+    Route::get('/admins/count', [AdminController::class, 'countTotalAdmins']);
+    Route::post('/admins/editProfile/{adminId}', [AdminController::class, 'updateProfile']);
+
+    /**Users Routes*/
     Route::get('/userlists/get', [UserController::class, 'getAllUsers']);
+    Route::get('/get/userByChart', [UserController::class, 'registrationsChart']);
 
-    /**Course Routes */
+    /**Course Routes*/
     Route::post('/courses', [CourseController::class, 'store']);
     Route::post('/courses/{id}', [CourseController::class, 'update']);
     Route::get('/courses/restore/{id}', [CourseController::class, 'restore']);
     Route::post('upload_image', [CourseController::class, 'imageUpload']);
 
-    /**Category Routes */
-    Route::get('/categories', [CategoryController::class, 'index']);
+    /**Category Routes*/
     Route::get('/category/{id}', [CategoryController::class, 'getCategoryDetails']);
     Route::post('/categories', [CategoryController::class, 'store']);
     Route::post('/categories/{id}', [CategoryController::class, 'update']);
 
-    /**Rank Routes */
+    /**Rank Routes*/
     Route::post('/modules', [RankController::class, 'store']);
     Route::post('/modules/{rank}', [RankController::class, 'update']);
 
-    /**Level Routes */
+    /**Level Routes*/
     Route::post('/levels', [LevelController::class, 'store']);
     Route::post('/levels/{level}', [LevelController::class, 'update']);
 
-    /**Section routes */
+    /**Section routes*/
     Route::post('/section/create', [SectionController::class, 'store']);
     Route::post('/section/edit/{section}', [SectionController::class, 'update']);
 
-    /**Teacher routes */
+    /**Teacher routes*/
     Route::post('/teachers', [TeacherController::class, 'store']);
     Route::post('/teachers/{teacher}', [TeacherController::class, 'update']);
     Route::get('/searchable/teachers', [TeacherController::class, 'getAllTeachers']);
     Route::get('/teacherLists/get', [TeacherController::class, 'index']);
 
-    /**News Variety route */
+    /**News Variety route*/
     Route::get('/varieties', [VarietyController::class, 'index']);
     Route::post('/varieties', [VarietyController::class, 'store']);
     Route::get('/varieties/{variety}', [VarietyController::class, 'getVarietyDetails']);
     Route::post('/varieties/{variety}', [VarietyController::class, 'update']);
 
-    /**News Routes */
+    /**News Routes*/
     Route::get('/news', [NoticeController::class, 'index']);
     Route::get('/news/{news}', [NoticeController::class, 'getNoticeDetails']);
     Route::post('/news', [NoticeController::class, 'store']);
     Route::post('/news/{news}', [NoticeController::class, 'update']);
     Route::get('/get/getNewsByVariety/{varietyName}', [NoticeController::class, 'getNewsByVariety']);
 
-    /**School Routes */
+    /**School Routes*/
     Route::post('/schools', [SchoolController::class, 'store']);
     Route::post('/schools/{school}', [SchoolController::class, 'update']);
 
-    /**Type Routes */
+    /**Type Routes*/
      Route::post('/types', [TypeController::class, 'store']);
      Route::post('/types/{type}', [TypeController::class, 'update']);
 
-    /**Grade Routes */
+    /**Grade Routes*/
     Route::post('/grades', [GradeController::class, 'store']);
     Route::post('/grades/{grade}', [GradeController::class, 'update']);
 
-    /**Options Routes */
+    /**Options Routes*/
     Route::post('/options', [OptionController::class, 'store']);
     Route::post('/options/{option}', [OptionController::class, 'update']);
 
-    /**Question Routes */
+    /**Question Routes*/
     Route::post('/questions', [QuestionController::class, 'store']);
     Route::post('/questions/{question}', [QuestionController::class, 'update']);
 
@@ -201,22 +220,22 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->grou
 /**super_admin Routes*/
 Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() {
 
-    /**Course Routes */
+    /**Course Routes*/
     Route::delete('/courses/{id}', [CourseController::class, 'destroy']);
     Route::get('/courses/restore/{id}', [CourseController::class, 'restore']);
     Route::get('restoreAll', [CourseController::class, 'restoreAll']);
 
-    /**Allocation Routes */
+    /**Allocation Routes*/
     Route::post('/assign/teachers', [AllocationController::class, 'assignedToTeachers']);
     Route::post('/allocation/{allocation}', [AllocationController::class, 'update']);
     Route::delete('/allocation/{allocation}', [AllocationController::class, 'destroy']);
     Route::get('/allocations/restore/{id}', [AllocationController::class, 'restore']);
     Route::get('restoreAll', [AllocationController::class, 'restoreAll']);
 
-    /**Category Routes */
+    /**Category Routes*/
     Route::delete('/categories/{category}', [CategoryController::class, 'destroy']);
 
-    /**Rank Routes */
+    /**Rank Routes*/
     Route::delete('/modules/{rank}', [RankController::class, 'destroy']);
 
     /**Subcategory routes*/
@@ -227,46 +246,46 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() 
     // Route::delete('/subcategories/{id}', [SubcategoryController::class,'destroy']);
     // Route::get('/get/subcategories', [SubcategoryController::class, 'getSubcategoriesByCategory']);
 
-    /**Class routes */
+    /**Class routes*/
     Route::get('/classes', [ClassController::class, 'index']);
     Route::get('/class/{id}', [ClassController::class, 'getClassDetails']);
     Route::post('/classes', [ClassController::class, 'store']);
     Route::post('/classes/{class}', [ClassController::class, 'update']);
     Route::delete('/classes/{class}', [ClassController::class, 'destroy']);
 
-    /**Level Routes */
+    /**Level Routes*/
     Route::delete('/levels/{level}', [LevelController::class, 'destroy']);
 
-    /**Section routes */
+    /**Section routes*/
     Route::delete('/section/{section}', [SectionController::class, 'destroy']);
 
-    /**Teacher routes */
+    /**Teacher routes*/
     Route::put('/teachers/{teacherId}/change/role', [TeacherController::class, 'changeRole']);
     Route::put('/teachers/change/roles', [TeacherController::class, 'changeSelectedRoles']);
     Route::delete('/teachers/{teacher}', [TeacherController::class, 'destroy']);
 
-    /**News Variety route */
+    /**News Variety route*/
     Route::delete('/varieties/{variety}', [VarietyController::class, 'destroy']);
 
-    /**News Routes */
+    /**News Routes*/
     Route::delete('/news/{news}', [NoticeController::class, 'destroy']);
     Route::get('/news/restore/{id}', [NoticeController::class, 'restore']);
     Route::get('/news/restoreAll', [NoticeController::class, 'restoreAll']);
 
-    /**Users Manipulation Routes */
+    /**Users Manipulation Routes*/
     Route::post('/user/restrict/{userId}', [UserController::class, 'restrict']);
     Route::delete('/user/{userId}', [UserController::class, 'deleteUser']);
   
-    /**School Routes */
+    /**School Routes*/
     Route::delete('/schools/{school}', [SchoolController::class, 'destroy']);
 
-    /**Type Routes */
+    /**Type Routes*/
     Route::delete('/types/{type}', [TypeController::class, 'destroy']);
 
-    /**Grade Routes */
+    /**Grade Routes*/
     Route::delete('/grades/{grade}', [GradeController::class, 'destroy']);
 
-    /**Options Routes */
+    /**Options Routes*/
     Route::delete('/options/{option}', [OptionController::class, 'destroy']);
 
     /**Question Routes*/
