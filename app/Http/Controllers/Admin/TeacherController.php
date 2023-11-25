@@ -65,14 +65,14 @@ class TeacherController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:teachers,email|ends_with:@ilbcedu.com',
             'password' => 'required|min:6|confirmed',
+            'role' => 'required',
         ]);
 
         $teacher = new Teacher();
         $teacher->name = $request->input('name');
         $teacher->email = $request->input('email');
         $teacher->password = bcrypt($request->input('password'));
-        $teacher->google_id = $request->input('google_id');
-        $teacher->role ='local_teacher';
+        $teacher->role = $request->input('role');;
         $teacher->save();
 
         return response()->json(['message' => 'Teacher created successfully', 'data' => $teacher, 'status' => 201]);
