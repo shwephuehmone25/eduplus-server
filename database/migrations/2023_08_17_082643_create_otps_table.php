@@ -15,12 +15,11 @@ return new class extends Migration
     {
         Schema::create('otps', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('phone_id');
+            $table->foreign('phone_id')->references('id')->on('phones')->onDelete('cascade');
             $table->string('otp');
+            $table->timestamp('expired_at')->nullable();
             $table->timestamps();
-
-            // Create a foreign key relationship to users table
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

@@ -22,6 +22,8 @@ return new class extends Migration
             $table->string('google_id')->nullable();
             $table->enum('role', ['local_teacher', 'expat_teacher'])->default('local_teacher');
             $table->string('avatar')->nullable();
+            $table->string('access_token')->nullable();
+            $table->string('refresh_token')->nullable();
             $table->rememberToken();
             $table->timestamps();
             $table->softDeletes();

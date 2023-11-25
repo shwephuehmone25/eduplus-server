@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use Carbon\Carbon;
 use App\Models\User;
 use App\Models\Admin;
+use App\Models\Phone;
 use App\Models\Teacher;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -103,7 +104,8 @@ class LoginController extends Controller
         //Phone number without country code
 
         $phoneNumber = ltrim($credentials['phone_number'], '+0');
-        $user = User::where('phone_number', 'LIKE', '%' . $phoneNumber)->first();
+        $phone = Phone::where('phone_number', 'LIKE', '%' . $phoneNumber)->first();
+        $user = $phone->user;
 
         if (!$user) {
             return response()->json(['error' => 'User not found', 'status' => 404]);

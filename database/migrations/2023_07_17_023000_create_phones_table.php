@@ -13,8 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::table('students_modules', function (Blueprint $table) {
-            $table->date('end_date')->after('is_complete');
+        Schema::create('phones', function (Blueprint $table) {
+            $table->id();
+            $table->string('phone_number');
+            $table->enum('phone_status', ['invalidate', 'verified'])->default('invalidate');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::table('students_modules', function (Blueprint $table) {
-            //
-        });
+        Schema::dropIfExists('phones');
     }
 };

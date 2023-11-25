@@ -15,17 +15,18 @@ return new class extends Migration
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->nullable();
+            $table->string('name');
+            $table->unsignedBigInteger('phone_id');
+            $table->foreign('phone_id')->references('id')->on('phones')->onDelete('cascade');
             $table->string('email')->nullable();
             $table->timestamp('email_verified_at')->nullable();
-            $table->string('phone_number')->unique();
-            $table->boolean('isVerified')->default(false);
-            $table->date('dob')->nullable();
-            $table->string('password')->nullable();
+            $table->dateTime('dob');
+            $table->string('password');
+            $table->boolean('status')->default(1)->comment('0 for restricted, 1 for active');
+            $table->string('image_url')->nullable();
             $table->enum('gender', ['male', 'female', 'other']);
-            //$table->enum('region', ['Kachin State', 'Kayah State', 'Karen State', 'Chin State', 'Mon State', 'Rakhine State', 'Shan State', 'Ayeyarwady Division', 'Bago Division', 'Magway Division', 'Mandalay Division', 'Yangon Division', 'Tanintharyi Division', 'Sagaing Division']);
-            $table->string('region')->nullable();
-            $table->string('address')->nullable();
+            $table->string('region');
+            $table->string('address');
             $table->string('role')->default('student');
             $table->timestamps();
             $table->softDeletes();

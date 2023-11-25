@@ -2,21 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
+use App\Models\Otp;
 use App\Models\User;
 use App\Models\Admin;
-use App\Models\Otp;
-use Twilio\Rest\Client;
+use App\Models\Phone;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
-// use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\AccountVerification;
-use Kreait\Firebase\Factory;
-use Kreait\Firebase\ServiceAccount;
-use Kreait\Firebase\Auth;
-use Carbon\Carbon;
 
 class AuthController extends Controller
 {
@@ -29,7 +24,7 @@ class AuthController extends Controller
     public function getStart(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'phone_number' => ['required', 'numeric', 'unique:users'],
+            'phone_number' => ['required', 'numeric'],
         ]);
 
         if ($validator->fails()) {
@@ -39,28 +34,45 @@ class AuthController extends Controller
             ]);
         }
 
-        $user = User::create([
-            'phone_number' => $request->input('phone_number'),
-        ]);
+        $existingPhone = Phone::where('phone_number', $request->input('phone_number'))->first();
 
-        $user_id = $user->id;
+        if ($existingPhone) {
+            if ($existingPhone->user && $existingPhone->phone_status === 'verified') {
+                return response()->json([
+                    'error' => 'Phone number is already registered!',
+                    'status' => 422
+                ]);
+            } else {
+                $existingPhone->update([
+                    'phone_number' => $request->input('phone_number'),
+                    'phone_status' => 'invalidate'
+                ]);
+                $phone_id = $existingPhone->id;
+            }
+        } else {
+            $phone = Phone::create([
+                'phone_number' => $request->input('phone_number'),
+            ]);
+
+            $phone_id = $phone->id;
+        }
 
         $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
         $data = Otp::create([
             'otp' => $otp,
-            'user_id' => $user_id,
-            'expired_at' => Carbon::now('Asia/Yangon')->addSeconds(60),
+            'phone_id' => $phone_id,
+            'expired_at' => Carbon::now()->addSeconds(600),
         ]);
 
-        if ($user)
-        {
-            $user->notify(new AccountVerification($otp));
+        if ($phone_id) {
+            $phone = Phone::find($phone_id);
+            $phone->notify(new AccountVerification($otp));
         }
 
         return response()->json([
             'message' => 'OTP sent successfully!',
-            'user_id' => $user_id,
+            'phone_id' => $phone_id,
             'status' => 200,
             'expired_at' => $data->expired_at
         ]);
@@ -72,27 +84,29 @@ class AuthController extends Controller
      * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function verify(Request $request, $userId)
+    public function verify(Request $request, $phoneId)
     {
         $data = $request->validate([
             'verification_code' => ['required', 'numeric'],
         ]);
 
-        $user = User::find($userId);
+        $phone = Phone::find($phoneId);
 
-        $verificationCode   = Otp::where('user_id', $user->id)
-                                ->where('otp', $data['verification_code'])
-                                ->where('expired_at', '>', Carbon::now('Asia/Yangon'))
-                                ->first();
+        $verificationCode = Otp::where('phone_id', $phone->id)
+            ->where('otp', $data['verification_code'])
+            ->where('expired_at', '>', Carbon::now())
+            ->first();
 
-        if($verificationCode){
-            $user->isVerified = true;
-            $user->save();
+        if ($verificationCode) {
+            $phone->phone_status = 'verified';
+            $phone->save();
 
-            return response()->json(['message' => 'Verification successful!', 'user_id' => $user->id, 'status' => 200]);
+            return response()->json(['message' => 'Verification successful!', 'phone_id' => $phone->id, 'status' => 200]);
+        } elseif ($verificationCode && $verificationCode->expired_at <= Carbon::now()) {
+            return response()->json(['message' => 'Expired Verification Code entered!', 'status' => '400']);
         }
 
-        return response()->json(['error' => 'Invalid or expired verification code entered!', 'status' => 400]);
+        return response()->json(['error' => 'Invalid verification code entered!', 'status' => 400]);
     }
 
     /**
@@ -101,22 +115,22 @@ class AuthController extends Controller
      * @param  Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function createUser(Request $request, $userId)
+    public function createUser(Request $request, $phoneId)
     {
-        $user = User::find($userId);
+        $phone = Phone::find($phoneId);
 
-        if($user->isVerified === 1)
-        {
+        if ($phone->phone_status === 'verified') {
             $data = $request->validate([
                 'name' => 'required|string|max:255',
-                'dob' => 'required|date_format:Y-m-d',
+                'dob' => 'required',
                 'password' => 'required|string|min:8|confirmed',
                 'gender' => 'required|in:male,female,other',
                 'region' => 'required',
                 'address' => 'required'
             ]);
 
-            $user->update([
+            $user = User::create([
+                'phone_id' => $phone->id,
                 'name' => $data['name'],
                 'password' => Hash::make($data['password']),
                 'dob' => $data['dob'],
@@ -130,14 +144,12 @@ class AuthController extends Controller
             $response = [
                 'user' => $user,
                 'token' => $token,
-                'gender_options' => User::getGenderOptions(),
-                'region_values' => User::getRegionValues()
             ];
 
             event(new Registered($user));
 
-            return response()->json(['data' => $response , 'status' => 201]);
-        }else{
+            return response()->json(['data' => $response, 'status' => 201]);
+        } else {
 
             return response()->json(['message' => 'Please verify first']);
         }

@@ -16,8 +16,8 @@ return new class extends Migration
         Schema::create('sections', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->time('start_time')->nullable();
-            $table->time('end_time')->nullable();
+            $table->dateTime('start_time')->nullable();
+            $table->dateTime('end_time')->nullable();
             $table->integer('capacity')->default(0);
             $table->timestamps();
             $table->softDeletes();

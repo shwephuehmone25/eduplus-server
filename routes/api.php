@@ -59,8 +59,8 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 /*User Routes*/
 Route::post('/phone/register', [AuthController::class, 'getStart']);
-Route::post('/otp/verify/{userId}', [AuthController::class, 'verify']);
-Route::post('/user/create/{userId}', [AuthController::class, 'createUser']);
+Route::post('/otp/verify/{phoneId}', [AuthController::class, 'verify']);
+Route::post('/user/create/{phoneId}', [AuthController::class, 'createUser']);
 
 Route::post('/student/login', [LoginController::class, 'loginAsStudent'])->middleware('checkUserStatus');
 Route::post('/user/uploadProfile', [UserController::class, 'uploadProfile']);
@@ -96,9 +96,14 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/meetings', [MeetingController::class, 'getMeetingLists']);
     Route::post('/courses/enroll/{courseId}', [CourseController::class, 'enroll']);
     Route::get('/get/purchasedCourses/{categoryName}', [CourseController::class, 'getPurchasedCoursesByCategory']);
+    Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
+    Route::post('/like', [LikeController::class, 'like']);
+    Route::post('/unlike', [LikeController::class,'unlike']);
+    Route::post('/changePassword/{userId}', [UserController::class, 'changePassword']);
+    Route::post('/verifyCurrentPhone/{userId}', [UserController::class, 'verifyCurrentPhone']);
+    Route::post('/updatePhone/{userId}', [UserController::class, 'updatePhone']);
     // Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
-    Route::post('/changePassword/{user}', [UserController::class, 'changePassword']);
-    Route::post('/newPhoneNumber/{userId}', [UserController::class, 'changePhoneNumber']);
+
     Route::get('/test/{grade_id}',[PlacementTestController::class, 'getQuestionsByGrades']);
     Route::post('test',[PlacementTestController::class, 'store']);
     Route::get('/myresult/get/{resultId}', [ResultController::class, 'show']);

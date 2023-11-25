@@ -27,7 +27,6 @@ return new class extends Migration
                     ->references('id')
                     ->on('courses')
                     ->onDelete('cascade');
-            $table->date('end_date');
             $table->timestamps();
             $table->softDeletes();
         });

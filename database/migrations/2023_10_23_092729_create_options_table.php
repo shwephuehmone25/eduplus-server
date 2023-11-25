@@ -18,6 +18,7 @@ return new class extends Migration
             $table->unsignedBigInteger('question_id');
             $table->foreign('question_id')->references('id')->on('questions')->onDelete('cascade');
             $table->string('option_text');
+            $table->boolean('status')->default(false);
             $table->integer('points')->nullable();
             $table->timestamps();
             $table->softDeletes();

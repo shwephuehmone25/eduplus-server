@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignId('course_id')->constrained()->onDelete('cascade');
             $table->foreignId('rank_id')->constrained()->onDelete('cascade');
             $table->boolean('is_complete')->default(false);
+            $table->date('end_date');
             $table->timestamps();
         });
     }

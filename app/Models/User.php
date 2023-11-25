@@ -7,7 +7,6 @@ use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use App\Models\Otp;
 use App\Models\Enrollment;
 use App\Contracts\Likeable;
 use App\Models\Like;
@@ -18,6 +17,7 @@ use App\Models\Rank;
 use App\Models\Grade;
 use App\Models\School;
 use App\Models\Result;
+use App\Models\Phone;
 
 class User extends Authenticatable
 {
@@ -34,8 +34,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         // 'email',
-        'phone_number',
-        'isVerified',
+        'phone_id',
         'dob',
         'password',
         'google_id',
@@ -70,16 +69,9 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    public function routeNotificationForSmspoh()
+    public function phone()
     {
-
-        return $this->phone_number;
-    }
-
-    public function otps()
-    {
-
-        return $this->hasMany(Otp::class);
+        return $this->belongsTo(Phone::class);
     }
 
     public function courses()
