@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\GradeController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\TypeController;
 use App\Http\Controllers\Admin\OptionController;
+use App\Http\Controllers\Admin\CollectionController;
 use App\Http\Controllers\Admin\ResultController;
 use App\Http\Controllers\User\PlacementTestController;
 use App\Http\Controllers\User\WishlistController;
@@ -87,6 +88,7 @@ Route::get('/types', [TypeController::class, 'index']);
 Route::get('/options', [OptionController::class, 'index']);
 Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/get/questionsbyGrade/{gradeName}', [QuestionController::class, 'getQuestionsByGrade']);
+Route::get('get/questions/{question}', [QuestionController::class, 'showQuestionDetails']);
 
 /**Common Routes*/
 Route::middleware('auth:sanctum')->group(function(){
@@ -196,8 +198,13 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->grou
     Route::post('/schools/{school}', [SchoolController::class, 'update']);
 
     /**Type Routes*/
-     Route::post('/types', [TypeController::class, 'store']);
-     Route::post('/types/{type}', [TypeController::class, 'update']);
+    Route::post('/types', [TypeController::class, 'store']);
+    Route::post('/types/{type}', [TypeController::class, 'update']);
+
+    /**Question  Batch Routes*/
+    Route::get('/collections', [CollectionController::class, 'index']);
+    Route::post('/collections', [CollectionController::class, 'store']);
+    Route::post('/collections/{collection}', [CollectionController::class, 'update']);
 
     /**Grade Routes*/
     Route::post('/grades', [GradeController::class, 'store']);
@@ -290,6 +297,9 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() 
 
     /**Question Routes*/
     Route::delete('/questions/{question}', [QuestionController::class, 'destroy']);
+
+    /**Question Batch Routes*/
+    Route::delete('/collection/{collection}', [CollectionController::class, 'destroy']);
 
     /**Result Routes*/
     Route::delete('/result/{id}', [ResultController::class, 'destroy']);

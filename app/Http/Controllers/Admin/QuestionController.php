@@ -18,9 +18,31 @@ class QuestionController extends Controller
     public function index()
     {
         $data = Question::with('school:id,name', 'grade:id,name', 'type:id,name', 'options')->get();
-        
 
         return response()->json(['data' => $data]);
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showQuestionDetails(Question $question)
+    {
+        if (!$question) 
+        {
+            return response()->json(['error' => 'Question not found'], 404);
+        }
+    
+        $question->load([
+            'school:id,name',
+            'grade:id,name',
+            'type:id,name',
+            'options'
+        ]);
+    
+        return response()->json(['data' => $question , 'status' =>200]);
     }
 
     /**
