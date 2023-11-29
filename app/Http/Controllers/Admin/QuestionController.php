@@ -159,6 +159,18 @@ class QuestionController extends Controller
         ]);
     }
 
+    public function publishQuestionsByCollectionId($collectionId)
+    {
+        try {
+            $questions = Question::where('collection_id', $collectionId)->get();
+            
+            return response()->json(['message' => "Questions are published successfully.", 'data' => $questions, 'status' => 200]);
+        } catch (\Exception $e) {
+
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
     /**
      * Remove the specified resource from storage.
      *

@@ -215,6 +215,7 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->grou
     Route::post('/options/{option}', [OptionController::class, 'update']);
 
     /**Question Routes*/
+    Route::get('/questions/{collectionId}', [QuestionController::class, 'publishQuestionsByCollectionId']);
     Route::post('/questions', [QuestionController::class, 'store']);
     Route::post('/questions/{question}', [QuestionController::class, 'update']);
 
