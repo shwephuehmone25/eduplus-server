@@ -84,7 +84,7 @@ class CourseController extends Controller
 
         $courses = $category->courses()
         ->whereHas('allocations')
-        ->with(['allocations.section', 'allocations.rank', 'allocations.teacher'])
+        ->with(['allocations.section', 'allocations.rank', 'allocations.teacher', 'levels'])
         ->get();
 
         return response()->json(['data' => $courses]);
@@ -476,7 +476,7 @@ class CourseController extends Controller
     {
         $user = User::findOrFail($userId);
 
-        $myCourses = $user->allocations()->with('section', 'course', 'rank', 'teacher', 'meetings', 'classroom', 'categories')->get();
+        $myCourses = $user->allocations()->with('section', 'course', 'rank', 'teacher', 'meetings', 'classroom', 'categories', 'course.levels')->get();
 
         if (!$myCourses) {
             return response()->json([
@@ -516,7 +516,7 @@ class CourseController extends Controller
         $courseDetails = [];
 
             foreach ($purchasedCourses as $purchasedCourse) {
-                $course = Course::find($purchasedCourse->course_id);
+                $course = Course::with('levels', 'allocations.section', 'allocations.rank', 'allocations.teacher', 'allocations.classroom')->find($purchasedCourse->course_id);
                 if ($course) {
                     $allocation = Allocation::where('course_id', $course->id)->first();
                     $courseDetails[] = [
