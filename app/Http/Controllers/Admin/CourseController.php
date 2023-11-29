@@ -540,7 +540,7 @@ class CourseController extends Controller
     public function getPurchasedCoursesDetails($userId, $categoryId)
     {
         $user = User::findOrFail($userId);
-        
+    
         $category = Category::findOrFail($categoryId);
 
         $purchasedCourses = StudentModule::where('user_id', $user->id)
@@ -551,13 +551,19 @@ class CourseController extends Controller
 
         foreach ($purchasedCourses as $purchasedCourse) {
             $course = Course::find($purchasedCourse->course_id);
-            $allocation = Allocation::where('course_id', $course->id)->first();
 
-            if ($course && $allocation) {
-                $courseDetails[] = [
-                    'course' => $course,
-                    'allocation' => $allocation,
-                ];
+            if ($course) {
+                $allocation = Allocation::where('course_id', $course->id)->first();
+
+                if ($allocation) {
+                    $meetings = $allocation->meetings;
+
+                    $courseDetails[] = [
+                        'course' => $course,
+                        'allocation' => $allocation,
+                        // 'meetings' => $meetings,
+                    ];
+                }
             }
         }
 
@@ -574,6 +580,7 @@ class CourseController extends Controller
             'status' => 200,
         ]);
     }
+    
     /**
      * Restore a single deleted course by ID.
      *
