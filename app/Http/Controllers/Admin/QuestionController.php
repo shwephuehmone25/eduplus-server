@@ -17,9 +17,14 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        $data = Question::with('school:id,name', 'grade:id,name', 'type:id,name', 'options')->get();
+        $data = Question::with('school:id,name', 'grade:id,name', 'type:id,name', 'collection:id,name', 'options')->get();
 
-        return response()->json(['data' => $data]);
+        if ($data->isEmpty()) 
+        {
+            return response()->json(['message' => 'No questions Here!', 'status' => 404]);
+        }
+
+        return response()->json(['data' => $data, 'status' => 200]);
     }
 
     /**
@@ -39,6 +44,7 @@ class QuestionController extends Controller
             'school:id,name',
             'grade:id,name',
             'type:id,name',
+            'collection:id,name',
             'options'
         ]);
     
@@ -62,6 +68,7 @@ class QuestionController extends Controller
             $questions = $questions->map(function ($question) use ($grade) {
                 $question['school_id'] = $question->school->id;
                 $question['type_id'] = $question->type->id;
+                $question['collection_id'] = $question->type->id;
                 $question['options'] = $question->options;
                 return $question;
             });
@@ -88,6 +95,7 @@ class QuestionController extends Controller
             'grade_id' => 'required|exists:grades,id',
             'type_id' => 'required|exists:types,id',
             'school_id' => 'required|exists:schools,id',
+            'collection_id' => 'required|exists:collections,id',
             'options' => 'required|array',
             'options.*.option_text' => 'required|string',
             'options.*.points' => 'integer|nullable',
@@ -125,6 +133,7 @@ class QuestionController extends Controller
             'grade_id' => 'required|exists:grades,id',
             'type_id' => 'required|exists:types,id',
             'school_id' => 'required|exists:schools,id',
+            'collection_id' => 'required|exists:collections,id',
             'options' => 'required|array',
             'options.*.option_text' => 'required|string',
             'options.*.points' => 'integer|nullable',
