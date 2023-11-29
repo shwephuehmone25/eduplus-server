@@ -72,7 +72,7 @@ class TeacherController extends Controller
         $teacher->name = $request->input('name');
         $teacher->email = $request->input('email');
         $teacher->password = bcrypt($request->input('password'));
-        $teacher->role = $request->input('role');;
+        $teacher->role = $request->input('role');
         $teacher->save();
 
         return response()->json(['message' => 'Teacher created successfully', 'data' => $teacher, 'status' => 201]);
@@ -91,10 +91,12 @@ class TeacherController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:teachers,email|ends_with:@ilbcedu.com,' . $teacher->id,
             'password' => 'nullable|min:6|confirmed',
+            'role'  => 'required'
         ]);
 
         $teacher->name = $request->input('name');
         $teacher->email = $request->input('email');
+        $teacher->role = $request->input('role');
 
         if ($request->input('password')) {
             $teacher->password = bcrypt($request->input('password'));

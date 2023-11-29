@@ -210,37 +210,47 @@ class UserController extends Controller
 
         $phone = Phone::where('phone_number', $request->input('phone_number'))->first();
 
-        if(!$phone)
+        if(!$phone || !$phone->user)
         {
-            return response()->json(['message' => 'Phone number is incorrect!', 'status' => 404]);
+            return response()->json(['message' => 'Phone number cannot be found!', 'status' => 404]);
         }
 
         if ($phone->user && $phone->phone_status === 'verified') {
             $phone->update([
                 'phone_number' => $request->input('phone_number'),
-                'phone_status' => 'invalidate'
             ]);
         } 
 
         $phone_id = $phone->id;
 
+        $existingPhoneId = Otp::where('phone_id', $phone_id)->first();
         $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        Otp::create([
-            'otp' => $otp,
-            'phone_id' => $phone_id,
-            'expired_at' => Carbon::now()->addSeconds(600)
-        ]);
+        if($existingPhoneId){
+            $existingPhoneId->update([
+                'otp' => $otp,
+                'expired_at' => Carbon::now()->addSeconds(600)
+            ]);
+        }else{
+            $data = Otp::create([
+                'otp' => $otp,
+                'phone_id' => $phone_id,
+                'expired_at' => Carbon::now()->addSeconds(600),
+            ]);
+        }
 
         if ($phone)
         {
             $phone->notify(new AccountVerification($otp));
         }
 
+        $user_id = $phone->user->id;
+
         return response()->json([
             'message' => 'OTP sent successfully!',
             'phone_id' => $phone_id,
-            'user_id'  => $phone->user->id,
+            'user_id'  => $user_id,
+            'expired_at' => $data->expired_at ?? $existingPhoneId->expired_at,
             'status' => 200
         ]);
     }
@@ -320,27 +330,34 @@ class UserController extends Controller
 
         $current_phone = Phone::where('phone_number', $request->input('current_phone'))->first();
 
-        if(!$current_phone)
+        if(!$current_phone || !$current_phone->user)
         {
             return response()->json(['message' => 'Current Phone number is incorrect!', 'status' => 404]);
         }
 
         if ($current_phone->id == $user->phone_id) {
             $current_phone->update([
-                'phone_number' => $current_phone,
-                'phone_status' => 'invalidate'
+                'phone_number' => $request->input('current_phone')
             ]);
         } 
 
         $phone_id = $current_phone->id;
 
+        $existingPhoneId = Otp::where('phone_id', $phone_id)->first();
         $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        Otp::create([
-            'otp' => $otp,
-            'phone_id' => $phone_id,
-            'expired_at' => Carbon::now()->addSeconds(600)
-        ]);
+        if($existingPhoneId){
+            $existingPhoneId->update([
+                'otp' => $otp,
+                'expired_at' => Carbon::now()->addSeconds(600)
+            ]);
+        }else{
+            $data = Otp::create([
+                'otp' => $otp,
+                'phone_id' => $phone_id,
+                'expired_at' => Carbon::now()->addSeconds(600),
+            ]);
+        }
 
         if ($current_phone)
         {
@@ -350,6 +367,7 @@ class UserController extends Controller
         return response()->json([
             'message' => 'OTP sent successfully!',
             'phone_id' => $phone_id,
+            'expired_at' => $data->expired_at ?? $existingPhoneId->expired_at,
             'status' => 200
         ]);
     }

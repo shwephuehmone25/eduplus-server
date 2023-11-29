@@ -12,6 +12,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Validator;
 use App\Notifications\AccountVerification;
+use Google\Service\Testing\UsesFeature;
 
 class AuthController extends Controller
 {
@@ -39,7 +40,7 @@ class AuthController extends Controller
         if ($existingPhone) {
             if ($existingPhone->user && $existingPhone->phone_status === 'verified') {
                 return response()->json([
-                    'error' => 'Phone number is already registered!',
+                    'error' => 'Phone number is already in use by a user!',
                     'status' => 422
                 ]);
             } else {
@@ -57,13 +58,21 @@ class AuthController extends Controller
             $phone_id = $phone->id;
         }
 
+        $existingPhoneId = Otp::where('phone_id', $phone_id)->first();
         $otp = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
 
-        $data = Otp::create([
-            'otp' => $otp,
-            'phone_id' => $phone_id,
-            'expired_at' => Carbon::now()->addSeconds(600),
-        ]);
+        if ($existingPhoneId) {
+            $existingPhoneId->update([
+                'otp' => $otp,
+                'expired_at' => Carbon::now()->addSeconds(600)
+            ]);
+        } else {
+            $data = Otp::create([
+                'otp' => $otp,
+                'phone_id' => $phone_id,
+                'expired_at' => Carbon::now()->addSeconds(600),
+            ]);
+        }
 
         if ($phone_id) {
             $phone = Phone::find($phone_id);
@@ -74,7 +83,7 @@ class AuthController extends Controller
             'message' => 'OTP sent successfully!',
             'phone_id' => $phone_id,
             'status' => 200,
-            'expired_at' => $data->expired_at
+            'expired_at' => $data->expired_at ?? $existingPhoneId->expired_at
         ]);
     }
 
@@ -129,26 +138,31 @@ class AuthController extends Controller
                 'address' => 'required'
             ]);
 
-            $user = User::create([
-                'phone_id' => $phone->id,
-                'name' => $data['name'],
-                'password' => Hash::make($data['password']),
-                'dob' => $data['dob'],
-                'address' => $data['address'],
-                'gender' => $data['gender'],
-                'region' => $data['region'],
-            ]);
+            $existingPhoneId = User::where('phone_id', $phoneId)->first();
+            if ($existingPhoneId) {
+                return response()->json(['message' => 'User account already created!']);
+            } else {
+                $user = User::create([
+                    'phone_id' => $phone->id,
+                    'name' => $data['name'],
+                    'password' => Hash::make($data['password']),
+                    'dob' => $data['dob'],
+                    'address' => $data['address'],
+                    'gender' => $data['gender'],
+                    'region' => $data['region'],
+                ]);
 
-            $token = $user->createToken('student-token')->plainTextToken;
+                $token = $user->createToken('student-token')->plainTextToken;
 
-            $response = [
-                'user' => $user,
-                'token' => $token,
-            ];
+                $response = [
+                    'user' => $user,
+                    'token' => $token,
+                ];
 
-            event(new Registered($user));
+                event(new Registered($user));
 
-            return response()->json(['data' => $response, 'status' => 201]);
+                return response()->json(['data' => $response, 'status' => 201]);
+            }
         } else {
 
             return response()->json(['message' => 'Please verify first']);

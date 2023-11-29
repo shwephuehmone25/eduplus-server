@@ -234,6 +234,7 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() 
     Route::get('restoreAll', [CourseController::class, 'restoreAll']);
 
     /**Allocation Routes*/
+    Route::post('/allocation/status/{id}', [AllocationController::class, 'updateStatus']);
     Route::post('/assign/teachers', [AllocationController::class, 'assignedToTeachers']);
     Route::post('/allocation/{allocation}', [AllocationController::class, 'update']);
     Route::delete('/allocation/{allocation}', [AllocationController::class, 'destroy']);

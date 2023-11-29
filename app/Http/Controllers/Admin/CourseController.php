@@ -429,12 +429,17 @@ class CourseController extends Controller
 
         if (!$allocation->users->contains($user->id)) {
 
-            if ($allocation->capacity > 0) {
+            if ($allocation->capacity > 0 && $allocation->status === 'available') {
                 $teacherId = $allocation->teacher_id;
                 $user->teachers()->attach($teacherId);
 
                 $allocation->users()->attach($user->id);
                 $allocation->decrement('capacity', 1);
+
+                if ($allocation->capacity === 0) {
+                    $allocation->status = 'full';
+                    $allocation->save();
+                }
 
                 $enrollment = new Enrollment([
                     'enroll_date' => now(),

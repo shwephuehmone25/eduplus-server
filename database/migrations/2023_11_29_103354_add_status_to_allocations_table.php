@@ -13,13 +13,8 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('sections', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->dateTime('start_time')->nullable();
-            $table->dateTime('end_time')->nullable();
-            $table->timestamps();
-            $table->softDeletes();
+        Schema::table('allocations', function (Blueprint $table) {
+            $table->enum('status', ['full', 'available'])->default('available')->after('classroom_id');
         });
     }
 
@@ -30,6 +25,8 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('sections');
+        Schema::table('allocations', function (Blueprint $table) {
+            $table->boolean('status');
+        });
     }
 };

@@ -183,4 +183,19 @@ class AllocationController extends Controller
 
         return response()->json(['message' => 'Assigned courses is deleted successfully', 'status' => 204]);
     }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $allocation = Allocation::find($id);
+
+        if(!$allocation)
+        {
+            return response()->json(['message' => 'Allocation not found!'], 404);
+        }
+
+        $allocation->status = ($allocation->status == 'available') ? 'full' : 'available';
+        $allocation->save();
+
+        return response()->json(['message' => 'Status updated successfully!', 'status' => $allocation->status], 200);
+    }
 }
