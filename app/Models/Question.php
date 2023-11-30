@@ -9,13 +9,12 @@ use App\Models\Option;
 use App\Models\Type;
 use App\Models\School;
 use App\Models\TestLevel;
-use App\Models\Collection;
 
 class Question extends Model
 {
     use HasFactory, SoftDeletes;
 
-    protected $fillable = ['school_id', 'type_id', 'grade_id', 'collection_id', 'question_text'];
+    protected $fillable = ['school_id', 'type_id', 'grade_id', 'question_text'];
 
     public function school()
     {
