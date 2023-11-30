@@ -430,7 +430,7 @@ class CourseController extends Controller
 
         if (!$allocation->users->contains($user->id)) {
 
-            if ($allocation->capacity > 0 && $allocation->status === 'available') {
+            if ($allocation->capacity > 0) {
                 $teacherId = $allocation->teacher_id;
                 $user->teachers()->attach($teacherId);
 
@@ -543,46 +543,22 @@ class CourseController extends Controller
      * @param mixed $id
      * @return \Illuminate\Http\JsonResponse
      */
-    public function getPurchasedCoursesDetails($userId, $categoryId)
+    public function getPurchasedCoursesDetails($userId, $allocationId)
     {
         $user = User::findOrFail($userId);
     
-        $category = Category::findOrFail($categoryId);
+        $allocation = Category::with('meetings')->findOrFail($allocationId);
 
-        $purchasedCourses = StudentModule::where('user_id', $user->id)
-            ->whereIn('course_id', $category->courses->pluck('id'))
-            ->get();
-
-        $courseDetails = [];
-
-        foreach ($purchasedCourses as $purchasedCourse) {
-            $course = Course::find($purchasedCourse->course_id);
-
-            if ($course) {
-                $allocation = Allocation::where('course_id', $course->id)->first();
-
-                if ($allocation) {
-                    $meetings = $allocation->meetings;
-
-                    $courseDetails[] = [
-                        'course' => $course,
-                        'allocation' => $allocation,
-                        // 'meetings' => $meetings,
-                    ];
-                }
-            }
-        }
-
-        if (empty($courseDetails)) {
+        if (empty($allocation)) {
             return response()->json([
-                'message' => 'No purchased courses found for the specified user',
+                'message' => 'No purchased course found for the specified user',
                 'status' => 404,
             ]);
         }
 
         return response()->json([
             'message' => 'Purchased Course Details',
-            'data' => $courseDetails,
+            'data' => $allocation,
             'status' => 200,
         ]);
     }
