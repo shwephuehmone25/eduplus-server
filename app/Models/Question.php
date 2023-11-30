@@ -37,9 +37,9 @@ class Question extends Model
         return $this->hasMany(Option::class);
     }
 
-    public function collections()
+    public function collection()
     {
-        return $this->hasMany(Collection::class);
+        return $this->belongsTo(Collection::class);
     }
 
     public function testLevel()
