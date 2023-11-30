@@ -162,11 +162,22 @@ class QuestionController extends Controller
     public function publishQuestionsByCollectionId($collectionId)
     {
         try {
-            $questions = Question::where('collection_id', $collectionId)->get();
-            
-            return response()->json(['message' => "Questions are published successfully.", 'data' => $questions, 'status' => 200]);
+            $questions = Question::where('collection_id', $collectionId)
+                ->where('status', 'unpublish')
+                ->get();
+    
+            if ($questions->isEmpty()) {
+                return response()->json(['message' => 'Questions are already published', 'status' => 404]);
+            }
+    
+            foreach ($questions as $question) 
+            {
+                $question->status = 'published';
+                $question->save();
+            }
+    
+            return response()->json(['message' => 'Status updated to "published" successfully!', 'status' => 'published'], 200);
         } catch (\Exception $e) {
-
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
