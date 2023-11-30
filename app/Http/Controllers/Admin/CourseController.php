@@ -177,6 +177,7 @@ class CourseController extends Controller
         $filteredAllocations = $course->allocations
         ->where('course_id', $id)
         ->where('course_type', $course_type)
+        ->where('rank_id', 1)
         ->values();
 
         foreach ($filteredAllocations as $filteredAllocation) {
