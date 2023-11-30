@@ -61,65 +61,64 @@ class PlacementTestController extends Controller
      */
     public function store(Request $request)
     {
-            if (!auth()->check())
-            {
-                return response()->json(['error' => 'Unauthenticated.', 'status' => 401]);
-            }
-            $user = auth()->user();
-            if (!$user)
-            {
-                return response()->json(['error' => 'User not found.', 'status' => 404]);
-            }
+        $questionIds = $request->input('questions');
 
-            $options = Option::find(array_values($request->input('questions')));
+        if (!is_array($questionIds)) {
+            return response()->json(['error' => 'Invalid input format.', 'status' => 400]);
+        }
 
-            $totalPoints = $options->sum('points');
+        $options = Option::find($questionIds);
 
-            $isGreater = ($totalPoints >= 5) ? 1 : 0;
+        if (!$options || !$options->count()) {
+            return response()->json(['error' => 'Invalid options.', 'status' => 400]);
+        }
 
-            $result = auth()->user()->results()->create([
-                'total_points' => $options->sum('points'),
-                'is_greater' => $isGreater,
-            ]);
-            $testLevel = TestLevel::join('questions', 'test_levels.grade_id', '=', 'questions.grade_id')
+        $totalPoints = $options->sum('points');
+
+        $result = auth()->user()->results()->create([
+            'total_points' => $totalPoints,
+        ]);
+
+        $questions = $options->mapWithKeys(function ($option) {
+            return [
+                $option->question_id => [
+                    'option_id' => $option->id,
+                    'points' => $option->points,
+                ],
+            ];
+        })->toArray();
+
+        $result->questions()->sync($questions);
+
+        $testLevel = TestLevel::join('questions', 'test_levels.grade_id', '=', 'questions.grade_id')
             ->where('questions.id', $options->first()->question_id)
             ->select('test_levels.*')
-            ->get();
+            ->first();
 
-            if (!$testLevel) {
-                return response()->json([
-                    'error' => 'Test level not found.',
-                    'status' => 404,
-                ]);
-            }
-
-            $testLevelName = $testLevel->firstWhere('is_greater', $isGreater);
-
-            if (!$testLevelName) {
-                return response()->json([
-                    'error' => 'Test level not found.',
-                    'status' => 404,
-                ]);
-            }
-            
-            $testLevelName = $testLevelName->name;
-
-                $questions = $options->mapWithKeys(function ($option) {
-                    return [
-                        $option->question_id => [
-                            'option_id' => $option->id,
-                            'points' => $option->points,
-                        ],
-                    ];
-                })->toArray();
-
-            $result->questions()->sync($questions);
+        if (!$testLevel) {
             return response()->json([
-                'message' => "Your Level is {$testLevelName}",
-                'result_id' => $result->id,
-                'is_greater' => $isGreater,
-                'total_points' => $result->total_points,
-                'status' =>201,
+                'error' => 'Test level not found.',
+                'status' => 404,
             ]);
+        }
+
+        $testLevelName = $testLevel->firstWhere('is_greater', ($totalPoints >= 5) ? 1 : 0);
+
+        if (!$testLevelName) {
+            return response()->json([
+                'error' => 'Test level not found.',
+                'status' => 404,
+            ]);
+        }
+
+        $testLevelName = $testLevelName->name;
+
+        return response()->json([
+            'message' => "Your Level is {$testLevelName}",
+            'result_id' => $result->id,
+            'is_greater' => ($totalPoints >= 5) ? 1 : 0,
+            'total_points' => $totalPoints,
+            'status' => 201,
+        ]);
     }
 }

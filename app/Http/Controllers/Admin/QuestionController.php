@@ -17,12 +17,21 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        $data = Question::with('school:id,name', 'grade:id,name', 'type:id,name', 'collection:id,name', 'options')->get();
+        $options = Option::all();
 
-        if ($data->isEmpty()) 
+        $questions = Question::with('school:id,name', 'grade:id,name', 'type:id,name','options')->get();
+
+        if ($questions->isEmpty()) 
         {
             return response()->json(['message' => 'No questions Here!', 'status' => 404]);
         }
+
+        $data = $questions->map(function ($question) use ($options)
+         {
+            $question->options = $options->where('question_id', $question->id)->pluck('option_text');
+            $question->correctOptions = $options->where('question_id', $question->id)->where('status', 1)->values();
+            return $question;
+        });
 
         return response()->json(['data' => $data, 'status' => 200]);
     }
