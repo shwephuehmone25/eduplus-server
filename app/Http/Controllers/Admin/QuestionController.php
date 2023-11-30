@@ -159,10 +159,10 @@ class QuestionController extends Controller
         ]);
     }
 
-    public function publishQuestionsByCollectionId($collectionId)
+    public function publishQuestionsByGradeId($gradeId)
     {
         try {
-            $questions = Question::where('collection_id', $collectionId)
+            $questions = Question::where('grade_id', $gradeId)
                 ->where('status', 'unpublish')
                 ->get();
     
