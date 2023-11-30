@@ -547,7 +547,7 @@ class CourseController extends Controller
     {
         $user = User::findOrFail($userId);
     
-        $allocation = Category::with('meetings')->findOrFail($allocationId);
+        $allocation = Allocation::with('meetings')->findOrFail($allocationId);
 
         if (empty($allocation)) {
             return response()->json([
