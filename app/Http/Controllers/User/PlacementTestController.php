@@ -63,13 +63,15 @@ class PlacementTestController extends Controller
     {
         $questionIds = $request->input('questions');
 
-        if (!is_array($questionIds)) {
+        if (!is_array($questionIds)) 
+        {
             return response()->json(['error' => 'Invalid input format.', 'status' => 400]);
         }
 
         $options = Option::find($questionIds);
 
-        if (!$options || !$options->count()) {
+        if (!$options || !$options->count()) 
+        {
             return response()->json(['error' => 'Invalid options.', 'status' => 400]);
         }
 
@@ -95,7 +97,8 @@ class PlacementTestController extends Controller
             ->select('test_levels.*')
             ->first();
 
-        if (!$testLevel) {
+        if (!$testLevel) 
+        {
             return response()->json([
                 'error' => 'Test level not found.',
                 'status' => 404,
@@ -104,7 +107,8 @@ class PlacementTestController extends Controller
 
         $testLevelName = $testLevel->firstWhere('is_greater', ($totalPoints >= 5) ? 1 : 0);
 
-        if (!$testLevelName) {
+        if (!$testLevelName) 
+        {
             return response()->json([
                 'error' => 'Test level not found.',
                 'status' => 404,
@@ -115,9 +119,6 @@ class PlacementTestController extends Controller
 
         return response()->json([
             'message' => "Your Level is {$testLevelName}",
-            'result_id' => $result->id,
-            'is_greater' => ($totalPoints >= 5) ? 1 : 0,
-            'total_points' => $totalPoints,
             'status' => 201,
         ]);
     }

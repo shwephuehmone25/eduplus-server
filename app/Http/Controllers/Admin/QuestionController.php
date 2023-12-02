@@ -181,7 +181,7 @@ class QuestionController extends Controller
                 $question->save();
             }
     
-            return response()->json(['message' => 'Status updated to "published" successfully!', 'status' => 'published'], 200);
+            return response()->json(['message' => 'Questions are published successfully!', 'status' => 'published'], 200);
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }

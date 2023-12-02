@@ -12,7 +12,7 @@ class Result extends Model
 {
     use HasFactory;
 
-    protected $guarded = ['id', 'created_at', 'updated_at'];
+    protected $guarded = ['id', 'question_id', 'result_id', 'option_id', 'points', 'created_at', 'updated_at'];
 
     public function user()
     {

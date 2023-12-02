@@ -27,7 +27,7 @@ class Option extends Model
             return $value;
         } else 
         {
-            return null;
+            return 0;
         }
     }
 
@@ -40,7 +40,7 @@ class Option extends Model
             return $value;
         } else 
         {
-            return null;
+            return 0;
         }
     }
 }

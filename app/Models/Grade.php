@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Question;
 use App\Models\School;
 use App\Models\User;
+use App\Models\TestLevel;
 
 class Grade extends Model
 {
@@ -31,5 +32,10 @@ class Grade extends Model
     {
 
         return $this->hasMany(User::class);
+    }
+
+    public function testLevels()
+    {
+        return $this->hasMany(TestLevel::class);
     }
 }
