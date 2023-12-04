@@ -445,4 +445,51 @@ class UserController extends Controller
 
         return response()->json(['data' => $users]);
     }
+
+    public function createUserByAdmin(Request $request)
+    {
+        $request->validate([
+            'phone_number' => 'required|numeric',
+            'name'         => 'required',
+            'dob'          => 'required',
+            'gender'       => 'required|in:male,female,other',
+            'region'       => 'required',
+            'address'      => 'required'
+        ]);
+
+        $existingPhone = Phone::where('phone_number', $request->input('phone_number'))->first();
+        
+        if ($existingPhone) {
+            if ($existingPhone->user && $existingPhone->phone_status === 'verified') {
+                return response()->json([
+                    'error' => 'Phone number is already in use by a user!',
+                    'status' => 422
+                ]);
+            } else {
+                $existingPhone->update([
+                    'phone_number' => $request->input('phone_number'),
+                    'phone_status' => 'verified'
+                ]);
+            }
+        } else {
+            $phone = Phone::create([
+                'phone_number' => $request->input('phone_number'),
+                'phone_status' => 'verified'
+            ]);
+
+            $phone->save();
+        }
+
+        $user = new User([
+            'name'      => $request->input('name'),
+            'dob'       => $request->input('dob'),
+            'gender'    => $request->input('gender'),
+            'region'    => $request->input('region'),
+            'address'   => $request->input('address'),
+            'password'  => Hash::make('P@ssword123')  
+        ]);
+        $phone->user()->save($user);
+
+        return response()->json(['message' => 'User Created successfully!', 'password' => 'P@ssowrd123'], 201);
+    }
 }

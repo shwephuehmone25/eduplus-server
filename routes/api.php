@@ -35,6 +35,7 @@ use App\Http\Controllers\User\PlacementTestController;
 use App\Http\Controllers\User\WishlistController;
 use App\Http\Controllers\Admin\AdminController;
 use Google\Service\Adsense\Row;
+use Google\Service\AlertCenter\UserChanges;
 
 /*
 |--------------------------------------------------------------------------
@@ -150,6 +151,7 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->grou
     /**Users Routes*/
     Route::get('/userlists/get', [UserController::class, 'getAllUsers']);
     Route::get('/get/userByChart', [UserController::class, 'registrationsChart']);
+    Route::post('/user/create', [UserController::class, 'createUserByAdmin']);
 
     /**Course Routes*/
     Route::post('/courses', [CourseController::class, 'store']);

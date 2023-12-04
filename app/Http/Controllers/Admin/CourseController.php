@@ -428,7 +428,7 @@ class CourseController extends Controller
             return response()->json(['message' => 'You need to complete this course before purchasing.']);
         }
 
-        if (!$allocation->users->contains($user->id)) {
+        if (!$allocation->users->contains($user->id) && $allocation->status == 'available') {
 
             if ($allocation->capacity > 0) {
                 $teacherId = $allocation->teacher_id;
