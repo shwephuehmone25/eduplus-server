@@ -416,7 +416,7 @@ class CourseController extends Controller
 
         if ($existingAllocation)
         {
-            return response()->json(['message' => 'You have already purchased this course.']);
+            return response()->json(['message' => 'You have already purchased this course.', 'status' => 409]);
         }
 
         $studentModule = StudentModule::where('user_id', $user->id)
@@ -425,7 +425,7 @@ class CourseController extends Controller
 
         if ($studentModule && $studentModule->is_complete === false )
         {
-            return response()->json(['message' => 'You need to complete this course before purchasing.']);
+            return response()->json(['message' => 'You need to complete this course before purchasing.', 'status' => 403]);
         }
 
         if (!$allocation->users->contains($user->id) && $allocation->status == 'available') {
@@ -464,13 +464,49 @@ class CourseController extends Controller
                 }
                 $studentModule->save();
 
-                return response()->json(['message' => 'Course purchased and enrolled successfully!']);
+                return response()->json(['message' => 'Course purchased and enrolled successfully!', 'status' => 200]);
             } else {
-                return response()->json(['message' => 'This course is already full!']);
+                return response()->json(['message' => 'This course is already full!', 'status' => 403]);
             }
         } else {
-            return response()->json(['message' => 'Course already purchased and enrolled.']);
+            return response()->json(['message' => 'Course already purchased and enrolled.', 'status' => 409]);
         }
+    }
+
+    /**
+     * Summary of buyCourse
+     * @param $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getModuleTwoDetails($moduleName)
+    {
+        $userId = Auth::id();
+        
+        $allocationId = DB::table('allocations')
+        ->join('ranks', 'allocations.rank_id', '=', 'ranks.id')
+        ->where('ranks.name', $moduleName)
+        ->value('allocations.id');
+
+        $allocationDetails = DB::table('allocations')
+            ->join('courses', 'allocations.course_id', '=', 'courses.id')
+            ->join('sections', 'allocations.section_id', '=', 'sections.id')
+            ->join('teachers', 'allocations.teacher_id', '=', 'teachers.id')
+            ->join('classrooms', 'allocations.classroom_id', '=', 'classrooms.id')
+            ->select(
+                'allocations.*',
+                'courses.*',
+                'sections.name as section_name',
+                'teachers.name as teacher_name',
+                'classrooms.name as classroom_name'
+            )
+            ->where('allocations.id', $allocationId)
+            ->get();
+
+        return response()->json([
+            'message' => 'Your Purchased Courses are',
+            'data' => $allocationDetails,
+            'status' => 200
+        ]);
     }
 
     /**
@@ -575,10 +611,10 @@ class CourseController extends Controller
 
         if ($restoredCourse)
         {
-            return response()->json(['message' => 'Course restored successfully'], 200);
+            return response()->json(['message' => 'Course restored successfully', 'status' => 200]);
         } else {
 
-            return response()->json(['message' => 'Course not found or already restored'], 404);
+            return response()->json(['message' => 'Course not found or already restored', 'status' => 404]);
         }
     }
 

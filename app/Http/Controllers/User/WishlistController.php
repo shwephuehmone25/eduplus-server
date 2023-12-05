@@ -46,7 +46,7 @@ class WishlistController extends Controller
     
             return response()->json([
                 'message' => 'Item removed from wishlist',
-                'status' => 200
+                'status' => 204
             ]);
         } else {
             return response()->json([

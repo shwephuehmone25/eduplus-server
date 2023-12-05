@@ -71,6 +71,7 @@ Route::post('/user/editProfile/{userId}', [UserController::class, 'editProfile']
 
 Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
 Route::get('/get/{userId}/purchasedcourseDetails/{allocationId}', [CourseController::class, 'getPurchasedCoursesDetails']);
+Route::get('/get/moduleTwoDetails/{moduleName}', [CourseController::class, 'getModuleTwoDetails']);
 Route::get('/courses/{id}/{teacher_type}', [CourseController::class, 'showCourseDetailsWithType']);
 Route::get('/courses/{id}', [CourseController::class, 'showCourseDetails']);
 Route::get('/modules', [RankController::class, 'index']);
