@@ -10,6 +10,7 @@ use App\Models\Phone;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\StudentModule;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -491,5 +492,28 @@ class UserController extends Controller
         $phone->user()->save($user);
 
         return response()->json(['message' => 'User Created successfully!', 'password' => 'P@ssowrd123'], 201);
+    }
+    
+
+    public function moduleFinish(Request $request, $id)
+    {
+        $studentModule = StudentModule::findOrFail($id);
+
+        if(!$studentModule)
+        {
+            return response()->json(['message' => 'This student and module cannot be found'], 404);
+        }
+
+        $studentModule->is_complete = ($studentModule->is_complete == false) ? true : false;
+        $studentModule->save();
+
+        return response()->json(['message' => 'Student module status changed successfully!'], 200);
+    }
+
+    public function displayStudentModule()
+    {
+        $data = StudentModule::all();
+
+        return response()->json(['data' => $data], 200);
     }
 }

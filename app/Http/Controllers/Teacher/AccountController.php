@@ -68,7 +68,6 @@ class AccountController extends Controller
                     'email_verified_at' => now(),
                     'name' => $socialiteTeacher->getName(),
                     'google_id' => $socialiteTeacher->getId(),
-                    'avatar' => $socialiteTeacher->getAvatar(),
                 ]
             );
 
@@ -76,7 +75,6 @@ class AccountController extends Controller
                 // Update existing teacher's Google ID and avatar
                 $teacher->update([
                     'google_id' => $socialiteTeacher->getId(),
-                    'avatar' => $socialiteTeacher->getAvatar(),
                     'access_token' => $socialiteTeacher->token,
                     'refresh_token' => $socialiteTeacher->refreshToken
                 ]);
@@ -213,7 +211,6 @@ class AccountController extends Controller
                 'google_id' => $request->input('google_id'),
                 'name' => $request->input('name'),
                 'email_verified_at' => now(),
-                'avatar' => $request->input('avatar'),
             ]);
 
             // Update the access_token and refresh_token (if provided)

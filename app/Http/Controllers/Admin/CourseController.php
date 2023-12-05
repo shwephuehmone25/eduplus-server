@@ -421,6 +421,7 @@ class CourseController extends Controller
 
         $studentModule = StudentModule::where('user_id', $user->id)
             ->where('course_id', $allocation->course_id)
+            ->where('rank_id', $allocation->rank_id)
             ->first();
 
         if ($studentModule && $studentModule->is_complete === false )
@@ -456,12 +457,11 @@ class CourseController extends Controller
                         'user_id' => $user->id,
                         'course_id' => $allocation->course_id,
                         'rank_id' => $allocation->rank_id,
-                        'is_complete' => true,
+                        'is_complete' => false,
                         'end_date' => now(),
                     ]);
-                } else {
-                    $studentModule->is_complete = true;
                 }
+                
                 $studentModule->save();
 
                 return response()->json(['message' => 'Course purchased and enrolled successfully!', 'status' => 200]);

@@ -241,4 +241,24 @@ class TeacherController extends Controller
             return response()->json(['error' => 'An error occurred while updating roles'], 500);
         }
     }
+
+    public function updateProfile(Request $request, $teacherId)
+    {
+        $teacher = Teacher::findOrFail($teacherId);
+        if(!$teacher)
+        {
+            return response()->json(['message' => 'Teacher not found!'], 404);
+        }
+
+        $request->validate([
+            'name' => 'required|string',
+            'avatar' => 'required|string'
+        ]);
+
+        $teacher->name = $request->input('name');
+        $teacher->avatar = $request->input('avatar');
+        $teacher->save();
+
+        return response()->json(['message' => 'Teacher profile updated successfully!'], 200);
+    }
 }

@@ -117,6 +117,9 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('course/removeFromWishlist', [WishlistController::class, 'removeFromWishlist']);
     Route::get('/getAllWishlists/{userId}',[WishlistController::class,'getAllWishlists']);
     Route::get('/get/wishlist/{userId}',[WishlistController::class,'getWishlist']);
+
+    Route::post('/update/studentModule/{id}', [UserController::class, 'moduleFinish']);
+    Route::get('/display/studentModule', [UserController::class, 'displayStudentModule']);
 });
 
 Route::post('/check/user', [AccountController::class,'checkUserExists']);
