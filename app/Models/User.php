@@ -18,6 +18,7 @@ use App\Models\Grade;
 use App\Models\School;
 use App\Models\Result;
 use App\Models\Phone;
+use App\Models\Payment;
 
 class User extends Authenticatable
 {
@@ -206,5 +207,10 @@ class User extends Authenticatable
     public function wishlist()
     {
         return $this->hasMany(Wishlist::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }

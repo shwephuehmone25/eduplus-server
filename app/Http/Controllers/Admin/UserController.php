@@ -134,8 +134,7 @@ class UserController extends Controller
 
         $request->validate([
             'name' => 'required|string',
-            'phone_number' => 'required|string',
-            'dob' => 'required|date',
+            'dob' => 'required',
             'address' => 'required|string',
             'region' => 'required|string',
             'address' => 'required|string',
@@ -143,7 +142,6 @@ class UserController extends Controller
         ]);
 
         $user->name = $request->input('name');
-        $user->phone_number = $request->input('phone_number');
         $user->dob = $request->input('dob');
         $user->gender = $request->input('gender');
         $user->region = $request->input('region');

@@ -16,6 +16,7 @@ use App\Models\Wishlist;
 use App\Models\Section;
 use App\Contracts\Likeable;
 use App\Models\Concerns\Likes;
+use App\Models\Payment;
 
 class Allocation extends Model implements Likeable
 {
@@ -82,5 +83,10 @@ class Allocation extends Model implements Likeable
     public function wishlist()
     {
         return $this->belongsToMany(User::class, 'wishlists', 'allocation_id', 'user_id');
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }

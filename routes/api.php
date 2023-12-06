@@ -36,6 +36,7 @@ use App\Http\Controllers\User\WishlistController;
 use App\Http\Controllers\Admin\AdminController;
 use Google\Service\Adsense\Row;
 use Google\Service\AlertCenter\UserChanges;
+use App\Http\Controllers\User\PaymentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -106,6 +107,14 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::post('/changePassword/{userId}', [UserController::class, 'changePassword']);
     Route::post('/verifyCurrentPhone/{userId}', [UserController::class, 'verifyCurrentPhone']);
     Route::post('/updatePhone/{userId}', [UserController::class, 'updatePhone']);
+
+    /**payment routes*/
+    Route::post('/checkout', [PaymentController::class, 'checkout']);
+    Route::post('/process', [PaymentController::class, 'process']);
+    Route::post('/submit', [PaymentController::class, 'submit']);
+    Route::get('/enquiry/{orderId}', [PaymentController::class, 'enquiry']);
+    Route::get('/auth/aya/callback', [PaymentController::class, 'handleCallback']);
+
     // Route::get('/get/likedCourses/{userId}',[CourseController::class,'getLikedCourses']);
 
     Route::get('/test/{grade_id}',[PlacementTestController::class, 'getQuestionsByGrades']);
@@ -312,3 +321,7 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin' ])->group(function() 
     /**Result Routes*/
     Route::delete('/result/{id}', [ResultController::class, 'destroy']);
 });
+
+// Route::prefix('/v1/payment')->group(function () {
+    
+// });

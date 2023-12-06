@@ -128,5 +128,22 @@
                 </div>
             </div>
         </div>
+        <form action="https://uat-pgw.ayainnovation.com/v1/payment/request" method="POST" name="form">
+            <input type="hidden" id="merchOrderId" name="merchOrderId" value="ab3c639c-9d40-410b-97b1-3990c121e136">
+            <input type="hidden" id="amount" name="amount" value="50">
+            <input type="hidden" id="appKey" name="appKey" value="ANXLSQSFIELR">
+            <input type="hidden" id="timestamp" name="timestamp" value="1701853113">
+            <input type="hidden" id="userRef1" name="userRef1" value="">
+            <input type="hidden" id="userRef2" name="userRef2" value="">
+            <input type="hidden" id="userRef3" name="userRef3" value="">
+            <input type="hidden" id="userRef4" name="userRef4" value="">
+            <input type="hidden" id="userRef5" name="userRef5" value="">
+            <input type="hidden" id="description" name="description" value="Buy Courses from ILBC-Saungpokki">
+            <input type="hidden" id="currencyCode" name="currencyCode" value="104">
+            <input type="hidden" id="channel" name="channel" value="aya_pay">
+            <input type="hidden" id="method" name="method" value="NOTI">
+            <input type="hidden" value="e7916f20cc803184bcc0fdd2f905f57bdae9b1f836f534ba2e4391905e9f8bf7" name="checkSum">
+            <button type="submit" id="submit" name="submit">Submit</button>
+        </form>
     </body>
 </html>
