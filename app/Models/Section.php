@@ -50,4 +50,9 @@ class Section extends Model
     {
         return $this->hasMany(Allocation::class);
     }
+
+    public function classrooms()
+    {
+        return $this->belongsToMany(Classroom::class, 'classroom_sections', 'section_id', 'classroom_id');
+    }
 }

@@ -25,7 +25,7 @@ class Allocation extends Model implements Likeable
     protected $table = 'allocations';
     protected $primaryKey = 'id';
 
-    protected $fillable = ['course_id', 'rank_id', 'section_id', 'teacher_id', 'classroom_id', 'course_type', 'status'];
+    protected $fillable = ['course_id', 'rank_id', 'section_id', 'teacher_id', 'classroom_id', 'course_type', 'status', 'capacity'];
 
     public function meetings()
     {
