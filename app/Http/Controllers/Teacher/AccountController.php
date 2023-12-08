@@ -192,7 +192,6 @@ class AccountController extends Controller
         //     ], 500);
         // }
         try {
-            // Validate the incoming data
             $validator = Validator::make($request->all(), [
                 'google_id' => 'required',
                 'name' => 'required',
@@ -201,41 +200,45 @@ class AccountController extends Controller
                 'access_token' => 'required',
                 'refresh_token' => 'nullable',
             ]);
-
-            if ($validator->fails()) {
+    
+            if ($validator->fails()) 
+            {
                 return response()->json(['error' => $validator->errors()], 422);
             }
-
-            // Find or create a teacher by email
-            $teacher = Teacher::firstOrCreate(['email' => $request->input('email')], [
-                'google_id' => $request->input('google_id'),
-                'name' => $request->input('name'),
-                'email_verified_at' => now(),
-            ]);
-
-            // Update the access_token and refresh_token (if provided)
-            $teacher->update([
-                'access_token' => $request->input('access_token'),
-                'refresh_token' => $request->input('refresh_token'),
-            ]);
-
-            // Authenticate the teacher
-            Auth::login($teacher);
-
-            // Generate a new API token for the authenticated teacher
-            $token = $teacher->createToken('teacher-token')->plainTextToken;
-
-            return response()->json([
-                'token' => $token,
-                'data' => $teacher,
-                'message' => 'Google data updated successfully',
-                'status' => 200,
-            ]);
+    
+            $teacher = Teacher::where('email', $request->input('email'))->first();
+    
+            if ($teacher) 
+            {
+                $teacher->update([
+                    'google_id' => $request->input('google_id'),
+                    'name' => $request->input('name'),
+                    'email_verified_at' => now(),
+                    'avatar' => $request->input('avatar'),
+                    'access_token' => $request->input('access_token'),
+                    'refresh_token' => $request->input('refresh_token'),
+                ]);
+    
+                $token = $teacher->createToken('teacher-token')->plainTextToken;
+    
+                return response()->json([
+                    'token' => $token,
+                    'data' => $teacher,
+                    'message' => 'Google data updated successfully',
+                    'status' => 200,
+                ]);
+            } else {
+                return response()->json([
+                    'message' => 'Unauthorized.',
+                    'status' => 401,
+                ]);
+            }
         } catch (Exception $e) {
             return response()->json([
                 'error' => 'An error occurred',
                 'message' => $e->getMessage(),
-            ], 500);
+                'status' => 500,
+            ]);
         }
     }
 }
