@@ -236,6 +236,7 @@ class CourseController extends Controller
                 'description' => $request->input('description'),
                 'image_url' => $request->input('image_url'),
                 'period' => $request->input('period'),
+                'capacity' => $request->input('capacity'),
                 'start_date' => $request->input('start_date'),
                 'end_date' => $request->input('end_date'),
                 'price_for_local' => $request->input('price_for_local'),
@@ -331,6 +332,7 @@ class CourseController extends Controller
                 'period' => $request->input('period'),
                 'start_date' => $request->input('start_date'),
                 'end_date' => $request->input('end_date'),
+                'capacity' => $request->input('capacity'),
                 'price_for_local' => $request->input('price_for_local'),
                 'price_for_expat' => $request->input('price_for_expat'),
             ]);

@@ -66,13 +66,7 @@ Route::post('/otp/verify/{phoneId}', [AuthController::class, 'verify']);
 Route::post('/user/create/{phoneId}', [AuthController::class, 'createUser']);
 
 Route::post('/student/login', [LoginController::class, 'loginAsStudent'])->middleware('checkUserStatus');
-Route::post('/user/uploadProfile', [UserController::class, 'uploadProfile']);
-Route::get('/user/showProfile/{userId}', [UserController::class, 'showUserDetails']);
-Route::post('/user/editProfile/{userId}', [UserController::class, 'editProfile']);
 
-Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
-Route::get('/get/{userId}/purchasedcourseDetails/{allocationId}', [CourseController::class, 'getPurchasedCoursesDetails']);
-Route::get('/get/moduleTwoDetails/{moduleName}', [CourseController::class, 'getModuleTwoDetails']);
 Route::get('/courses/{id}/{teacher_type}', [CourseController::class, 'showCourseDetailsWithType']);
 Route::get('/courses/{id}', [CourseController::class, 'showCourseDetails']);
 Route::get('/modules', [RankController::class, 'index']);
@@ -84,14 +78,9 @@ Route::get('/level/{id}', [LevelController::class, 'showLevelDetails']);
 Route::get('/users/count', [UserController::class, 'countVerifiedUsers']);
 Route::get('/totalCourses/count', [CourseController::class, 'countCourses']);
 Route::get('/totalTeachers/count', [CourseController::class, 'countCourses']);
-Route::get('/schools', [SchoolController::class, 'index']);
-Route::get('/grades', [GradeController::class, 'index']);
-Route::get('/school/grades/{schoolId}', [GradeController::class, 'gradeBySchool']);
-Route::get('/types', [TypeController::class, 'index']);
-Route::get('/options', [OptionController::class, 'index']);
+
 Route::get('/categories', [CategoryController::class, 'index']);
-Route::get('/get/questionsbyGrade/{gradeName}', [QuestionController::class, 'getQuestionsByGrade']);
-Route::get('get/questions/{question}', [QuestionController::class, 'showQuestionDetails']);
+Route::get('/get/coursesbycategory/{categoryName}', [CourseController::class, 'getCoursesbyCategory']);
 
 /**Common Routes*/
 Route::middleware('auth:sanctum')->group(function(){
@@ -129,12 +118,20 @@ Route::middleware('auth:sanctum')->group(function(){
 
     Route::post('/update/studentModule/{id}', [UserController::class, 'moduleFinish']);
     Route::get('/display/studentModule', [UserController::class, 'displayStudentModule']);
+    Route::post('/user/uploadProfile', [UserController::class, 'uploadProfile']);
+    Route::get('/user/showProfile/{userId}', [UserController::class, 'showUserDetails']);
+    Route::post('/user/editProfile/{userId}', [UserController::class, 'editProfile']);
+    Route::get('/get/{userId}/purchasedcourseDetails/{allocationId}', [CourseController::class, 'getPurchasedCoursesDetails']);
+    Route::get('/get/moduleTwoDetails/{moduleName}', [CourseController::class, 'getModuleTwoDetails']);
+    Route::get('/schools', [SchoolController::class, 'index']);
+    Route::get('/grades', [GradeController::class, 'index']);
+    Route::get('/school/grades/{schoolId}', [GradeController::class, 'gradeBySchool']);
+    Route::get('/types', [TypeController::class, 'index']);
+    Route::get('/options', [OptionController::class, 'index']);
+    Route::get('/get/questionsbyGrade/{gradeName}', [QuestionController::class, 'getQuestionsByGrade']);
+    Route::get('get/questions/{question}', [QuestionController::class, 'showQuestionDetails']);
+    Route::post('/resetPassword/{user}', [UserController::class, 'resetPassword']);
 });
-
-Route::post('/check/user', [AccountController::class,'checkUserExists']);
-
-/**Test Routes*/
-Route::post('/send-message', [AuthController::class, 'sendMessage']);
 
 /* Guard routes*/
 Route::post('admin/register', [AuthController::class, 'registerAsAdmin']);
@@ -147,7 +144,6 @@ Route::post('/google/login', [AccountController::class, 'googleLogin']);
 Route::post('/meeting/create', [MeetingController::class,'create']);
 
 Route::post('/forgotPassword', [UserController::class, 'forgotPassword']);
-Route::post('/resetPassword/{user}', [UserController::class, 'resetPassword']);
 
 Route::get('/videos', [ VideoController::class, 'index']);
 

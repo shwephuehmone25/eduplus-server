@@ -63,6 +63,16 @@ class PaymentController extends Controller
         }
 
         $amount = $request->input('amount', 0);
+
+        $payment = Payment::create([
+            'user_id' => $user->id,
+            'allocation_id' => $request->allocation_id,
+            'transcation_id' => $merch_order_id,
+            'payment_status' => 'pending', 
+            'amount' => $amount,
+        ]);
+
+        $payment->save();
     
         $app_key = env('PAYMENT_API_KEY');
         $app_secret = env('PAYMENT_API_SECRET');
@@ -125,15 +135,6 @@ class PaymentController extends Controller
         }
 
         $amount = $request->input('amount', 0);
-        $payment = Payment::create([
-                'user_id' => $user->id,
-                'allocation_id' => $request->allocation_id,
-                'transcation_id' => $merch_order_id,
-                'payment_status' => 'pending',
-                'amount' => $amount,
-            ]);
-
-        $payment->update(['payment_status' => 'success']);
 
         $app_key = env('PAYMENT_API_KEY');
         $app_secret = env('PAYMENT_API_SECRET');
@@ -205,68 +206,16 @@ class PaymentController extends Controller
         {
             return response()->json($response);
         }
-    }
 
-    public function handleCallback(Request $request)
-    {
-
-        $validator = Validator::make($request->all(), [
-            'payload' => 'required',
-            'checkSum' => 'required',
-            'merchOrderId' => 'required',
-        ]);
-
-        if ($validator->fails()) 
-        {
-            return response()->json(['error' => $validator->errors(), 'status' => 400]);
-        }
-
-        $appSecret = env('PAYMENT_API_SECRET');
-        $hashString = base64_decode($request->input('payload'));
-        $computedChecksum = hash_hmac('sha256', $hashString, $appSecret);
-
-        if ($computedChecksum !== $request->input('checkSum')) 
-        {
-            return response()->json(['error' => 'Checksum verification failed.', 'status' => 400]);
-        }
-
-        $payload = json_decode(base64_decode($request->input('payload')), true);
-
-        $merchOrderId = $payload['merchOrderId'];
-        $statusCode = $payload['statusCode'];
-
-        $payment = Payment::where('transcation_id', $merchOrderId)->first();
+        $payment = Payment::where('transcation_id', $orderId)->first();
 
         if (!$payment) 
         {
             return response()->json(['error' => 'Payment record not found.', 'status' => 404]);
         }
 
-        switch ($statusCode) {
-            case '00':
-                $payment->update(['payment_status' => 'success']);
-                $redirectUrl = 'https://saungpokki-bk.ilbc.edu.mm/success';
-                break;
+        $payment->update(['payment_status' => 'success']);
 
-            case '01':
-                $payment->update(['payment_status' => 'failed']);
-                $redirectUrl = 'https://saungpokki-bk.ilbc.edu.mm/failed';
-                break;
-
-            case '02':
-                $payment->update(['payment_status' => 'pending']);
-                $redirectUrl = 'https://saungpokki-bk.ilbc.edu.mm/pending';
-                break;
-
-            case '03':
-                $payment->update(['payment_status' => 'reject']);
-                $redirectUrl = 'https://saungpokki-bk.ilbc.edu.mm/reject';
-                break;
-
-            default:
-                return response()->json(['error' => 'Unknown payment status.', 'status' => 400]);
-        }
-
-        return response()->json(['message' => 'Callback handled successfully.', 'redirect_url' => $redirectUrl, 'status' => 200]);
+        return response()->json(['message' => 'Enquiry handled successfully.', 'status' => 200]);
     }
 }
