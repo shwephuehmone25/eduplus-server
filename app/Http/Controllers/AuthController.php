@@ -82,9 +82,10 @@ class AuthController extends Controller
         return response()->json([
             'message' => 'OTP sent successfully!',
             'phone_id' => $phone_id,
+            'phone_number'  => $phone->phone_number ?? $existingPhone->phone_number,
             'status' => 200,
             'expired_at' => $data->expired_at ?? $existingPhoneId->expired_at
-        ]);
+        ], 200);
     }
 
     /**
@@ -110,12 +111,12 @@ class AuthController extends Controller
             $phone->phone_status = 'verified';
             $phone->save();
 
-            return response()->json(['message' => 'Verification successful!', 'phone_id' => $phone->id, 'status' => 200]);
+            return response()->json(['message' => 'Verification successful!', 'phone_id' => $phone->id, 'status' => 200], 200);
         } elseif ($verificationCode && $verificationCode->expired_at <= Carbon::now()) {
-            return response()->json(['message' => 'Expired Verification Code entered!', 'status' => '400']);
+            return response()->json(['message' => 'Expired Verification Code entered!', 'status' => '400'], 400);
         }
 
-        return response()->json(['error' => 'Invalid verification code entered!', 'status' => 400]);
+        return response()->json(['error' => 'Invalid verification code entered!', 'status' => 400], 400);
     }
 
     /**
@@ -161,7 +162,7 @@ class AuthController extends Controller
 
                 event(new Registered($user));
 
-                return response()->json(['data' => $response, 'status' => 201]);
+                return response()->json(['data' => $response, 'status' => 201], 201);
             }
         } else {
 
@@ -200,6 +201,6 @@ class AuthController extends Controller
 
         $token = $admin->createToken('admin-token')->plainTextToken;
 
-        return response()->json(['token' => $token, 'data' => $admin, 'status' => 201]);
+        return response()->json(['token' => $token, 'data' => $admin, 'status' => 201], 201);
     }
 }

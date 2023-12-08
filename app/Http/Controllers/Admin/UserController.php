@@ -31,7 +31,7 @@ class UserController extends Controller
     {
     $users = User::where('isVerified', 1)->count();
 
-    return response()->json(['data' => $users]);
+    return response()->json(['data' => $users], 200);
     }
 
     /**
@@ -43,7 +43,7 @@ class UserController extends Controller
     {
     $users = User::where('isVerified', 1)->count();
 
-    return response()->json(['data' => $users]);
+    return response()->json(['data' => $users], 200);
     }
 
     /**
@@ -55,7 +55,7 @@ class UserController extends Controller
     {
         $users = User::all();
 
-        return response()->json(['data' => $users, 'status' => 200]);
+        return response()->json(['data' => $users, 'status' => 200], 200);
     }
 
     /**
@@ -66,7 +66,8 @@ class UserController extends Controller
      */
     public function showUserDetails($id)
     {
-        $user = User::find($id);
+        $user = User::findOrFail($id);
+        $user['phone_number'] = $user->phone->phone_number;
 
         if (!$user) {
 
@@ -124,36 +125,29 @@ class UserController extends Controller
      * @param  int $userId The user's ID
      * @return \Illuminate\Http\Response
      */
-    public function editProfile(Request $request, $userId)
+    public function editProfileDetail(Request $request, $userId)
     {
         $user = User::find($userId);
 
-        if (!$user) {
-            return response()->json(['message' => 'User not found', 'status' => 404], 404);
+        if(!$user)
+        {
+            return response()->json(['message' => 'User not found!'], 404);
         }
 
         $request->validate([
             'name' => 'required|string',
-            'dob' => 'required',
-            'address' => 'required|string',
-            'region' => 'required|string',
-            'address' => 'required|string',
-            'image_url' => 'required|string',
+            'image_url' => 'required|string'
         ]);
 
         $user->name = $request->input('name');
-        $user->dob = $request->input('dob');
-        $user->gender = $request->input('gender');
-        $user->region = $request->input('region');
-        $user->address = $request->input('address');
         $user->image_url = $request->input('image_url');
         $user->save();
 
-        return response()->json(['message' => 'User info updated successfully', 'data' => $user, 'status' => 200]);
+        return response()->json(['message' => 'User profile updated successfully!'], 200);
     }
 
     /**
-     * Change the password for a user.
+     * Change the password for a user.)
      *
      * Update the user's password identified by their ID with a new password
      * after verifying the old password.

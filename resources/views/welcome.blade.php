@@ -145,5 +145,11 @@
             <input type="hidden" value="12e4b7c85c1f29b9cbdc3fff84f02caf8c9665a5cadaa5f5647799de3fca6932" name="checkSum">
             <button type="submit" id="submit" name="submit">Submit</button>
         </form>
+        <form action="https://uat-pgw.ayainnovation.com/v1/payment/services" method="post">
+            <input type="hidden" id="appKey" name="appKey" value="ANXLSQSFIELR">
+            <input type="hidden" id="timestamp" name="timestamp" value="1702007435">
+            <input type="hidden" id="checkSum" name="checkSum" value="cc8e4a48a7842f8d941af078bbd6d3b82c8d732c6434f8dfe6995dd68c400f03">
+            <button type="submit" id="submit" name="submit">Checkout</button>
+        </form>
     </body>
 </html>
