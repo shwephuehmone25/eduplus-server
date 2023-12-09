@@ -57,7 +57,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     /*Teacher Routes*/
     Route::get('/teacher/getAssigncourses/{teacher}', [TeacherController::class, 'getAssignCourses']);
     Route::get('/teacher/show', [TeacherController::class, 'showProfile']);
-    Route::put('/ranks/toggle/{teacherId}', [RankController::class, 'toggleIsActive']);
     // });
 
 /*User Routes*/

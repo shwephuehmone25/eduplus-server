@@ -189,7 +189,7 @@ class TeacherController extends Controller
 
             if (!$teacher) 
             {
-                return response()->json(['error' => 'Teacher not found'], 404);
+                return response()->json(['error' => 'Teacher not found', 'status' => 404]);
             }
 
             if ($teacher->role !== 'expat_teacher') 
@@ -203,7 +203,7 @@ class TeacherController extends Controller
 
         } catch (\Exception $e)
          {
-            return response()->json(['error' => 'An error occurred while updating roles'], 500);
+            return response()->json(['error' => 'An error occurred while updating roles', 'status' => 500]);
         }
     }
 
@@ -238,7 +238,7 @@ class TeacherController extends Controller
             }
 
         } catch (\Exception $e) {
-            return response()->json(['error' => 'An error occurred while updating roles'], 500);
+            return response()->json(['error' => 'An error occurred while updating roles', 'status' =>500]);
         }
     }
 
@@ -247,7 +247,7 @@ class TeacherController extends Controller
         $teacher = Teacher::findOrFail($teacherId);
         if(!$teacher)
         {
-            return response()->json(['message' => 'Teacher not found!'], 404);
+            return response()->json(['message' => 'Teacher not found!', 'status' => 404]);
         }
 
         $request->validate([
@@ -259,6 +259,6 @@ class TeacherController extends Controller
         $teacher->avatar = $request->input('avatar');
         $teacher->save();
 
-        return response()->json(['message' => 'Teacher profile updated successfully!'], 200);
+        return response()->json(['message' => 'Teacher profile updated successfully!', 'status' => 200]);
     }
 }

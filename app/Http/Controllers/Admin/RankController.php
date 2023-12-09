@@ -33,7 +33,7 @@ class RankController extends Controller
 
         if (!$rank) {
 
-            return response()->json(['error' => 'Module not found'], 404);
+            return response()->json(['error' => 'Module not found', 'status' => 404]);
         }
 
         return response()->json(['data' => $rank]);
