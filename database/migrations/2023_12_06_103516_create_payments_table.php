@@ -25,7 +25,7 @@ return new class extends Migration
             $table->integer('amount');
             $table->timestamps();
         });
-        DB::statement('ALTER TABLE payments MODIFY transcation_id BIGINT AUTO_INCREMENT = 70000000000');
+
     }
 
     /**
