@@ -116,8 +116,6 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/getAllWishlists/{userId}',[WishlistController::class,'getAllWishlists']);
     Route::get('/get/wishlist/{userId}',[WishlistController::class,'getWishlist']);
 
-    Route::post('/update/studentModule/{id}', [UserController::class, 'moduleFinish']);
-    Route::get('/display/studentModule', [UserController::class, 'displayStudentModule']);
     Route::post('/user/uploadProfile', [UserController::class, 'uploadProfile']);
     Route::get('/user/showProfile/{userId}', [UserController::class, 'showUserDetails']);
     Route::post('/user/editProfile/{userId}', [UserController::class, 'editProfile']);
@@ -176,6 +174,10 @@ Route::middleware(['auth:sanctum', 'checkRole:super_admin,normal_admin' ])->grou
     /**Rank Routes*/
     Route::post('/modules', [RankController::class, 'store']);
     Route::post('/modules/{rank}', [RankController::class, 'update']);
+
+    /**Module Toggle */
+    Route::post('/update/studentModule/{id}', [UserController::class, 'moduleFinish']);
+    Route::get('/display/studentModule', [UserController::class, 'displayStudentModule']);
 
     /**Level Routes*/
     Route::post('/levels', [LevelController::class, 'store']);

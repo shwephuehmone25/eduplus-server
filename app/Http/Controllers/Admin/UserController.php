@@ -504,7 +504,7 @@ class UserController extends Controller
 
     public function displayStudentModule()
     {
-        $data = StudentModule::all();
+        $data = StudentModule::with('course', 'rank')->get();
 
         return response()->json(['data' => $data], 200);
     }

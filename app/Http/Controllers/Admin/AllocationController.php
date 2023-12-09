@@ -20,15 +20,15 @@ class AllocationController extends Controller
      */
     public function index()
     {
-        $allocations = Allocation::all();
+        $allocations = Allocation::with('course', 'section', 'rank', 'teacher')->get();
 
         if ($allocations->isEmpty())
         {
 
-        return response()->json(['message' => 'No courses found.', 'status' => 404]);
+        return response()->json(['message' => 'No assigned courses found.'], 404);
         }
 
-        return response()->json(['data' =>  $allocations]);
+        return response()->json(['data' =>  $allocations], 200);
     }
 
 
