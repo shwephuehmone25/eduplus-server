@@ -4,22 +4,28 @@ namespace App\Http\Controllers\Admin;
 
 use App\Models\Level;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 
 class LevelController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of levels by categoryId.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function getCourseByCategoryId($categoryId)
     {
-        $levels = Level::all();
+        try {
+            $levels = Category::findOrFail($categoryId)->levels;
 
-        return response()->json(['data' => $levels]);
+            return response()->json(['data' => $levels, 'status' => 200]);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Failed to retrieve levels', 'error' => $e->getMessage(), 'status' => 500]);
+        }
     }
-
 
     /**
      * Display the specified resource.
@@ -29,14 +35,14 @@ class LevelController extends Controller
      */
     public function showLevelDetails($id)
     {
-        $level = Level::find($id);
+        $level = Level::with(['categories'])->find($id);
 
         if (!$level) {
 
-            return response()->json(['error' => 'Level not found'], 404);
+            return response()->json(['error' => 'Level not found', 'status' => 404]);
         }
 
-        return response()->json(['data' => $level]);
+        return response()->json(['data' => $level, 'status' => 200]);
     }
 
     /**
@@ -47,17 +53,36 @@ class LevelController extends Controller
      */
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255|unique:levels,name',
-        ]);
-
-        $level = Level::create($data);
-
-        return response()->json([
-            'message' => 'Level created successfully',
-            'data' => $level,
-            'status' => 201
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255',
+                'category_id' => 'required',
             ]);
+    
+            if ($validator->fails()) 
+            {
+                return response()->json(['errors' => $validator->errors(), 'status' => 422]);
+            }
+    
+            DB::beginTransaction();
+    
+            $level = Level::create([
+                'name' => $request->input('name'),
+            ]);
+    
+            $level->categories()->attach($request->input('category_id'));
+    
+            $level->save();
+    
+            DB::commit();
+    
+            return response()->json(['message' => 'Level is created successfully', 'data' => $level, 'status' => 201]);
+        } catch (\Exception $e) 
+        {
+            DB::rollback();
+    
+            return response()->json(['message' => 'Failed to create the level', 'error' => $e->getMessage(), 'status' => 500]);
+        }
     }
 
     /**
@@ -69,13 +94,35 @@ class LevelController extends Controller
      */
     public function update(Request $request, Level $level)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255|unique:levels,name,' . $level->id,
-        ]);
+        try {
+            $validator = Validator::make($request->all(), [
+                'name' => 'required|string|max:255' . $level->id,
+                'category_id' => 'required',
+            ]);
 
-        $level->update($data);
+            if ($validator->fails()) 
+            {
+                return response()->json(['errors' => $validator->errors(), 'status' => 422]);
+            }
 
-        return response()->json(['message' => 'Level updated successfully', 'data' => $level, 'status' => 200]);
+            DB::beginTransaction();
+
+            $level->update([
+                'name' => $request->input('name'),
+            ]);
+
+            $level->categories()->sync($request->input('category_id'));
+
+            $level->save();
+
+            DB::commit();
+
+            return response()->json(['message' => 'Level is updated successfully', 'data' => $level, 'status' => 200]);
+        } catch (\Exception $e) {
+            DB::rollback();
+
+            return response()->json(['message' => 'Failed to update the level', 'error' => $e->getMessage(), 'status' => 500]);
+        }
     }
 
     /**

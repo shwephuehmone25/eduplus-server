@@ -72,7 +72,7 @@ Route::get('/modules', [RankController::class, 'index']);
 Route::get('/module/{id}', [RankController::class, 'showModuleDetails']);
 Route::get('/sections', [SectionController::class, 'index']);
 Route::get('/section/{id}', [SectionController::class, 'getSectionDetails']);
-Route::get('/levels', [LevelController::class, 'index']);
+Route::get('/levels/{categoryId}', [LevelController::class, 'getCourseByCategoryId']);
 Route::get('/level/{id}', [LevelController::class, 'showLevelDetails']);
 Route::get('/users/count', [UserController::class, 'countVerifiedUsers']);
 Route::get('/totalCourses/count', [CourseController::class, 'countCourses']);

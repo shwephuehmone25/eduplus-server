@@ -28,7 +28,7 @@ use App\Models\Image;
 use App\Models\Rank;
 use App\Models\Section;
 use Illuminate\Support\Facades\Storage;
-use League\Flysystem\AwsS3V3\PortableVisibilityConverter;
+use Illuminate\Validation\Rule;
 
 class CourseController extends Controller
 {
@@ -98,7 +98,6 @@ class CourseController extends Controller
      */
     public function showCourseDetails($id)
     {
-
         $course = Course::with([
             'categories',
             'levels',
@@ -307,18 +306,30 @@ class CourseController extends Controller
         try {
 
             $validator = Validator::make($request->all(), [
-                'course_name' => 'required|string|max:255',
+                'course_name' => 'required|string|max:255', Rule::unique('courses', 'course_name')->ignore($id),
                 'description' => 'required|string',
                 'period' => 'required|string',
                 'start_date' => 'required|date|date_format:Y-m-d',
                 'end_date' => 'required|date|after_or_equal:start_date',
                 'price_for_local' => 'required|string',
-                'price_for_expat' => 'required|string',
-                'category_id' => 'nullable|exists:categories,id',
-                'level_id' => 'nullable|exists:levels,id',
+                'price_for_expat' => 'nullable|string',
+                // 'category_id' => 'nullable|exists:categories,id',
+                'level_id' => 'required|exists:levels,id',
+                'category_id' => [
+                    'required',
+                    Rule::exists('categories', 'id')->where(function ($query) use ($id) {
+                        $query->whereNotExists(function ($subquery) use ($id) {
+                            $subquery->select(DB::raw(1))
+                                ->from('courses_categories')
+                                ->whereRaw('courses_categories.course_id = ' . $id)
+                                ->where('courses_categories.category_id', '<>', request()->input('category_id'));
+                        });
+                    }),
+                ],
             ]);
 
-            if ($validator->fails()) {
+            if ($validator->fails()) 
+            {
                 return response()->json(['errors' => $validator->errors(), 'status' => 422]);
             }
 
