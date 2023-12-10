@@ -128,6 +128,7 @@ Route::middleware('auth:sanctum')->group(function(){
     Route::get('/get/questionsbyGrade/{gradeName}', [QuestionController::class, 'getQuestionsByGrade']);
     Route::get('get/questions/{question}', [QuestionController::class, 'showQuestionDetails']);
     Route::post('/resetPassword/{user}', [UserController::class, 'resetPassword']);
+    Route::post('/user/editProfile/{userId}', [UserController::class, 'editProfileDetail']);
 });
 
 /* Guard routes*/
