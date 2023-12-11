@@ -129,10 +129,10 @@
             </div>
         </div>
         <form action="https://uat-pgw.ayainnovation.com/v1/payment/request" method="POST" name="form">
-            <input type="hidden" id="merchOrderId" name="merchOrderId" value="60da4e9b-40d3-478c-97f4-ca97d318c064">
-            <input type="hidden" id="amount" name="amount" value="50">
+            <input type="hidden" id="merchOrderId" name="merchOrderId" value="a3e12c73-0012-4ed5-a167-3c284e4c1b80">
+            <input type="hidden" id="amount" name="amount" value="5000">
             <input type="hidden" id="appKey" name="appKey" value="ANXLSQSFIELR">
-            <input type="hidden" id="timestamp" name="timestamp" value="1702010906">
+            <input type="hidden" id="timestamp" name="timestamp" value="1702266628">
             <input type="hidden" id="userRef1" name="userRef1" value="">
             <input type="hidden" id="userRef2" name="userRef2" value="">
             <input type="hidden" id="userRef3" name="userRef3" value="">
@@ -140,9 +140,9 @@
             <input type="hidden" id="userRef5" name="userRef5" value="">
             <input type="hidden" id="description" name="description" value="Buy Courses from ILBC-Saungpokki">
             <input type="hidden" id="currencyCode" name="currencyCode" value="104">
-            <input type="hidden" id="channel" name="channel" value="aya_pay">
-            <input type="hidden" id="method" name="method" value="NOTI">
-            <input type="hidden" value="12e4b7c85c1f29b9cbdc3fff84f02caf8c9665a5cadaa5f5647799de3fca6932" name="checkSum">
+            <input type="hidden" id="channel" name="channel" value="master_visa">
+            <input type="hidden" id="method" name="method" value="WEB">
+            <input type="hidden" value="afcf3c9965246f6b0dc9447def964b5f980127244ba029eb544647672db1fb05" name="checkSum">
             <button type="submit" id="submit" name="submit">Submit</button>
         </form>
         <form action="https://uat-pgw.ayainnovation.com/v1/payment/services" method="post">

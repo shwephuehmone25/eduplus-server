@@ -48,7 +48,11 @@ class PaymentController extends Controller
     
         if ($request->channel == 'aya_pay') 
         {
-            $method = 'NOTI';
+            if ($request->has('method') && in_array($request->method, ['QR', 'NOTI'])) {
+                $method = $request->method;
+            } else {
+                return response()->json(['error' => 'Invalid or missing method for aya_pay channel.', 'status' => 400], 400);
+            }
         } else {
             $method = 'WEB';
         }
