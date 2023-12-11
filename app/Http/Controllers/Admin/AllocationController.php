@@ -57,8 +57,19 @@ class AllocationController extends Controller
         $capacity = $request->input('capacity');
         $sectionId = $request->input('section_id');
 
-        $teacher = Teacher::find($teacherId);
-        $course = Course::find($courseId);
+        $existingAllocation = Allocation::where('section_id', $sectionId)
+        ->where('course_id', $courseId)
+        ->where('classroom_id', $classId)
+        ->where('course_type', $course_type)
+        ->exists();
+
+        if($existingAllocation)
+        {
+            return response()->json(['message' => 'The class with this section in this course is already assigned!']);
+        }
+        else{
+            $teacher = Teacher::find($teacherId);
+            $course = Course::find($courseId);
 
         if (!$course || $course->trashed()) {
             return response()->json(['error' => 'Course not found!', 'status' => 404]);
@@ -75,34 +86,33 @@ class AllocationController extends Controller
 
             $allocation = Allocation::create($request->all());
 
-            if (!$teacher->sections()->where('section_id', $sectionId)->exists()) 
-            {
-                $teacher->sections()->attach($sectionId, ['course_id' => $courseId]);
-            }
+                if (!$teacher->sections()->where('section_id', $sectionId)->exists()) 
+                {
+                    $teacher->sections()->attach($sectionId, ['course_id' => $courseId]);
+                }
 
-            if (!$course->sections()->where('section_id', $sectionId)->exists()) 
-            {
-                $course->sections()->attach($sectionId);
-            }
+                if (!$course->sections()->where('section_id', $sectionId)->exists()) 
+                {
+                    $course->sections()->attach($sectionId);
+                }
 
-            if (!$course->ranks()->where('rank_id', $rankId)->exists())
-            {
-                $course->ranks()->attach($rankId);
-            }
+                if (!$course->ranks()->where('rank_id', $rankId)->exists())
+                {
+                    $course->ranks()->attach($rankId);
+                }
 
-            if (!$course->classrooms()->where('classroom_id', $classId)->exists())
-            {
-                $course->classrooms()->attach($classId);
-            } else {
-                return response()->json(['error' => 'This class is already assigned to another course', 'status' => 400]);
-            }
+                if (!$course->classrooms()->where('classroom_id', $classId)->exists())
+                {
+                    $course->classrooms()->attach($classId);
+                }
 
-            if ($teacher && $teacher->meeting) {
-                $meetingId = $teacher->meeting->id;
-                $allocation->meetings()->attach($meetingId);
-            }
+                if ($teacher && $teacher->meeting) {
+                    $meetingId = $teacher->meeting->id;
+                    $allocation->meetings()->attach($meetingId);
+                }
 
-            return response()->json(['data' => $allocation, 'message' => 'Assigned to teachers successfully', 'status' => 201]);
+                return response()->json(['data' => $allocation, 'message' => 'Assigned to teachers successfully', 'status' => 201]);
+            }
         }
     }
 
